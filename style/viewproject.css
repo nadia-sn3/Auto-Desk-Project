@@ -1,0 +1,106 @@
+
+.project-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.project-title h1 {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.project-description {
+    font-size: 1rem;
+    color: #666;
+}
+
+.project-buttons .btn {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-left: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.project-buttons .btn:hover {
+    background-color: #0056b3;
+}
+
+.project-model {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.project-model-viewer {
+    flex: 3;
+    height: 500px;
+    background-color: #f1f1f1;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.project-model-data {
+    flex: 1;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+.project-model-data h3 {
+    margin-top: 0;
+}
+
+.project-model-data ul {
+    list-style: none;
+    padding: 0;
+}
+
+.project-model-data li {
+    margin-bottom: 10px;
+}
+
+.project-model-timeline {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+.project-model-timeline h3 {
+    margin-top: 0;
+}
+
+.timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.timeline-event {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.timeline-date {
+    font-weight: bold;
+    color: #007BFF;
+}
+
+.timeline-description {
+    color: #333;
+}
