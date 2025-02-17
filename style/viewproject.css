@@ -24,9 +24,9 @@
 
 .project-top-buttons .btn,
 .project-model-buttons .btn {
-    background-color: #007BFF;
-    color: white;
-    border: none;
+    background-color: #DEDEDE;
+    color: black;
+    border: 2px solid black;
     padding: 10px 20px;
     margin-left: 10px;
     cursor: pointer;
@@ -36,7 +36,7 @@
 
 .project-top-buttons .btn:hover,
 .project-model-buttons .btn:hover {
-    background-color: #0056b3;
+    background-color: #B0B0B0;
 }
 
 .project-model-viewer {
