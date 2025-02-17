@@ -6,6 +6,7 @@
     padding: 20px;
 }
 
+
 .project-header {
     display: flex;
     justify-content: space-between;
@@ -38,18 +39,19 @@
     background-color: #0056b3;
 }
 
-.project-model {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-}
 
 .project-model-viewer {
-    flex: 3;
+    width: 100%;
     height: 500px;
     background-color: #f1f1f1;
     border-radius: 10px;
     overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.project-details-timeline {
+    display: flex;
+    gap: 20px;
 }
 
 .project-model-data {
@@ -74,6 +76,7 @@
 }
 
 .project-model-timeline {
+    flex: 1;
     background-color: #f9f9f9;
     padding: 20px;
     border-radius: 10px;
@@ -103,4 +106,14 @@
 
 .timeline-description {
     color: #333;
+}
+
+@media (max-width: 768px) {
+    .project-details-timeline {
+        flex-direction: column;
+    }
+
+    .project-model-viewer {
+        height: 300px; 
+    }
 }
