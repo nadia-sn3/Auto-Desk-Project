@@ -1,0 +1,84 @@
+.signin-box {
+    padding: 30px;
+    text-align: center;
+    background-color: rgba(200, 200, 200, 0.1); 
+    border-radius: 8px; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.input-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.input-group label {
+    font-size: 14px;
+    color: #333;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+.input-group input:focus {
+    border-color: #5c9bfb;
+    outline: none;
+}
+.forgot-password {
+    text-align: right;
+    margin-bottom: 15px;
+}
+
+.forgot-password a {
+    font-size: 14px;
+    color: #5c9bfb;
+    text-decoration: none;
+}
+
+.forgot-password a:hover {
+    text-decoration: underline;
+}
+.signin-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #5c9bfb;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.signin-btn:hover {
+    background-color: #4289e1;
+}
+
+.signup-link {
+    margin-top: 20px;
+}
+
+.signup-link p {
+    font-size: 14px;
+    color: #333;
+}
+
+.signup-link a {
+    color: #5c9bfb;
+    text-decoration: none;
+}
+
+.signup-link a:hover {
+    text-decoration: underline;
+}
