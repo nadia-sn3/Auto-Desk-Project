@@ -4,16 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style/base.css">
-    <title>AutoDesk | Home Page</title>
+    <link rel="stylesheet" href="style/home.css">
+    <title>AutoDesk | Home</title>
 </head>
 <body>
+    <?php include('include/header.php'); ?>
 
-<?php include('include/header.php')?>
-<div class="page-container">   
+    <div class="page-container">
 
-This is the home page
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1>Explore the World of 3D Models</h1>
+                <p>Discover, create, and share stunning 3D models with our powerful platform.</p>
+                <div class="hero-buttons">
+                    <a href="#" class="btn">Get Started</a>
+                    <a href="#" class="btn">Learn More</a>
+                </div>
+            </div>
+        </section>
 
-</div>
-<?php include('include/footer.php')?>
+        <section class="featured-models">
+            <h2>Featured Models</h2>
+            <div class="model-grid">
+                <div class="model-card">
+                    <div class="model-thumbnail">
+                        
+                    </div>
+                    <div class="model-info">
+                        <h3>Model 1</h3>
+                        <p>Description of the first featured model.</p>
+                    </div>
+                </div>
+                <div class="model-card">
+                    <div class="model-thumbnail">
+                        
+                    </div>
+                    <div class="model-info">
+                        <h3>Model 2</h3>
+                        <p>Description of the second featured model.</p>
+                    </div>
+                </div>
+                <div class="model-card">
+                    <div class="model-thumbnail">
+                        
+                    </div>
+                    <div class="model-info">
+                        <h3>Model 3</h3>
+                        <p>Description of the third featured model.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <div class="cta-content">
+                <h2>Ready to Create Your Own 3D Models?</h2>
+                <p>Join our community and start building amazing 3D projects today.</p>
+                <a href="#" class="btn-primary">Sign Up Now</a>
+            </div>
+        </section>
+    </div>
+
+    <?php include('include/footer.php'); ?>
 </body>
 </html>
