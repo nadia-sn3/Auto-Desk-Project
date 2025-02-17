@@ -1,11 +1,9 @@
-
 .project-container {
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
 }
-
 
 .project-header {
     display: flex;
@@ -24,10 +22,11 @@
     color: #666;
 }
 
-.project-buttons .btn {
-    background-color: #007BFF;
-    color: white;
-    border: none;
+.project-top-buttons .btn,
+.project-model-buttons .btn {
+    background-color: #DEDEDE;
+    color: black;
+    border: 2px solid black;
     padding: 10px 20px;
     margin-left: 10px;
     cursor: pointer;
@@ -35,10 +34,10 @@
     font-size: 1rem;
 }
 
-.project-buttons .btn:hover {
-    background-color: #0056b3;
+.project-top-buttons .btn:hover,
+.project-model-buttons .btn:hover {
+    background-color: #B0B0B0;
 }
-
 
 .project-model-viewer {
     width: 100%;
@@ -49,13 +48,14 @@
     margin-bottom: 20px;
 }
 
-.project-details-timeline {
+.project-model-buttons {
     display: flex;
-    gap: 20px;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
 .project-model-data {
-    flex: 1;
     background-color: #f9f9f9;
     padding: 20px;
     border-radius: 10px;
@@ -76,7 +76,6 @@
 }
 
 .project-model-timeline {
-    flex: 1;
     background-color: #f9f9f9;
     padding: 20px;
     border-radius: 10px;
@@ -109,11 +108,7 @@
 }
 
 @media (max-width: 768px) {
-    .project-details-timeline {
-        flex-direction: column;
-    }
-
     .project-model-viewer {
-        height: 300px; 
+        height: 300px;
     }
 }
