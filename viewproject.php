@@ -54,10 +54,9 @@
                     <h1>Project Name</h1>
                     <p class="project-description">A brief description of the project.</p>
                 </div>
-                <div class="project-buttons">
-                    <button class="btn">Edit Project</button>
-                    <button class="btn">Share</button>
-                    <button class="btn">Download</button>
+                <div class="project-top-buttons">
+                    <button class="btn">Collaborators</button>
+                    <button class="btn">Issues</button>
                 </div>
             </div>
 
@@ -65,6 +64,10 @@
             <div class="project-model">
                 <div class="project-model-viewer">
 
+                </div>
+                <div class="project-model-buttons">
+                    <button class="btn">Share</button>
+                    <button class="btn">Download</button>
                 </div>
                 <div class="project-model-data">
                     <h3>Model Details</h3>
@@ -76,7 +79,7 @@
                     </ul>
                 </div>
             </div>
-
+            
 
             <div class="project-model-timeline">
                 <h3>Project Timeline</h3>
