@@ -2,8 +2,14 @@
 
 <header class="header">
     <div class="header-content">
-        <div class = "logo"></div>
-        <div class = "search-bar"></div>
-        <div class = "nav-bar"></div>
+        <img src="images/Autodesk-header-logo.png" alt="Logo" class="logo" />
+                <div class="search-bar">
+            <input type="text" placeholder="Search...">
+        </div>
+        <div class="nav-bar">
+            <ul>
+                <li><a href="sign-in.html">Sign In</a></li>
+            </ul>
+        </div>
     </div>
 </header>
