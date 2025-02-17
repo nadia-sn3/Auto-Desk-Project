@@ -6,11 +6,12 @@
     <title>AutoDesk | Sign Up</title>
 </head>
 <body>
-
+<?php include('include/header.php')?>
 <div class="page-container">   
 
 
 </div>
-    
+<?php include('include/footer.php')?>
+
 </body>
 </html>

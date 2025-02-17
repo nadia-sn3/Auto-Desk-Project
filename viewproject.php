@@ -6,7 +6,7 @@
     <title>AutoDesk | Project Name</title>
 </head>
 <body>
-    
+<?php include('include/header.php')?>
 <div class="page-container">   
 
 <div class = "project-container">
@@ -27,6 +27,6 @@
     </div>
 </div>
 
-
+<?php include('include/footer.php')?>
 </body>
 </html>
