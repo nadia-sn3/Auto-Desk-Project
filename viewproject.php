@@ -44,35 +44,21 @@
                     </ul>
                 </div>
             </div>
-            
+        
         <div class="project-model-timeline">
-            <div class="user-info">
-            <img src="images/UserIcon.png" alt="User Icon" class="user-icon">
-            <span class="username">{Username}</span>
-            <button class="toggle-arrow" onclick="toggleInfo()">></button>
-        </div>
+            <div class = "project-model-timeline-header">
+              <h3>Model Timeline</h3>
+            </div>
 
-        <div class="extra-info">
-            <img src="path/to/thumbnail.jpg" alt="Thumbnail" class="thumbnail">
-            <p class="description">Here is some extra information about the user.</p>
-        </div>
-        <h3>Project Timeline</h3>
-        <div class="timeline">
-            <div class="timeline-event">
-                <span class="timeline-date">2023-10-01</span>
-                <span class="timeline-description">Project Created</span>
-            </div>
-            <div class="timeline-event">
-                <span class="timeline-date">2023-10-10</span>
-                <span class="timeline-description">First Model Uploaded</span>
-            </div>
-            <div class="timeline-event">
-                <span class="timeline-date">2023-10-15</span>
-                <span class="timeline-description">Model Updated</span>
-            </div>
+            <div class = "project-model-timeline-versions">
+             <?php include('version.php'); ?>
+             <?php include('version.php'); ?>    
+            </div>      
         </div>
     </div>
 </div>
+</div>
     <?php include('include/footer.php'); ?>
+
 </body>
 </html>

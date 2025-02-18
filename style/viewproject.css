@@ -117,34 +117,13 @@
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-    color: #007BFF;
+    color: #000000;
     transition: transform 0.3s ease;
     margin-left: auto; 
 }
 
 .toggle-arrow:active {
     transform: rotate(90deg);
-}
-
-.extra-info {
-    display: none;
-    padding: 10px;
-    border: 1px solid #ddd;
-    margin-top: 10px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-}
-
-.thumbnail {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 5px;
-}
-
-.description {
-    margin-top: 10px;
-    color: #333;
 }
 
 @media (max-width: 768px) {
