@@ -79,16 +79,21 @@
 }
 
 .filter-bar button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
+    background-color: transparent;
+    color: black; 
+    border: 1px solid black;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
 }
 
 .filter-bar button:hover {
-    background-color: #0056b3;
+    background-color: #000;
+    color: #fff;
 }
+
 
 .preview-projects {
     display: grid;
