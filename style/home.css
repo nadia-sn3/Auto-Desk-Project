@@ -1,3 +1,4 @@
+
 .hero-section {
     width: 100%;
     background: linear-gradient(to right, black, rgba(30, 60, 114, 0));
@@ -5,6 +6,7 @@
     padding: 100px 20px;
     text-align: center;
 }
+
 .hero-content h1 {
     font-size: 3rem;
     margin-bottom: 20px;
@@ -20,7 +22,6 @@
     justify-content: center;
     gap: 20px;
 }
-
 
 .btn {
     padding: 10px 20px;
@@ -40,6 +41,7 @@
 .featured-models {
     padding: 60px 20px;
     text-align: center;
+    width: 100%;
 }
 
 .featured-models h2 {
@@ -48,9 +50,10 @@
 }
 
 .model-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    display: flex;
+    flex-direction: column;
     gap: 20px;
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
 }
