@@ -124,7 +124,7 @@
 }
 
 .extra-info {
-    display: none; /* Initially hidden */
+    display: none; 
     padding: 10px;
     border: 1px solid #ddd;
     margin-top: 10px;
