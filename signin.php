@@ -10,24 +10,26 @@
 <body>
     <?php include('include/header.php'); ?>
     <div class="page-container">
-        <div class="signin-box">
-            <h2>Sign In</h2>
-            <form action="signin-process.php" method="POST" id="signin-form">
-                <div class="input-group">
-                    <label for="email">Email</label>
-                    <input type="text" id="email" name="email" placeholder="Enter your email" required>
+        <div class="signin-container">
+            <div class="signin-box">
+                <h2>Sign In</h2>
+                <form action="signin-process.php" method="POST" id="signin-form">
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    </div>
+                    <div class="forgot-password">
+                        <a href="#">Forgot your password?</a>
+                    </div>
+                    <button type="submit" class="signin-btn">Sign In</button>
+                </form>
+                <div class="signup-link">
+                    <p>Don't have an account? <a href="signup.php">Sign up here</a></p>
                 </div>
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                </div>
-                <div class="forgot-password">
-                    <a href="#">Forgot your password?</a>
-                </div>
-                <button type="submit" class="signin-btn">Sign In</button>
-            </form>
-            <div class="signup-link">
-                <p>Don't have an account? <a href="signup.php">Sign up here</a></p>
             </div>
         </div>
     </div>

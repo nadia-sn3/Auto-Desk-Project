@@ -1,8 +1,8 @@
-.signin-box {
+.signup-box {
     padding: 30px;
     text-align: center;
     background-color: rgba(200, 200, 200, 0.1); 
-    border-radius: 8px; 
+    border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 h2 {
@@ -30,19 +30,7 @@ h2 {
     border-color: #5c9bfb;
     outline: none;
 }
-.forgot-password {
-    text-align: right;
-    margin-bottom: 15px;
-}
-.forgot-password a {
-    font-size: 14px;
-    color: #5c9bfb;
-    text-decoration: none;
-}
-.forgot-password a:hover {
-    text-decoration: underline;
-}
-.signin-btn {
+.signup-btn {
     width: 100%;
     padding: 12px;
     background-color: #000000;
@@ -52,8 +40,9 @@ h2 {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-bottom: 20px;
 }
-.signin-btn:hover {
+.signup-btn:hover {
     background-color: #717376;
 }
 .signup-link {
@@ -61,7 +50,7 @@ h2 {
 }
 .signup-link p {
     font-size: 14px;
-    color: #333;
+    color: #ffffff;
 }
 .signup-link a {
     color: #5c9bfb;

@@ -1,8 +1,10 @@
 <link rel="stylesheet" href="style/header.css">
 <header class="header">
     <div class="header-content">
-        <img src="images/Autodesk-header-logo.png" alt="Logo" class="logo" />
-                <div class="search-bar">
+        <a href="home.php"> 
+            <img src="images/Autodesk-header-logo.png" alt="Logo" class="logo" />
+        </a>                
+        <div class="search-bar">
             <input type="text" placeholder="Search...">
         </div>
         <div class="nav-bar">

@@ -60,7 +60,7 @@
             <div class="cta-content">
                 <h2>Ready to Create Your Own 3D Models?</h2>
                 <p>Join our community and start building amazing 3D projects today.</p>
-                <a href="#" class="btn-primary">Sign Up Now</a>
+                <a href="signup.php" class="btn-primary">Sign Up Now</a>
             </div>
         </section>
     </div>
