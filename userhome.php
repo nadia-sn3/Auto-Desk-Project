@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style/base.css">
     <link rel="stylesheet" href="style/userhome.css">
+    <link rel="stylesheet" href="style/preview.css">
+
+    <script src="js/sidebar-toggle.js" defer></script>
+
     <title>AutoDesk | Home</title>
 </head>
 <body>
     <?php include('include/header.php'); ?>
 
     <div class="page-container">
-
         <aside class="sidebar">
             <h3>Pre-Manufacturing Models</h3>
             <ul>
@@ -28,10 +31,8 @@
             </ul>
         </aside>
 
-
         <main class="main-content">
-
-        <div class="projects-header">
+            <div class="projects-header">
                 <h2>My Projects</h2>
                 <div class="filter-bar">
                     <select>
@@ -45,6 +46,8 @@
             </div>
 
             <div class="preview-projects">
+                <?php include('preview.php'); ?>
+                <?php include('preview.php'); ?>
                 <?php include('preview.php'); ?>
                 <?php include('preview.php'); ?>
                 <?php include('preview.php'); ?>

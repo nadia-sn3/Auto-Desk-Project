@@ -53,10 +53,10 @@
     border-radius: 5px;
 }
 
-/* Mobile Styling */
+
 @media (max-width: 768px) {
     .header {
-        height: 60px;
+        height: 70px;
         padding: 0 15px; 
     }
 
