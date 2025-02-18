@@ -20,7 +20,7 @@
                     <p class="project-description">A brief description of the project.</p>
                 </div>
                 <div class="project-top-buttons">
-                    <button class="btn">Collaborators</button>
+                    <button class="btn"><a href= "collaborators.php">Collaborators</a></button>
                     <button class="btn">Issues</button>
                 </div>
             </div>
