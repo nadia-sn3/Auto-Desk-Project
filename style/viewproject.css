@@ -95,7 +95,7 @@
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 2px solid #ddd;
-    position: relative; /* Ensures the dropdown arrow is positioned correctly */
+    position: relative; 
 }
 
 .user-icon {
@@ -109,7 +109,7 @@
     font-weight: bold;
     color: #007BFF;
     font-size: 1.2rem;
-    flex-grow: 1; /* Ensures the username takes up available space */
+    flex-grow: 1; 
 }
 
 .toggle-arrow {
@@ -119,7 +119,7 @@
     cursor: pointer;
     color: #007BFF;
     transition: transform 0.3s ease;
-    margin-left: auto; /* Pushes the arrow to the right */
+    margin-left: auto; 
 }
 
 .toggle-arrow:active {
