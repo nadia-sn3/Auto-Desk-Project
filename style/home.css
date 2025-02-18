@@ -1,178 +1,92 @@
 .hero-section {
-    background-color: #f8f8f8;
-    padding: 60px 20px;
+    width: 100vw; 
+    background: linear-gradient(to right, black, rgba(30, 60, 114, 0));
+    color: white;
+    padding: 100px 20px;
     text-align: center;
 }
-
 .hero-content h1 {
-    font-size: 32px;
-    color: #333;
+    font-size: 3rem;
     margin-bottom: 20px;
 }
 
 .hero-content p {
-    font-size: 18px;
-    color: #666;
-    margin-bottom: 20px;
+    font-size: 1.2rem;
+    margin-bottom: 30px;
 }
 
-.hero-buttons .btn {
-    background-color: #5c9bfb;
-    color: white;
-    padding: 12px 20px;
-    text-decoration: none;
-    font-size: 16px;
-    border-radius: 5px;
-    margin: 10px;
-    display: inline-block;
-}
-
-.hero-buttons .btn:hover {
-    background-color: #4289e1;
-}
-
-/* Featured Models Section */
-.featured-models {
-    padding: 40px 20px;
-    text-align: center;
-}
-
-.featured-models h2 {
-    font-size: 28px;
-    margin-bottom: 20px;
-}
-
-.model-grid {
+.hero-buttons {
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
     gap: 20px;
 }
 
-.model-grid .model-card {
-    background-color: #f8f8f8;
-    padding: 20px;
-    border-radius: 8px;
-    width: 30%;
-    min-width: 250px;
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
 
-.model-grid .model-card .model-thumbnail {
-    height: 150px;
-    background-color: #ddd;
-    margin-bottom: 15px;
-}
-
-.model-info h3 {
-    font-size: 18px;
-    color: #333;
-    margin-bottom: 10px;
-}
-
-.model-info p {
-    color: #666;
-    font-size: 14px;
-}
-
-/* Call to Action Section */
-.cta-section {
-    background-color: #5c9bfb;
+.btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    background-color: transparent; 
     color: white;
+    border: 2px solid white;
+}
+
+.btn:hover {
+    background-color: #B0B0B0;
+}
+
+.featured-models {
     padding: 60px 20px;
     text-align: center;
 }
 
+.featured-models h2 {
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+}
+
+.model-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+
+.cta-section {
+    width: 100vw;
+    background-color: #f1f1f1;
+    padding: 80px 20px;
+    text-align: center;
+}
+
 .cta-content h2 {
-    font-size: 28px;
+    font-size: 2.5rem;
     margin-bottom: 20px;
 }
 
 .cta-content p {
-    font-size: 16px;
+    font-size: 1.2rem;
     margin-bottom: 30px;
 }
 
-.cta-content .btn-primary {
-    background-color: #000;
-    color: white;
-    padding: 12px 30px;
-    font-size: 16px;
-    text-decoration: none;
-    border-radius: 5px;
-}
-
-.cta-content .btn-primary:hover {
-    background-color: #333;
-}
-
-/* Media Queries for Smaller Screens */
-
-/* For tablet and below */
 @media (max-width: 768px) {
     .hero-content h1 {
-        font-size: 28px;
+        font-size: 2rem;
     }
 
     .hero-content p {
-        font-size: 16px;
+        font-size: 1rem;
     }
 
-    .model-grid {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .model-grid .model-card {
-        width: 80%;
-        margin-bottom: 20px;
+    .featured-models h2 {
+        font-size: 2rem;
     }
 
     .cta-content h2 {
-        font-size: 24px;
-    }
-
-    .cta-content p {
-        font-size: 14px;
-    }
-
-    .cta-content .btn-primary {
-        padding: 10px 20px;
-        font-size: 14px;
-    }
-}
-
-/* For mobile screens */
-@media (max-width: 480px) {
-    .hero-content h1 {
-        font-size: 24px;
-    }
-
-    .hero-content p {
-        font-size: 14px;
-    }
-
-    .hero-buttons .btn {
-        padding: 10px 15px;
-        font-size: 14px;
-    }
-
-    .model-grid .model-card {
-        width: 90%;
-        margin-bottom: 20px;
-    }
-
-    .cta-content h2 {
-        font-size: 20px;
-    }
-
-    .cta-content p {
-        font-size: 12px;
-    }
-
-    .cta-content .btn-primary {
-        padding: 10px 20px;
-        font-size: 12px;
+        font-size: 2rem;
     }
 }
