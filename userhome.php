@@ -33,7 +33,7 @@
 
         <main class="main-content">
             <div class="projects-header">
-                <h2>My Projects</h2>
+                <h2>Projects</h2>
                 <div class="filter-bar">
                     <select>
                         <option value="creation-date">Creation Date</option>
