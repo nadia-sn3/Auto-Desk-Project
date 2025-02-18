@@ -47,6 +47,15 @@
             
 
             <div class="project-model-timeline">
+            <div class="user-info">
+                    <img src="images/UserIcon.png" alt="User Icon" class="user-icon">
+                    <span class="username">{Username}</span>
+                </div>
+                <button class="toggle-arrow" onclick="toggleInfo()">▶</button>
+                <div class="extra-info">
+                    <img src="path/to/thumbnail.jpg" alt="Thumbnail" class="thumbnail">
+                    <p class="description">Here is some extra information about the user.</p>
+                </div>
                 <h3>Project Timeline</h3>
                 <div class="timeline">
                     <div class="timeline-event">

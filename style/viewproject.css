@@ -87,25 +87,60 @@
 .project-model-timeline h3 {
     margin-top: 0;
 }
-
-.timeline {
+.project-model-timeline .user-info {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.timeline-event {
-    display: flex;
-    gap: 20px;
     align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 10px; 
+    border-bottom: 2px solid #ddd;
+
 }
 
-.timeline-date {
+.user-icon {
+    width: 40px; 
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.username {
     font-weight: bold;
     color: #007BFF;
+    font-size: 1.2rem;
 }
 
-.timeline-description {
+.toggle-arrow {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #007BFF;
+    transition: transform 0.3s ease;
+}
+
+.toggle-arrow:active {
+    transform: rotate(90deg);
+}
+
+.extra-info {
+    display: none; /* Initially hidden */
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-top: 10px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+}
+
+.thumbnail {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.description {
+    margin-top: 10px;
     color: #333;
 }
 
