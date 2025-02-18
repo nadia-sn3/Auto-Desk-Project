@@ -26,33 +26,11 @@
         <section class="featured-models">
             <h2>Featured Models</h2>
             <div class="model-grid">
-                <div class="model-card">
-                    <div class="model-thumbnail">
-                        
-                    </div>
-                    <div class="model-info">
-                        <h3>Model 1</h3>
-                        <p>Description of the first featured model.</p>
-                    </div>
-                </div>
-                <div class="model-card">
-                    <div class="model-thumbnail">
-                        
-                    </div>
-                    <div class="model-info">
-                        <h3>Model 2</h3>
-                        <p>Description of the second featured model.</p>
-                    </div>
-                </div>
-                <div class="model-card">
-                    <div class="model-thumbnail">
-                        
-                    </div>
-                    <div class="model-info">
-                        <h3>Model 3</h3>
-                        <p>Description of the third featured model.</p>
-                    </div>
-                </div>
+
+            <?php include('preview.php'); ?>
+            <?php include('preview.php'); ?>
+            <?php include('preview.php'); ?>
+
             </div>
         </section>
 
