@@ -95,7 +95,7 @@ td {
     font-size: 14px;
 }
 
-/* Add Collaborator Button */
+/*Collaborator Button */
 .add-collaborator-btn {
     background-color: #2ea44f;
     color: white;
@@ -105,16 +105,17 @@ td {
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
-    margin-left: auto; /* Align to the right */
+    margin-left: auto; 
 }
 
 .add-collaborator-btn:hover {
     background-color: #22863a;
 }
 
-/* Modal Styles */
 .modal {
-    display: none;
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -122,9 +123,8 @@ td {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    justify-content: center;
-    align-items: center;
 }
+
 
 .modal-content {
     background-color: white;
