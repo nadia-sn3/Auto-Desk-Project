@@ -60,6 +60,7 @@
     padding: 20px;
     border-radius: 10px;
     border: 1px solid #ddd;
+    margin-bottom: 20px;
 }
 
 .project-model-data h3 {
@@ -80,6 +81,7 @@
     padding: 20px;
     border-radius: 10px;
     border: 1px solid #ddd;
+    margin-top: 20px;
 }
 
 .project-model-timeline h3 {
