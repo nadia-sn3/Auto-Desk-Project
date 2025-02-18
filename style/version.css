@@ -1,5 +1,19 @@
+.project-model-timeline-versions {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.timeline-version- {
+    border: 1px solid #ddd;
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 .extra-info {
-    display: none; 
+    display: none;
     padding: 10px;
     border: 1px solid #ddd;
     margin-top: 10px;
@@ -27,4 +41,18 @@
     color: #000000;
     transition: transform 0.3s ease;
     margin-left: auto;
+}
+
+h4 {
+    margin-bottom: 10px;
+}
+
+h5 {
+    margin-bottom: 5px; 
+}
+
+p {
+    font-size: 0.875rem; 
+    line-height: 1.4; 
+    color: #555; 
 }
