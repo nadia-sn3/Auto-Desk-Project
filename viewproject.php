@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style/base.css">
     <link rel="stylesheet" href="style/viewproject.css">
-    
+    <link rel="stylesheet" href="style/upload-button.css">
+
     <title>AutoDesk | Project Name</title>
 </head>
 <body>
@@ -20,16 +21,30 @@
                     <p class="project-description">A brief description of the project.</p>
                 </div>
                 <div class="project-top-buttons">
-                    <button class="btn"><a href= "collaborators.php">Collaborators</a></button>
+                    <button class="btn"><a href="collaborators.php">Collaborators</a></button>
                     <button class="btn">Issues</button>
+                    <button class="btn" id="uploadBtn">Upload Files</button>
                 </div>
             </div>
 
-
-            <div class="project-model">
-                <div class="project-model-viewer">
+            <div id="uploadModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Upload Files</h2>
+                    <div class="upload-area" id="dropArea">
+                        <p>Drag & Drop files here</p>
+                        <p>or</p>
+                        <input type="file" id="fileInput" multiple>
+                        <label for="fileInput" class="browse-btn">Browse Files</label>
+                    </div>
+                    <div id="fileList"></div>
+                    <button id="confirmUploadBtn" class="browse-btn" style="display: none;">Upload</button> 
 
                 </div>
+            </div>
+
+            <div class="project-model">
+                <div class="project-model-viewer"></div>
                 <div class="project-model-buttons">
                     <button class="btn">Share</button>
                     <button class="btn">Download</button>
@@ -44,21 +59,21 @@
                     </ul>
                 </div>
             </div>
-        
-        <div class="project-model-timeline">
-            <div class = "project-model-timeline-header">
-              <h3>Model Timeline</h3>
-            </div>
 
-            <div class = "project-model-timeline-versions">
-             <?php include('version.php'); ?>
-             <?php include('version.php'); ?>    
-            </div>      
+            <div class="project-model-timeline">
+                <div class="project-model-timeline-header">
+                    <h3>Model Timeline</h3>
+                </div>
+                <div class="project-model-timeline-versions">
+                    <?php include('version.php'); ?>
+                    <?php include('version.php'); ?>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-</div>
+
     <?php include('include/footer.php'); ?>
 
+    <script src="js/upload.js"></script>
 </body>
 </html>
