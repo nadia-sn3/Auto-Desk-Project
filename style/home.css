@@ -1,4 +1,3 @@
-
 .hero-section {
     width: 100%;
     background: linear-gradient(to right, black, rgba(30, 60, 114, 0));
@@ -51,11 +50,12 @@
 
 .model-grid {
     display: flex;
-    flex-direction: column;
-    gap: 20px;
+    flex-wrap: wrap; 
+    gap: 0; 
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
+    justify-content: center; 
 }
 
 .cta-section {
@@ -90,5 +90,30 @@
 
     .cta-content h2 {
         font-size: 2rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .model-grid {
+        flex-direction: row; 
+        justify-content: center; 
+        gap: 40px; 
+    }
+
+    .model-grid .model-item { 
+        margin: 0; 
+    }
+}
+
+@media (max-width: 1024px) {
+    .model-grid {
+        flex-direction: column; 
+        gap: 40px; 
+    }
+}
+
+@media (max-width: 768px) {
+    .model-grid {
+        flex-direction: column; 
     }
 }
