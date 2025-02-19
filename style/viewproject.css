@@ -1,6 +1,6 @@
 .project-container {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1600px;
     margin: 0 auto;
     padding: 20px;
 }
@@ -41,7 +41,7 @@
 
 .project-model-viewer {
     width: 100%;
-    height: 500px;
+    height: 800px;
     background-color: #f1f1f1;
     border-radius: 10px;
     overflow: hidden;
