@@ -95,7 +95,6 @@ td {
     font-size: 14px;
 }
 
-/*Collaborator Button */
 .collaborators-container-header {
     padding: 16px 20px;
     border-bottom: 1px solid #e1e4e8;
@@ -193,4 +192,16 @@ td {
 
 .submit-btn:hover {
     background-color: #22863a;
+}
+
+select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+select[multiple] {
+    height: 100px;
 }
