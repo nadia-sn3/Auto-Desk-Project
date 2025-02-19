@@ -84,46 +84,69 @@
     margin-top: 20px;
 }
 
-.project-model-timeline h3 {
-    margin-top: 0;
-}
-
-.project-model-timeline .user-info {
+.project-model-timeline-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 10px;
     margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #ddd;
-    position: relative; 
 }
 
-.user-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
+.project-model-timeline-header h3 {
+    margin: 0;
+}
+
+.total-commits {
+    font-size: 0.875rem;
+    color: #6a737d;
+}
+
+.project-model-timeline-versions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.timeline-version {
+    border: 1px solid #ddd;
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.commit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.commit-message {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #24292e;
+}
+
+.commit-date {
+    font-size: 0.875rem;
+    color: #6a737d;
+}
+
+.commit-details {
+    font-size: 0.875rem;
+    color: #6a737d;
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
 .username {
-    font-weight: bold;
-    color: #007BFF;
-    font-size: 1.2rem;
-    flex-grow: 1; 
+    font-weight: 500;
+    color: #0366d6;
 }
 
-.toggle-arrow {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #000000;
-    transition: transform 0.3s ease;
-    margin-left: auto; 
-}
-
-.toggle-arrow:active {
-    transform: rotate(90deg);
+.commit-location {
+    font-style: italic;
 }
 
 @media (max-width: 768px) {

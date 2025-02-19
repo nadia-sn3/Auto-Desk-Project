@@ -6,7 +6,6 @@
     <link rel="stylesheet" href="style/base.css">
     <link rel="stylesheet" href="style/viewproject.css">
     <link rel="stylesheet" href="style/upload-button.css">
-
     <title>AutoDesk | Project Name</title>
 </head>
 <body>
@@ -14,7 +13,6 @@
 
     <div class="page-container">
         <div class="project-container">
-
             <div class="project-header">
                 <div class="project-title">
                     <h1>Project Name</h1>
@@ -38,8 +36,7 @@
                         <label for="fileInput" class="browse-btn">Browse Files</label>
                     </div>
                     <div id="fileList"></div>
-                    <button id="confirmUploadBtn" class="browse-btn" style="display: none;">Upload</button> 
-
+                    <button id="confirmUploadBtn" class="browse-btn" style="display: none;">Upload</button>
                 </div>
             </div>
 
@@ -63,10 +60,29 @@
             <div class="project-model-timeline">
                 <div class="project-model-timeline-header">
                     <h3>Model Timeline</h3>
+                    <span class="total-commits">Total Commits: 12</span>
                 </div>
                 <div class="project-model-timeline-versions">
-                    <?php include('version.php'); ?>
-                    <?php include('version.php'); ?>
+                    <div class="timeline-version">
+                        <div class="commit-header">
+                            <span class="commit-message">Changes to featured models</span>
+                            <span class="commit-date">yesterday</span>
+                        </div>
+                        <div class="commit-details">
+                            <span class="username">misbxh</span>
+                            <span class="commit-location">Image</span>
+                        </div>
+                    </div>
+                    <div class="timeline-version">
+                        <div class="commit-header">
+                            <span class="commit-message">Created new header links</span>
+                            <span class="commit-date">yesterday</span>
+                        </div>
+                        <div class="commit-details">
+                            <span class="username">include</span>
+                            <span class="commit-location">User display</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

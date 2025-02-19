@@ -4,12 +4,46 @@
     gap: 20px;
 }
 
-.timeline-version- {
+.timeline-version {
     border: 1px solid #ddd;
     padding: 15px;
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.commit-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.commit-message {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #24292e;
+}
+
+.commit-details {
+    font-size: 0.875rem;
+    color: #6a737d;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.username {
+    font-weight: 500;
+}
+
+.commit-location {
+    font-style: italic;
+}
+
+.version-heading {
+    font-weight: 500;
+    color: #0366d6;
 }
 
 .extra-info {
@@ -28,31 +62,16 @@
     border-radius: 5px;
 }
 
-.description {
-    margin-top: 10px;
-    color: #333;
-}
-
 .toggle-arrow {
     background: none;
     border: none;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     cursor: pointer;
     color: #000000;
     transition: transform 0.3s ease;
     margin-left: auto;
 }
 
-h4 {
-    margin-bottom: 10px;
-}
-
-h5 {
-    margin-bottom: 5px; 
-}
-
-p {
-    font-size: 0.875rem; 
-    line-height: 1.4; 
-    color: #555; 
+.toggle-arrow.active {
+    transform: rotate(90deg);
 }
