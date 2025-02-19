@@ -61,33 +61,19 @@
             </div>
 
             <div class="project-model-timeline">
-                <div class="project-model-timeline-header">
-                    <h3>Model Timeline</h3>
-                    <span class="total-commits">Total Commits: 12</span>
-                </div>
-                <div class="project-model-timeline-versions">
-                    <div class="timeline-version">
-                        <div class="commit-header">
-                            <span class="commit-message">Changes to featured models</span>
-                            <span class="commit-date">yesterday</span>
-                        </div>
-                        <div class="commit-details">
-                            <span class="username">misbxh</span>
-                            <span class="commit-location">Image</span>
-                        </div>
-                    </div>
-                    <div class="timeline-version">
-                        <div class="commit-header">
-                            <span class="commit-message">Created new header links</span>
-                            <span class="commit-date">yesterday</span>
-                        </div>
-                        <div class="commit-details">
-                            <span class="username">include</span>
-                            <span class="commit-location">User display</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="project-model-timeline-header">
+        <h3>Model Timeline</h3>
+        <span class="total-commits">Total Commits: 12</span>
+        <div class="filter-container">
+            <input type="date" id="filterDate" name="filterDate">
+            <button id="filterBeforeBtn" class="btn">Before</button>
+            <button id="filterAfterBtn" class="btn">After</button>
+        </div>
+    </div>
+    <div class="project-model-timeline-versions">
+        <?php include('version.php'); ?>
+    </div>
+</div>
         </div>
     </div>
 

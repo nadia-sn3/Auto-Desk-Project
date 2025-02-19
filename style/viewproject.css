@@ -157,7 +157,6 @@
     padding: 15px;
     background-color: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .commit-header {
@@ -271,4 +270,21 @@
         width: 90%;
         padding: 15px;
     }
+}
+
+.filter-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.filter-container input[type="date"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.filter-container .btn {
+    padding: 5px 10px;
+    font-size: 0.875rem;
 }
