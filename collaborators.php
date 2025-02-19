@@ -44,22 +44,25 @@
         </div>
     </div>
 
-    <div id="add-collaborator-modal" class="modal">
+<div id="collaboratorModal" class="modal">
+
     <div class="modal-content">
+
         <span class="close-btn">&times;</span>
         <h2>Add Collaborator</h2>
-        <form id="add-collaborator-form">
+
+        <form id="collaborator-form">
             <div class="form-group">
-                <label for="username">Search by Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter username">
+                <label for="collaborator-username">Search by Username</label>
+                <input type="text" id="collaborator-username" name="collaborator-username" placeholder="Enter username">
             </div>
             <div class="form-group">
-                <label for="email">Or Invite by Email</label>
-                <input type="email" id="email" name="email" placeholder="Enter email">
+                <label for="collaborator-email">Or Invite by Email</label>
+                <input type="email" id="collaborator-email" name="collaborator-email" placeholder="Enter email">
             </div>
             <div class="form-group">
-                <label for="role">Role</label>
-                <select id="role" name="role">
+                <label for="collaborator-role">Role</label>
+                <select id="collaborator-role" name="collaborator-role">
                     <option value="administrator">Administrator</option>
                     <option value="project_manager">Project Manager</option>
                     <option value="editor">Editor</option>
@@ -67,22 +70,27 @@
                     <option value="contractor">Contractor</option>
                 </select>
             </div>
-            <div class="form-group" id="access-duration-group" style="display: none;">
-                <label for="access-duration">Access Duration (days)</label>
-                <input type="number" id="access-duration" name="access-duration" placeholder="Enter number of days">
+
+            <div class="form-group" id="collaborator-access-duration-group" style="display: none;">
+                <label for="collaborator-access-duration">Access Duration (days)</label>
+                <input type="number" id="collaborator-access-duration" name="collaborator-access-duration" placeholder="Enter number of days">
             </div>
-            <div class="form-group" id="file-access-group" style="display: none;">
-                <label for="file-access">Select Files</label>
-                <select id="file-access" name="file-access" multiple>
+
+            <div class="form-group" id="collaborator-file-access-group" style="display: none;">
+                <label for="collaborator-file-access">Select Files</label>
+                <select id="collaborator-file-access" name="collaborator-file-access" multiple>
                     <option value="file1">File 1</option>
                     <option value="file2">File 2</option>
                     <option value="file3">File 3</option>
                 </select>
             </div>
+
             <button type="submit" class="submit-btn">Invite</button>
         </form>
+
     </div>
 </div>
+
 
     <?php include('include/footer.php'); ?>
 

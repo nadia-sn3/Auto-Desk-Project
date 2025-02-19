@@ -1,11 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
     const addCollaboratorBtn = document.getElementById("add-collaborator-btn");
-    const modal = document.getElementById("add-collaborator-modal");
-    const closeBtn = document.querySelector(".close-btn");
-    const form = document.getElementById("add-collaborator-form");
-    const roleSelect = document.getElementById("role");
-    const accessDurationGroup = document.getElementById("access-duration-group");
-    const fileAccessGroup = document.getElementById("file-access-group");
+    const modal = document.getElementById("collaboratorModal"); 
+    const closeBtn = modal.querySelector(".close-btn"); 
+    const form = document.getElementById("collaborator-form"); 
+    const roleSelect = document.getElementById("collaborator-role");
+    const accessDurationGroup = document.getElementById("collaborator-access-duration-group"); 
+    const fileAccessGroup = document.getElementById("collaborator-file-access-group"); 
 
     addCollaboratorBtn.addEventListener("click", () => {
         modal.style.display = "flex"; 
@@ -33,14 +33,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     form.addEventListener("submit", (event) => {
         event.preventDefault(); 
-        const username = document.getElementById("username").value;
-        const email = document.getElementById("email").value;
-        const role = document.getElementById("role").value;
-        const accessDuration = document.getElementById("access-duration").value;
-        const fileAccess = document.getElementById("file-access").value;
+        const username = document.getElementById("collaborator-username").value;
+        const email = document.getElementById("collaborator-email").value;
+        const role = document.getElementById("collaborator-role").value;
+        const accessDuration = document.getElementById("collaborator-access-duration").value; 
+        const fileAccess = document.getElementById("collaborator-file-access").value; 
 
         console.log(`Inviting collaborator: Username - ${username}, Email - ${email}, Role - ${role}, Access Duration - ${accessDuration}, File Access - ${fileAccess}`);
 
-        modal.style.display = "none";
+        modal.style.display = "none"; 
     });
 });
