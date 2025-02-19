@@ -18,12 +18,15 @@
                     <h1>Project Name</h1>
                     <p class="project-description">A brief description of the project.</p>
                 </div>
-                <div class="project-top-buttons">
-                    <button class="btn"><a href="collaborators.php">Collaborators</a></button>
-                    <button class="btn">Issues</button>
-                    <button class="btn" id="uploadBtn">Upload Files</button>
-                </div>
             </div>
+
+            <nav class="project-nav-bar">
+                <ul>
+                    <li><a href="collaborators.php" class="nav-link">Collaborators</a></li>
+                    <li><a href="issues.php" class="nav-link">Issues</a></li>
+                    <li><button id="uploadBtn" class="nav-link">Upload Files</button></li>
+                </ul>
+            </nav>
 
             <div id="uploadModal" class="modal">
                 <div class="modal-content">

@@ -5,24 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style/base.css">
     <link rel="stylesheet" href="style/collaborators.css">
-    <title>AutoDesk | Collaborators</title>
+    <title>AutoDesk | Issues</title>
 </head>
 <body>
     <?php include('include/header.php'); ?>
 
     <div class="page-container">
-        <div class="collaborators-page-container">
+        <div class="issues-page-container">
             <div class="project-header">
                 <h1 class="project-title">Project Name</h1>
                 <p class="project-description">A brief description of the project.</p>
             </div>
 
-            <div class="collaborators-container">
-                <div class="collaborators-container-header">
+            <div class="issues-container">
+                <div class="issues-container-header">
                     <h4>Collaborators</h4>
-                    <button id="add-collaborator-btn" class="add-collaborator-btn">Add Collaborator</button>
+                    <button id="add-issues-btn" class="add-issues-btn">Add Collaborator</button>
                 </div>
-                <div class="collaborators-container-table">
+                <div class="issues-container-table">
                     <table>
                         <thead>
                             <tr>
@@ -34,9 +34,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php include('collaborator-row.php'); ?>
-                            <?php include('collaborator-row.php'); ?>
-                            <?php include('collaborator-row.php'); ?>
+                            <?php include('issues-row.php'); ?>
+                            <?php include('issues-row.php'); ?>
+                            <?php include('issues-row.php'); ?>
                         </tbody>
                     </table>
                 </div>
@@ -44,11 +44,11 @@
         </div>
     </div>
 
-    <div id="add-collaborator-modal" class="modal">
-    <div class="modal-content">
+    <div id="add-issues-modal" class="modal">
+    <div class="issues-content">
         <span class="close-btn">&times;</span>
-        <h2>Add Collaborator</h2>
-        <form id="add-collaborator-form">
+        <h2>Add Issues</h2>
+        <form id="add-issues-form">
             <div class="form-group">
                 <label for="username">Search by Username</label>
                 <input type="text" id="username" name="username" placeholder="Enter username">
@@ -74,7 +74,8 @@
             <div class="form-group" id="file-access-group" style="display: none;">
                 <label for="file-access">Select Files</label>
                 <select id="file-access" name="file-access" multiple>
-                    <option value="file1">File 1</option>
+
+                <option value="file1">File 1</option>
                     <option value="file2">File 2</option>
                     <option value="file3">File 3</option>
                 </select>
