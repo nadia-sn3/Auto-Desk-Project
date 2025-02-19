@@ -17,7 +17,7 @@
                 <h1>Explore the World of 3D Models</h1>
                 <p>Discover, create, and share stunning 3D models with our powerful platform.</p>
                 <div class="hero-buttons">
-                    <a href="#" class="btn">Get Started</a>
+                    <a href="signup.php" class="btn">Get Started</a>
                     <a href="#" class="btn">Learn More</a>
                 </div>
             </div>

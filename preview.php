@@ -8,7 +8,7 @@
         <h3>Model Name</h3>
         <p>Description of the model.</p>
         <div class="model-preview-actions">
-            <a href="viewproject.php" class="btn-view">View</a>
+            <a href="view-project.php" class="btn-view">View</a>
             <a href="#" class="btn-download">Download</a>
         </div>
     </div>
