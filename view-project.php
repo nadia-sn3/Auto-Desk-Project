@@ -91,8 +91,41 @@
         </div>
     </div>
 
+
+
     <?php include('include/footer.php'); ?>
 
     <script src="js/upload.js"></script>
+
+    <div id="shareModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Share Project</h2>
+        <form id="share-form">
+            <div class="form-group">
+                <label for="share-username">Search by Username</label>
+                <input type="text" id="share-username" name="share-username" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label for="share-email">Or Invite by Email</label>
+                <input type="email" id="share-email" name="share-email" placeholder="Enter email">
+            </div>
+            <div class="form-group">
+                <label for="share-role">Role</label>
+                <select id="share-role" name="share-role">
+                    <option value="viewer">Viewer</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="share-duration">Access Duration (days)</label>
+                <input type="number" id="share-duration" name="share-duration" placeholder="Enter number of days">
+            </div>
+            <button type="submit" class="submit-btn">Share</button>
+        </form>
+    </div>
+</div>
+
+<script src="js/share.js"></script>
+
 </body>
 </html>
