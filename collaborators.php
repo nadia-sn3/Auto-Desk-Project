@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style/base.css">
     <link rel="stylesheet" href="style/collaborators.css">
-    <title>AutoDesk | Project Name</title>
+    <title>AutoDesk | Collaborators</title>
 </head>
 <body>
     <?php include('include/header.php'); ?>
