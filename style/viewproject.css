@@ -80,6 +80,16 @@
     margin-bottom: 20px;
 }
 
+.btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    background-color: transparent; 
+    color: black;
+    border: 1px solid black;
+}
 .project-model-data {
     background-color: #f9f9f9;
     padding: 20px;
@@ -88,6 +98,17 @@
     margin-bottom: 20px;
 }
 
+.hero-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+
+
+.btn:hover {
+    background-color: #B0B0B0;
+}
 .project-model-data h3 {
     margin-top: 0;
 }

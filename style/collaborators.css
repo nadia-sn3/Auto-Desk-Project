@@ -131,6 +131,11 @@ td {
     justify-content: center;
 }
 
+.modal-content h2 {
+    text-align: center;
+    width: 100%;
+}
+
 .modal-content {
     background-color: #fff;
     padding: 20px;
@@ -180,6 +185,7 @@ h2 {
     border-radius: 4px;
     font-size: 14px;
 }
+
 .submit-btn {
     background-color: #007bff;
     color: #fff;

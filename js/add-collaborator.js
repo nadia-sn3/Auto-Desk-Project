@@ -7,6 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const accessDurationGroup = document.getElementById("collaborator-access-duration-group"); 
     const fileAccessGroup = document.getElementById("collaborator-file-access-group"); 
 
+    modal.style.display = "none";
+
     addCollaboratorBtn.addEventListener("click", () => {
         modal.style.display = "flex"; 
     });
