@@ -1,76 +1,120 @@
 .project-model-timeline-versions {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
 }
 
 .timeline-version {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     border: 1px solid #ddd;
-    padding: 15px;
+    padding: 10px;
     background-color: #ffffff;
     border-radius: 8px;
 }
 
-.commit-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
+.commit-file {
+    flex: 1;
+    font-weight: 500;
+    color: #0366d6;
 }
 
 .commit-message {
-    font-size: 1rem;
-    font-weight: 600;
+    flex: 2;
+    font-size: 0.9rem;
     color: #24292e;
+    padding: 0 10px;
 }
 
-.commit-details {
+.commit-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-size: 0.875rem;
     color: #6a737d;
-    display: flex;
-    gap: 10px;
-    align-items: center;
 }
 
 .username {
     font-weight: 500;
 }
 
-.commit-location {
+.commit-date {
     font-style: italic;
 }
 
-.version-heading {
-    font-weight: 500;
-    color: #0366d6;
-}
-
-.extra-info {
-    display: none;
-    padding: 10px;
+.rollback-btn {
+    background-color: #f1f1f1;
     border: 1px solid #ddd;
-    margin-top: 10px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-}
-
-.thumbnail {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 5px;
-}
-
-.toggle-arrow {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
+    padding: 5px 10px;
+    border-radius: 4px;
     cursor: pointer;
-    color: #000000;
-    transition: transform 0.3s ease;
-    margin-left: auto;
+    font-size: 0.875rem;
 }
 
-.toggle-arrow.active {
-    transform: rotate(90deg);
+.rollback-btn:hover {
+    background-color: #e1e1e1;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+}
+
+.close {
+    float: right;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #000;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.submit-btn {
+    background-color: #0366d6;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background-color: #0356b6;
 }
