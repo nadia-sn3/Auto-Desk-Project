@@ -12,7 +12,7 @@
     <div class="page-container">
         <div class="create-project-box">
             <h2>Create Project</h2>
-            <form action="create-project-process.php" method="POST" id="create-project-form">
+            <form action="backend/php/upload.php" method="POST" enctype="multipart/form-data" id="create-project-form">
 
             <div class="input-group">
                     <label for="project-name">Project Name</label>
