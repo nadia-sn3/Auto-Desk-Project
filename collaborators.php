@@ -51,15 +51,16 @@
         <span class="close-btn">&times;</span>
         <h2>Add Collaborator</h2>
 
-        <form id="collaborator-form">
-            <div class="form-group">
-                <label for="collaborator-username">Search by Username</label>
-                <input type="text" id="collaborator-username" name="collaborator-username" placeholder="Enter username">
-            </div>
-            <div class="form-group">
-                <label for="collaborator-email">Or Invite by Email</label>
-                <input type="email" id="collaborator-email" name="collaborator-email" placeholder="Enter email">
-            </div>
+        <div class="form-group">
+    <label for="collaborator-username">Search by Username</label>
+    <input type="text" id="collaborator-username" name="collaborator-username" placeholder="Enter username">
+    <div id="username-suggestions" class="suggestions"></div>
+</div>
+<div class="form-group">
+    <label for="collaborator-email">Or Invite by Email</label>
+    <input type="email" id="collaborator-email" name="collaborator-email" placeholder="Enter email">
+    <div id="email-suggestions" class="suggestions"></div>
+</div>
             <div class="form-group">
                 <label for="collaborator-role">Role</label>
                 <select id="collaborator-role" name="collaborator-role">
@@ -94,7 +95,9 @@
 
     <?php include('include/footer.php'); ?>
 
-    <script src="js/add-collaborator.js"></script>
+    <script src="js/add-collaborator-modal.js"></script>
+    <script src="js/add-collaborator-search.js"></script>
+
 </body>
 </html>
 
