@@ -104,6 +104,19 @@
     font-size: 1.2rem;
     margin-bottom: 30px;
 }
+.cta-btn{
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    background-color: transparent; 
+    color: rgb(0, 0, 0);
+    border: 2px solid rgb(0, 0, 0);
+}
+.cta-btn:hover {
+    background-color: #B0B0B0;
+}
 
 @media (max-width: 768px) {
     .hero-content h1 {

@@ -42,14 +42,15 @@ session_start();
 
         <section class="cta-section">
             <div class="cta-content">
-                <h2>Ready to Create Your Own 3D Models?</h2>
-                <p>Join our community and start building amazing 3D projects today.</p>
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="create-project.php" class="btn">Create Project</a>
+                    <h2>Time to Start Crafting Your 3D Creations!</h2>
+                    <p>Start building amazing 3D projects today with our tools and community.</p>
+                    <a href="create-project.php" class="cta-btn">Create Project</a>
                 <?php else: ?>
-                    <a href="signup.php" class="btn">Sign Up Now</a>
+                    <h2>Ready to Create Your Own 3D Models?</h2>
+                    <p>Join our community and start building amazing 3D projects today.</p>
+                    <a href="signup.php" class="cta-btn">Sign Up Now</a>
                 <?php endif; ?>
-
             </div>
         </section>
     </div>
