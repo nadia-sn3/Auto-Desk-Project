@@ -96,7 +96,7 @@
     <?php include('include/footer.php'); ?>
 
     <script src="js/add-collaborator-modal.js"></script>
-    <script src="js/add-collaborator-search.js"></script>
+    <script src="js/user-search.js"></script>
 
 </body>
 </html>

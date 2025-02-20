@@ -4,14 +4,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const usernameSuggestions = document.getElementById('username-suggestions');
     const emailSuggestions = document.getElementById('email-suggestions');
 
-    const users = [
-        { username: 'alice', email: 'alice@example.com' },
-        { username: 'bob', email: 'bob@example.com' },
-        { username: 'charlie', email: 'charlie@example.com' },
-    ];
-
-    function filterSuggestions(input, type) {
-        return users.filter(user => user[type].toLowerCase().startsWith(input.toLowerCase()));
+    function fetchSuggestions(searchTerm, type) {
+        return fetch(`fetch_users.php?term=${searchTerm}`)
+            .then(response => response.json())
+            .then(users => {
+                return users.filter(user => user[type].toLowerCase().includes(searchTerm.toLowerCase()));
+            })
+            .catch(error => {
+                console.error('Error fetching suggestions:', error);
+                return [];
+            });
     }
 
     function displaySuggestions(suggestions, container) {
@@ -34,16 +36,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     usernameInput.addEventListener('input', function () {
         const input = usernameInput.value.trim();
-        const suggestions = filterSuggestions(input, 'username');
-        displaySuggestions(suggestions, usernameSuggestions);
+        if (input.length > 0) {
+            fetchSuggestions(input, 'username').then(suggestions => {
+                displaySuggestions(suggestions, usernameSuggestions);
+            });
+        } else {
+            usernameSuggestions.style.display = 'none';
+        }
     });
 
     emailInput.addEventListener('input', function () {
         const input = emailInput.value.trim();
-        const suggestions = filterSuggestions(input, 'email');
-        displaySuggestions(suggestions, emailSuggestions);
+        if (input.length > 0) {
+            fetchSuggestions(input, 'email').then(suggestions => {
+                displaySuggestions(suggestions, emailSuggestions);
+            });
+        } else {
+            emailSuggestions.style.display = 'none';
+        }
     });
 
+    // Hide suggestions when clicking outside
     document.addEventListener('click', function (event) {
         if (!usernameInput.contains(event.target)) {
             usernameSuggestions.style.display = 'none';
