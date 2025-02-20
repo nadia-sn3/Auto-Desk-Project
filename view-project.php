@@ -39,6 +39,10 @@
                         <label for="fileInput" class="browse-btn">Browse Files</label>
                     </div>
                     <div id="fileList"></div>
+                    <div id="commitMessageContainer" style="display: none;">
+                        <label for="commitMessage">Initial Commit Message:</label>
+                        <input type="text" id="commitMessage" placeholder="Enter commit message" required>
+                    </div>
                     <button id="confirmUploadBtn" class="browse-btn" style="display: none;">Upload</button>
                 </div>
             </div>
