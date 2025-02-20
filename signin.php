@@ -1,6 +1,8 @@
 <?php
 require 'db/connection.php'; 
 
+$error_message = ''; 
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
@@ -17,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         header("Location: project-home.php");
         exit();
     } else {
-        die("Invalid email or password.");
+        $error_message = "Invalid email or password."; 
     }
 }
 ?>
@@ -39,8 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="signin-box">
                 <h2>Sign In</h2>
 
-                <form action="signin.php" method="POST" id="signin-form">
+                <?php if ($error_message): ?>
+                    <div class="error-message">
+                        <p><?php echo $error_message; ?></p>
+                    </div>
+                <?php endif; ?>
 
+                <form action="signin.php" method="POST" id="signin-form">
                     <div class="input-group">
                         <label for="email">Email</label>
                         <input type="email" id="email" name="email" placeholder="Enter your email" required>

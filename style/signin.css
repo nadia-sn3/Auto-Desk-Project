@@ -70,3 +70,11 @@ h2 {
 .signup-link a:hover {
     text-decoration: underline;
 }
+.error-message {
+    color: red;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
