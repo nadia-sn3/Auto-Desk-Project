@@ -6,19 +6,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('fileInput');
     const fileList = document.getElementById('fileList');
     const confirmUploadBtn = document.getElementById('confirmUploadBtn');
+    const commitMessageContainer = document.getElementById('commitMessageContainer');
+    const commitMessageInput = document.getElementById('commitMessage');
 
     let selectedFiles = [];
+
     uploadBtn.addEventListener('click', () => {
         uploadModal.style.display = 'flex';
     });
 
     closeBtn.addEventListener('click', () => {
         uploadModal.style.display = 'none';
+        resetForm();
     });
 
     window.addEventListener('click', (event) => {
         if (event.target === uploadModal) {
             uploadModal.style.display = 'none';
+            resetForm();
         }
     });
 
@@ -52,8 +57,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function handleFiles(files) {
+        selectedFiles = []; // Reset selected files
         for (let i = 0; i < files.length; i++) {
-            selectedFiles.push(files[i]);
+            const file = files[i];
+            if (file.name.endsWith('.obj')) {
+                selectedFiles.push(file);
+            } else {
+                alert(`File "${file.name}" is not a valid .obj file. Only .obj files are allowed.`);
+            }
         }
         updateFileList();
     }
@@ -61,17 +72,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateFileList() {
         fileList.innerHTML = '';
 
-        selectedFiles.forEach((file, index) => {
-            const fileItem = document.createElement('div');
-            fileItem.classList.add('file-item');
-            fileItem.innerHTML = `
-                ${file.name} (${(file.size / 1024).toFixed(2)} KB)
-                <button class="delete-btn" data-index="${index}">&times;</button>
-            `;
-            fileList.appendChild(fileItem);
-        });
+        if (selectedFiles.length > 0) {
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.classList.add('file-item');
+                fileItem.innerHTML = `
+                    ${file.name} (${(file.size / 1024).toFixed(2)} KB)
+                    <button class="delete-btn" data-index="${index}">&times;</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
 
-        confirmUploadBtn.style.display = selectedFiles.length > 0 ? 'inline-block' : 'none';
+            commitMessageContainer.style.display = 'block'; 
+            confirmUploadBtn.style.display = 'inline-block'; 
+        } else {
+            commitMessageContainer.style.display = 'none';
+            confirmUploadBtn.style.display = 'none';
+        }
 
         document.querySelectorAll('.delete-btn').forEach(button => {
             button.addEventListener('click', function() {
@@ -82,7 +99,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    confirmUploadBtn.addEventListener('click', function() {
-        alert('Files ready to be uploaded: ' + selectedFiles.map(f => f.name).join(', '));
+    commitMessageInput.addEventListener('input', function() {
+        confirmUploadBtn.disabled = !commitMessageInput.value.trim();
     });
+
+    confirmUploadBtn.addEventListener('click', function() {
+        if (selectedFiles.length > 0 && commitMessageInput.value.trim()) {
+            const commitMessage = commitMessageInput.value.trim();
+            alert(`Files ready to be uploaded: ${selectedFiles.map(f => f.name).join(', ')}\nCommit Message: ${commitMessage}`);
+            resetForm();
+        }
+    });
+
+    function resetForm() {
+        selectedFiles = [];
+        fileList.innerHTML = '';
+        commitMessageInput.value = '';
+        commitMessageContainer.style.display = 'none';
+        confirmUploadBtn.style.display = 'none';
+        confirmUploadBtn.disabled = true;
+    }
 });
