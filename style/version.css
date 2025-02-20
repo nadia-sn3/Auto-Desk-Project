@@ -28,7 +28,6 @@
 }
 
 .commit-info {
-    flex: 1;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -44,7 +43,16 @@
     font-style: italic;
 }
 
+.commit-info .username {
+    font-weight: 500;
+}
+
+.commit-info .commit-date {
+    font-style: italic;
+}
+
 .rollback-btn {
+    margin-left: 10px; 
     background-color: #f1f1f1;
     border: 1px solid #ddd;
     padding: 5px 10px;
@@ -118,3 +126,4 @@
 .submit-btn:hover {
     background-color: #0356b6;
 }
+
