@@ -1,8 +1,8 @@
 <?php
 session_start();
-session_destroy(); // Destroy the session
-setcookie(session_name(), '', time() - 3600, '/'); // Remove session cookie
+session_destroy();
+setcookie(session_name(), '', time() - 3600, '/'); 
 
-header("Location: signin.php"); // Redirect to login page
+header("Location: signin.php"); 
 exit();
 ?>
