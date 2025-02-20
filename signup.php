@@ -1,6 +1,8 @@
 <?php
 require 'db/connection.php'; 
 
+session_start(); 
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $email = $_POST['email'];
@@ -15,7 +17,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $stmt = $pdo->prepare("INSERT INTO users (username, email, password_hash, role_id) VALUES (?, ?, ?, 2)");
     if ($stmt->execute([$username, $email, $password_hash])) {
-        header("Location: signin.php");
+        $user_id = $pdo->lastInsertId();
+        
+        $_SESSION['user_id'] = $user_id;
+        $_SESSION['username'] = $username; 
+
+        header("Location: project-home.php");
         exit();
     } else {
         die("Signup failed.");
