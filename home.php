@@ -1,9 +1,5 @@
 <?php 
 session_start(); 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: signin.php");
-    exit();
-}
 ?>
 
 <!DOCTYPE html>
@@ -48,7 +44,12 @@ if (!isset($_SESSION['user_id'])) {
             <div class="cta-content">
                 <h2>Ready to Create Your Own 3D Models?</h2>
                 <p>Join our community and start building amazing 3D projects today.</p>
-                <a href="signup.php" class="btn-primary">Sign Up Now</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="create-project.php" class="btn">Create Project</a>
+                <?php else: ?>
+                    <a href="signup.php" class="btn">Sign Up Now</a>
+                <?php endif; ?>
+
             </div>
         </section>
     </div>
