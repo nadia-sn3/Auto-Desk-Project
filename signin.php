@@ -1,7 +1,5 @@
-
-
 <?php
-require 'db.php';
+require 'db.php'; 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
@@ -16,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['role_id'] = $user['role_id'];
-        header("Location:home.php");
+        header("Location: dashboard.php");
         exit();
     } else {
         die("Invalid email or password.");
