@@ -7,6 +7,37 @@ $urn = isset($_GET['urn']) ? htmlspecialchars($_GET['urn']) : '';
 
 // Include your backend logic to get an Autodesk Forge Access Token
 $access_token = getAccessToken($client_id, $client_secret);
+
+if(isset($_GET['downloadFile']))
+{
+    //include("Access_Token.php");
+    //include("Helper_Functions.php");
+    include("backend/php/Download_Functions.php");
+
+    //$accessToken = getAccessToken($client_id, $client_secret);
+    
+    $objectkey =  $_GET['objectKey'];
+
+    $signedUrl = ObtainSignedURL($access_token, $bucket_key, $objectkey);
+
+    $downloadURL = $signedUrl["url"];
+
+    $fileNameSaveAs = $objectkey;
+
+    $fileData = DownloadFile($downloadURL, $fileNameSaveAs);
+    
+    //Define Headers
+    header("Cache-Control: public");
+    header("Content-Description: FIle Transfer");
+    header("Content-Disposition: attachment; filename=$objectkey");
+    header("Content-Type: application/zip");
+    header("Content-Transfer-Emcoding: binary");
+    //header("Location: index.php");
+
+    echo $fileData;
+    //readfile($filepath);
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -65,7 +96,7 @@ $access_token = getAccessToken($client_id, $client_secret);
     
                 <div class="project-model-buttons">
                     <button class="btn">Share</button>
-                    <button class="btn">Download</button>
+                    <button class="btn"><a href="view-asset-model.php?urn=<?php echo $_GET['urn'] ?>&objectKey=<?php echo $_GET['objectKey'] ?>&downloadFile">Download<a></button>
                 </div>
                 <div class="project-model-data">
                     <h3>Model Details</h3>
