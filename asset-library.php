@@ -16,14 +16,14 @@
 
     <div class="page-container">
         <aside class="sidebar">
-            <h3>Pre-Manufacturing Models</h3>
-            <ul>
+        <h3><a href ="project-home.php">Pre-Manufacturing Models</a></h3>
+        <ul>
                 <li><a href="#">Model 1</a></li>
                 <li><a href="#">Model 2</a></li>
                 <li><a href="#">Model 3</a></li>
             </ul>
 
-            <h3>Asset Library</h3>
+            <h3><a href="asset-library.php">Asset Library</a></h3>
             <ul>
                 <li><a href="#">Asset 1</a></li>
                 <li><a href="#">Asset 2</a></li>

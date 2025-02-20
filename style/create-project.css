@@ -1,0 +1,163 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #f5f7fa;
+    color: #2c3e50;
+    line-height: 1.6;
+}
+
+.page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.create-project-box {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.create-project-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
+}
+
+h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 24px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.input-group input,
+.input-group textarea,
+.input-group select {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-group input:focus,
+.input-group textarea:focus,
+.input-group select:focus {
+    border-color: #5c9bfb;
+    outline: none;
+    box-shadow: 0 0 8px rgba(92, 155, 251, 0.3);
+}
+
+.file-upload-box {
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.file-upload-box p {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.file-upload-box:hover {
+    border-color: #5c9bfb;
+    background-color: #f0f4ff;
+}
+
+.add-user-btn {
+    padding: 10px 16px;
+    background-color: #5c9bfb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.add-user-btn:hover {
+    background-color: #4a8ad8;
+    transform: translateY(-2px);
+}
+
+.user-role-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.user-role-group label {
+    flex: 1;
+    font-size: 14px;
+    color: #555;
+    font-weight: 500;
+}
+
+.user-role-group select {
+    padding: 8px;
+    font-size: 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    margin-left: 10px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.user-role-group select:focus {
+    border-color: #5c9bfb;
+    outline: none;
+    box-shadow: 0 0 8px rgba(92, 155, 251, 0.3);
+}
+
+.create-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #5c9bfb, #4a8ad8);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.create-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(92, 155, 251, 0.3);
+}
+
