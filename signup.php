@@ -1,4 +1,29 @@
 
+<?php
+require 'db.php';
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $username = $_POST['username'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    $confirm_password = $_POST['confirm-password'];
+
+    if ($password !== $confirm_password) {
+        die("Passwords do not match.");
+    }
+
+    $password_hash = password_hash($password, PASSWORD_BCRYPT);
+
+    $stmt = $pdo->prepare("INSERT INTO users (username, email, password_hash, role_id) VALUES (?, ?, ?, 2)");
+    if ($stmt->execute([$username, $email, $password_hash])) {
+        header("Location: signin.php");
+        exit();
+    } else {
+        die("Signup failed.");
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
