@@ -25,7 +25,11 @@ if (!isset($_SESSION['user_id'])) {
                 <h1>Explore the World of 3D Models</h1>
                 <p>Discover, create, and share stunning 3D models with our powerful platform.</p>
                 <div class="hero-buttons">
-                    <a href="signup.php" class="btn">Get Started</a>
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <a href="create-project.php" class="btn">Get Started</a>
+                    <?php else: ?>
+                        <a href="signup.php" class="btn">Get Started</a>
+                    <?php endif; ?>
                     <a href="#" class="btn">Learn More</a>
                 </div>
             </div>
