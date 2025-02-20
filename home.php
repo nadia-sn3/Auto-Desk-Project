@@ -1,7 +1,5 @@
 <?php 
-session_start(); // Start the session at the very top
-
-// Check if the user is logged in
+session_start(); 
 if (!isset($_SESSION['user_id'])) {
     header("Location: signin.php");
     exit();
@@ -21,12 +19,6 @@ if (!isset($_SESSION['user_id'])) {
     <?php include('include/header.php'); ?>
 
     <div class="page-container">
-        <!-- Welcome Message -->
-        <section class="welcome-section">
-            <h1>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h1>
-            <p>Your Role ID: <?php echo $_SESSION['role_id']; ?></p>
-            <a href="logout.php" class="btn-logout">Logout</a>
-        </section>
 
         <section class="hero-section">
             <div class="hero-content">
