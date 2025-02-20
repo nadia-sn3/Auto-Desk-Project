@@ -1,60 +1,3 @@
-<?php
-include 'db_connect.php'; // Include the database connection
-
-$error_message = ""; // Variable to store signup errors
-$success_message = ""; // Variable to store success messages
-
-// Ensure Database Connection is Established
-if (!$conn) {
-    die("Database connection failed: " . $conn->connect_error);
-}
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username']; 
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm-password'];
-
-    // Check If the `users` Table Exists
-    $table_check_sql = "SHOW TABLES LIKE 'user'";
-    $table_check_result = $conn->query($table_check_sql);
-    
-    if ($table_check_result->num_rows == 0) {
-        die("Error: The 'user' table does not exist. Please create the table in phpMyAdmin.");
-    }
-
-    // Check if passwords match
-    if ($password !== $confirm_password) {
-        $error_message = "Passwords do not match!";
-    } else {
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT); // Hash password
-        $role_id = 2; // Default role_id for normal users
-
-        // Insert user into the database
-        $sql = "INSERT INTO user
-        
-         (username, email, password, role_id) VALUES (?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-
-        // Debug SQL statement
-        if (!$stmt) {
-            die("SQL Error: " . $conn->error);
-        }
-
-        $stmt->bind_param("sssi", $username, $email, $hashed_password, $role_id);
-
-        if ($stmt->execute()) {
-            $success_message = "Signup successful! <a href='signin.php'>Login here</a>";
-        } else {
-            $error_message = "Error: " . $stmt->error;
-        }
-
-        $stmt->close();
-    }
-
-    $conn->close();
-}
-?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -73,14 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="signup-box">
                 <h2>Sign Up</h2>
 
-                <!-- Display success or error messages -->
-                <?php if (!empty($error_message)): ?>
-                    <p style="color: red;"><?php echo htmlspecialchars($error_message); ?></p>
-                <?php endif; ?>
-                <?php if (!empty($success_message)): ?>
-                    <p style="color: green;"><?php echo htmlspecialchars($success_message); ?></p>
-                <?php endif; ?>
-
+]
                 <form action="signup.php" method="POST" id="signup-form">
                     <div class="input-group">
                         <label for="username">Full Name</label>

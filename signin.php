@@ -1,39 +1,28 @@
+
+
 <?php
-session_start(); // Start the session at the top
-include 'db_connect.php'; // Include the database connection
+require 'db.php';
 
-$error_message = ""; // Variable to store login errors
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Retrieve user from the database
-    $sql = "SELECT user_id, username, password, role_id FROM user WHERE email = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $stmt->store_result();
-    $stmt->bind_result($user_id, $username, $hashed_password, $role_id);
-    $stmt->fetch();
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
 
-    if ($stmt->num_rows > 0 && password_verify($password, $hashed_password)) {
-        // Store user session
-        $_SESSION['user_id'] = $user_id;
-        $_SESSION['username'] = $username;
-        $_SESSION['role_id'] = $role_id; // Store role_id for access control
-
-        header("Location: home.php"); // Redirect to home page
+    if ($user && password_verify($password, $user['password_hash'])) {
+        session_start();
+        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['role_id'] = $user['role_id'];
+        header("Location:home.php");
         exit();
     } else {
-        $error_message = "Invalid email or password.";
+        die("Invalid email or password.");
     }
-
-    $stmt->close();
-    $conn->close();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,11 +40,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="signin-box">
                 <h2>Sign In</h2>
 
-                <?php if (!empty($error_message)): ?>
-                    <p style="color: red;"><?php echo htmlspecialchars($error_message); ?></p>
-                <?php endif; ?>
-
                 <form action="signin.php" method="POST" id="signin-form">
+
                     <div class="input-group">
                         <label for="email">Email</label>
                         <input type="email" id="email" name="email" placeholder="Enter your email" required>
