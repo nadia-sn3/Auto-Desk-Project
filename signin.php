@@ -1,5 +1,5 @@
 <?php
-require 'db.php'; 
+require 'db/connection.php'; 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
@@ -14,13 +14,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['role_id'] = $user['role_id'];
-        header("Location: dashboard.php");
+        header("Location: project-home.php");
         exit();
     } else {
         die("Invalid email or password.");
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
