@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Feb 19, 2025 at 12:21 PM
+-- Generation Time: Feb 20, 2025 at 01:55 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -123,6 +123,14 @@ CREATE TABLE `roles` (
   `role_name` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `roles`
+--
+
+INSERT INTO `roles` (`role_id`, `role_name`) VALUES
+(1, 'Admin'),
+(2, 'User');
+
 -- --------------------------------------------------------
 
 --
@@ -136,6 +144,13 @@ CREATE TABLE `user` (
   `password` varchar(60) NOT NULL,
   `role_id` int(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user`
+--
+
+INSERT INTO `user` (`user_id`, `username`, `email`, `password`, `role_id`) VALUES
+(1, 'test', 'test@gmail.com', 'test123', 2);
 
 --
 -- Indexes for dumped tables
