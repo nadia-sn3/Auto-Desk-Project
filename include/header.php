@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <link rel="stylesheet" href="style/header.css">
 <link rel="stylesheet" href="style/create-modal.css">
 
@@ -13,7 +14,12 @@
             <ul>
                 <li><a href="create-project.php">Create</a></li>
                 <li><a href="project-home.php">Projects</a></li>
-                <li><a href="signin.php">Sign In</a></li>
+
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <li><a href="logout.php">Log Out</a></li>
+                <?php else: ?>
+                    <li><a href="signin.php">Sign In</a></li>
+                <?php endif; ?>
             </ul>
         </div>
     </div>
