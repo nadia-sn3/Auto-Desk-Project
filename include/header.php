@@ -17,6 +17,7 @@
 
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <li><a href="logout.php">Log Out</a></li>
+                    <li><a href="project-home.php">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></a></li>
                 <?php else: ?>
                     <li><a href="signin.php">Sign In</a></li>
                 <?php endif; ?>
