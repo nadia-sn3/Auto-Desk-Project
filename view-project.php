@@ -24,7 +24,7 @@
                 <ul>
                     <li><a href="collaborators.php" class="nav-link">Collaborators</a></li>
                     <li><a href="issues.php" class="nav-link">Issues</a></li>
-                    <li><button id="uploadBtn" class="nav-link">Upload Files</button></li>
+                    <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Upload Files</a></li>
                 </ul>
             </nav>
 

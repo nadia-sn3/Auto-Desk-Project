@@ -57,11 +57,25 @@
     border-bottom-color: #f9826c;
 }
 
-.project-nav-bar button.nav-link {
-    background: none;
-    border: none;
-    cursor: pointer;
+.project-nav-bar a.nav-link {
+    display: inline-block;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: #24292e;
     font-size: 14px;
+    border-bottom: 2px solid transparent; 
+    transition: color 0.2s ease, border-bottom-color 0.2s ease;
+}
+
+.project-nav-bar a.nav-link:hover {
+    color: #0366d6; 
+    border-bottom-color: #0366d6; 
+}
+
+.project-nav-bar a.nav-link.active {
+    font-weight: 600;
+    color: #24292e;
+    border-bottom-color: #f9826c;
 }
 
 .project-model-viewer {
@@ -103,8 +117,6 @@
     justify-content: center;
     gap: 20px;
 }
-
-
 
 .btn:hover {
     background-color: #B0B0B0;

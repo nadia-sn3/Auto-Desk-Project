@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const confirmUploadBtn = document.getElementById('confirmUploadBtn');
 
     let selectedFiles = [];
-
     uploadBtn.addEventListener('click', () => {
         uploadModal.style.display = 'flex';
     });
