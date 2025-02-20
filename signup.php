@@ -39,8 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <div class="signup-container">
             <div class="signup-box">
                 <h2>Sign Up</h2>
-
-]
                 <form action="signup.php" method="POST" id="signup-form">
                     <div class="input-group">
                         <label for="username">Full Name</label>
