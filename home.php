@@ -1,3 +1,13 @@
+<?php 
+session_start(); // Start the session at the very top
+
+// Check if the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: signin.php");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,6 +21,12 @@
     <?php include('include/header.php'); ?>
 
     <div class="page-container">
+        <!-- Welcome Message -->
+        <section class="welcome-section">
+            <h1>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h1>
+            <p>Your Role ID: <?php echo $_SESSION['role_id']; ?></p>
+            <a href="logout.php" class="btn-logout">Logout</a>
+        </section>
 
         <section class="hero-section">
             <div class="hero-content">
@@ -26,11 +42,9 @@
         <section class="featured-models">
             <h2>Featured Models</h2>
             <div class="model-grid">
-
-            <?php include('preview.php'); ?>
-            <?php include('preview.php'); ?>
-            <?php include('preview.php'); ?>
-
+                <?php include('preview.php'); ?>
+                <?php include('preview.php'); ?>
+                <?php include('preview.php'); ?>
             </div>
         </section>
 
