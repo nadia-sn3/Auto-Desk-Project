@@ -16,11 +16,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $confirm_password = $_POST['confirm-password'];
 
     // Check If the `users` Table Exists
-    $table_check_sql = "SHOW TABLES LIKE 'users'";
+    $table_check_sql = "SHOW TABLES LIKE 'user'";
     $table_check_result = $conn->query($table_check_sql);
     
     if ($table_check_result->num_rows == 0) {
-        die("Error: The 'users' table does not exist. Please create the table in phpMyAdmin.");
+        die("Error: The 'user' table does not exist. Please create the table in phpMyAdmin.");
     }
 
     // Check if passwords match
@@ -31,7 +31,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $role_id = 2; // Default role_id for normal users
 
         // Insert user into the database
-        $sql = "INSERT INTO users (username, email, password, role_id) VALUES (?, ?, ?, ?)";
+        $sql = "INSERT INTO user
+        
+         (username, email, password, role_id) VALUES (?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
 
         // Debug SQL statement

@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
 
     // Retrieve user from the database
-    $sql = "SELECT user_id, username, password, role_id FROM users WHERE email = ?";
+    $sql = "SELECT user_id, username, password, role_id FROM user WHERE email = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $email);
     $stmt->execute();
