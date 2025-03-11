@@ -8,7 +8,6 @@ $access_token = getAccessToken($client_id, $client_secret);
 
 if(isset($_GET['downloadFile']))
 {
-
     include("backend/php/Download_Functions.php");
     
     $objectkey =  $_GET['objectKey'];
@@ -125,7 +124,7 @@ if(isset($_GET['downloadFile']))
 
     <?php include('include/footer.php'); ?>
 
-    <script src="js/upload.js"></script>
+
 
 <div id="shareModal" class="modal">
     <div class="modal-content">
@@ -155,6 +154,8 @@ if(isset($_GET['downloadFile']))
     </div>
 </div>
 
+
+
 <script>
     <?php if ($access_token): ?>
             var accessToken = "<?php echo htmlspecialchars($access_token, ENT_QUOTES, 'UTF-8'); ?>";
@@ -173,6 +174,9 @@ if(isset($_GET['downloadFile']))
 <script src= "backend/js/main.js"></script>
 
 <script src="js/share.js"></script>
+<script src="js/upload.js"></script>
+<script src="js/issues-dropdown.js"></script>
+
 
 </body>
 </html>

@@ -14,12 +14,6 @@
     border-radius: 8px;
 }
 
-.commit-file {
-    flex: 1;
-    font-weight: 500;
-    color: #0366d6;
-}
-
 .commit-message {
     flex: 2;
     font-size: 0.9rem;
@@ -43,14 +37,6 @@
     font-style: italic;
 }
 
-.commit-info .username {
-    font-weight: 500;
-}
-
-.commit-info .commit-date {
-    font-style: italic;
-}
-
 .rollback-btn {
     margin-left: 10px; 
     background-color: #f1f1f1;
@@ -65,80 +51,47 @@
     background-color: #e1e1e1;
 }
 
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+.issues-dropdown {
+    position: relative;
+    display: inline-block;
 }
 
-.modal-content {
-    background-color: #fff;
-    margin: 10% auto;
-    padding: 20px;
-    border-radius: 8px;
-    width: 400px;
-    max-width: 90%;
-}
-
-.close {
-    float: right;
-    font-size: 1.5rem;
-    cursor: pointer;
-}
-
-.close:hover {
-    color: #000;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.form-group textarea {
-    width: 100%;
-    padding: 8px;
+.issues-dropdown-btn {
+    background-color: #f1f1f1;
     border: 1px solid #ddd;
+    padding: 5px 10px;
     border-radius: 4px;
-    resize: vertical;
-    min-height: 100px;
+    cursor: pointer;
+    font-size: 0.875rem;
 }
 
-.submit-btn {
-    background-color: #6c757d;
-    color: #fff;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: not-allowed; 
-    font-size: 14px;
+.issues-dropdown-btn:hover {
+    background-color: #e1e1e1;
+}
+
+.issues-dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 300px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    padding: 10px;
+    border-radius: 8px;
+    top: 100%;
+    left: 0;
+}
+
+.issues-dropdown-content .issue {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.issues-dropdown-content .issue:last-child {
+    border-bottom: none;
+}
+
+.issues-dropdown:hover .issues-dropdown-content {
     display: block;
-    margin: 20px auto;
-    width: fit-content;
-    min-width: 120px;
-    transition: background-color 0.3s ease; 
-}
-
-.submit-btn.active {
-    background-color: #007bff; 
-    cursor: pointer; 
-}
-
-.submit-btn:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed; 
-}
-
-.submit-btn:hover:not(:disabled) {
-    background-color: #0056b3; 
 }
