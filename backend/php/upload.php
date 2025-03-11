@@ -12,8 +12,8 @@ if(isset($_FILES['file-upload']))
    
     $signedURL = getSignedUrl($access_token, $bucket_key , $fileName);
     
-    $uploadKey = json_decode($signedURL,true)["uploadKey"]; //$signedURL["uploadKey"];
-    $signedURLs = json_decode($signedURL,true)["urls"]; //$signedURL["urls"][0];
+    $uploadKey = json_decode($signedURL,true)["uploadKey"]; 
+    $signedURLs = json_decode($signedURL,true)["urls"];
     
     uploadFileToS3($signedURLs, $fileTmpName);
     
@@ -21,21 +21,10 @@ if(isset($_FILES['file-upload']))
 
     print_r($finalizeResult);
 
-    //header("Location: index.php?uploadStatus=true");
-
-
     if (isset($finalizeResult['objectId'])) {
         $urn = $finalizeResult['objectId'];
     
-        // URL-safe Base64 encode the URN without padding
         $encoded_urn = base64UrlEncodeUnpadded($urn);
-    
-        // Now you can use the encoded URN for further operations
-        //echo "Encoded URN: " . $encoded_urn . "\n";
-    
-        // Proceed with further operations using $encoded_urn
-        // Example: You might use this encoded URN in an API request
-        // $next_response = someApiRequest($encoded_urn);
     } else {
         echo "URN not found in the response.\n";
     }
@@ -69,7 +58,6 @@ if(isset($_FILES['file-upload']))
            
             $translated_urn = $status_data['urn'];
     
-            // Pass the translated URN to JavaScript by embedding it into the script
             if (!empty($translated_urn)) {
                 echo "<script>
                         var translatedUrn = '{$translated_urn}';
@@ -84,7 +72,7 @@ if(isset($_FILES['file-upload']))
         }
         sleep(30);
     }
-    header("Location: ../../view-asset-model.php?urn=" . urlencode($translated_urn) . "&objectKey=" . urlencode($fileName));
+    header("Location: ../../view-project.php?urn=" . urlencode($translated_urn) . "&objectKey=" . urlencode($fileName));
     
     exit;
 

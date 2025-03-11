@@ -87,9 +87,6 @@ function DownloadFile($downloadURL, $saveAsFileName)
     $saveAsFilePath = "Temp_Download\\$saveAsFileName";
     file_put_contents($saveAsFilePath, $response);
 
-    //return $response;
 }
-
-//var_dump(json_decode($response));
 
 ?>

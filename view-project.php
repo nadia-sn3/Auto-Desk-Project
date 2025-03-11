@@ -1,3 +1,37 @@
+<?php
+include 'backend/php/config.php';
+include 'backend/php/functions.php';
+include 'backend/php/upload.php';
+$urn = isset($_GET['urn']) ? htmlspecialchars($_GET['urn']) : '';
+
+$access_token = getAccessToken($client_id, $client_secret);
+
+if(isset($_GET['downloadFile']))
+{
+
+    include("backend/php/Download_Functions.php");
+    
+    $objectkey =  $_GET['objectKey'];
+
+    $signedUrl = ObtainSignedURL($access_token, $bucket_key, $objectkey);
+
+    $downloadURL = $signedUrl["url"];
+
+    $fileNameSaveAs = $objectkey;
+
+    $fileData = DownloadFile($downloadURL, $fileNameSaveAs);
+    
+    header("Cache-Control: public");
+    header("Content-Description: FIle Transfer");
+    header("Content-Disposition: attachment; filename=$objectkey");
+    header("Content-Type: application/zip");
+    header("Content-Transfer-Emcoding: binary");
+
+    echo $fileData;
+    exit;
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +40,9 @@
     <link rel="stylesheet" href="style/base.css">
     <link rel="stylesheet" href="style/viewproject.css">
     <link rel="stylesheet" href="style/upload-button.css">
+    <link rel="stylesheet" href="backend/css/main.css">
+    <link href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.css" rel="stylesheet">
+    <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
     <title>AutoDesk | Project Name</title>
 </head>
 <body>
@@ -48,7 +85,10 @@
             </div>
 
             <div class="project-model">
-                <div class="project-model-viewer"></div>
+            <div class="project-model-viewer" id="forgeViewer"></div> 
+                <div id="viewables_dropdown" style="display: none;">
+                    <select id="viewables"></select>
+            </div>
                 <div class="project-model-buttons">
                     <button class="btn">Share</button>
                     <button class="btn">Download</button>
@@ -114,6 +154,23 @@
         </form>
     </div>
 </div>
+
+<script>
+    <?php if ($access_token): ?>
+            var accessToken = "<?php echo htmlspecialchars($access_token, ENT_QUOTES, 'UTF-8'); ?>";
+            console.log('Access Token:', accessToken);
+    <?php else: ?>
+            console.log('Error: Access token not retrieved.');
+    <?php endif; ?>
+        var urn = "<?php echo htmlspecialchars($urn, ENT_QUOTES, 'UTF-8'); ?>"; 
+        
+        if (!urn || urn === 'undefined') {
+            console.log("Error: URN is undefined or invalid.");
+        } else {
+            console.log("URN passed successfully:", urn);
+        }
+</script>
+<script src= "backend/js/main.js"></script>
 
 <script src="js/share.js"></script>
 

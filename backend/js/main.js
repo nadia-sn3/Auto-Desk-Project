@@ -114,6 +114,5 @@ function onDocumentLoadFailure(errorCode) {
     console.error('Failed fetching Forge manifest:', errorCode);
 }
 
-// Start the viewer
 initializeViewer();
 

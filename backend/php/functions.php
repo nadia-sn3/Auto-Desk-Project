@@ -5,7 +5,6 @@ function getAccessToken($client_id, $client_secret){
     // Base64 encode the client_id and client_secret
     $auth_string = base64_encode($client_id . ':' . $client_secret);
 
-    //Data to send in the request 
     $data = [
         "grant_type" => "client_credentials",
         "scope" => "data:write data:read bucket:create bucket:delete bucket:read"

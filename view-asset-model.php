@@ -2,19 +2,14 @@
 include 'backend/php/config.php';
 include 'backend/php/functions.php';
 include 'backend/php/upload.php';
-// Get the URN from the URL
+
 $urn = isset($_GET['urn']) ? htmlspecialchars($_GET['urn']) : '';
 
-// Include your backend logic to get an Autodesk Forge Access Token
 $access_token = getAccessToken($client_id, $client_secret);
 
 if(isset($_GET['downloadFile']))
 {
-    //include("Access_Token.php");
-    //include("Helper_Functions.php");
     include("backend/php/Download_Functions.php");
-
-    //$accessToken = getAccessToken($client_id, $client_secret);
     
     $objectkey =  $_GET['objectKey'];
 
@@ -26,16 +21,13 @@ if(isset($_GET['downloadFile']))
 
     $fileData = DownloadFile($downloadURL, $fileNameSaveAs);
     
-    //Define Headers
     header("Cache-Control: public");
     header("Content-Description: FIle Transfer");
     header("Content-Disposition: attachment; filename=$objectkey");
     header("Content-Type: application/zip");
     header("Content-Transfer-Emcoding: binary");
-    //header("Location: index.php");
 
     echo $fileData;
-    //readfile($filepath);
     exit;
 }
 ?>
@@ -92,7 +84,7 @@ if(isset($_GET['downloadFile']))
             <div class="project-model-viewer" id="forgeViewer"></div> 
                 <div id="viewables_dropdown" style="display: none;">
                     <select id="viewables"></select>
-                </div>
+            </div>
     
                 <div class="project-model-buttons">
                     <button class="btn">Share</button>
@@ -145,17 +137,14 @@ if(isset($_GET['downloadFile']))
 
 <script src="js/share.js"></script>
 <script>
-        // Only output the token if it exists
         <?php if ($access_token): ?>
             var accessToken = "<?php echo htmlspecialchars($access_token, ENT_QUOTES, 'UTF-8'); ?>";
             console.log('Access Token:', accessToken);
         <?php else: ?>
             console.log('Error: Access token not retrieved.');
         <?php endif; ?>
-        // Ensure URN is passed correctly from PHP
         var urn = "<?php echo htmlspecialchars($urn, ENT_QUOTES, 'UTF-8'); ?>"; 
         
-        // Check if URN is valid
         if (!urn || urn === 'undefined') {
             console.log("Error: URN is undefined or invalid.");
         } else {
