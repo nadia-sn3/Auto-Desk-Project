@@ -84,7 +84,7 @@ if(isset($_FILES['file-upload']))
         }
         sleep(30);
     }
-    header("Location: /Auto-Desk-Project/view-asset-model.php?urn=" . urlencode($translated_urn) . "&objectKey=" . urlencode($fileName));
+    header("Location: ../../view-asset-model.php?urn=" . urlencode($translated_urn) . "&objectKey=" . urlencode($fileName));
     
     exit;
 
