@@ -80,169 +80,107 @@ function createBucket($access_token, $bucket_key){
         die("Error creating bucket: " . json_encode($response));
     }
 }
-
-    // Function to get signed URL for uploading the file
-function getSignedUrl($access_token, $bucket_key, $file_name) {
-    $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload?minutesExpiration=10";
     
-    // Initialize cURL session
+function createUploadSession($access_token, $bucket_key, $file_name, $total_parts) 
+{
+    $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload?minutesExpiration=10&parts=$total_parts";
+
+    echo "Requesting URL: $url\n"; 
+    
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         "Authorization: Bearer $access_token"
     ]);
-
-    // Execute cURL request and capture response
+    
     $response = curl_exec($ch);
+    $error = curl_error($ch);
     curl_close($ch);
 
-    // Handle errors
     if ($response === false) {
-        die('Error: ' . curl_error($ch));
+        die('Error: ' . $error);
     }
 
-    echo "Raw response : $response\n";
+    // echo "<br><br>Raw response: $response\n";
     $data = json_decode($response, true);
 
-    if(isset($data['urls'])&& is_array($data['urls']) && !empty($data['urls'])){
-        return $response;
-        //return $data;
-    }else {
-        die("Error: Unable to get signed URL for upload.");
+    if (isset($data['uploadKey']) && isset($data['urls']) && is_array($data['urls']) && !empty($data['urls'])) {
+        $urls = $data['urls'];
+        $total_signed_parts = count($urls);
+
+        echo "Total parts requested: $total_parts\n";
+        echo "Number of signed URLs provided: $total_signed_parts\n";
+
+        if ($total_signed_parts != $total_parts) {
+            die("Error: Number of signed URLs does not match total parts.");
+        }
+
+        return $data;
+    } else {
+        die("Error: Unable to create upload session or missing signed URLs.");
     }
-    
 }
-
-
-/*function uploadFileToS3($signed_urls, $file_path) {
-    if (empty($signed_urls) || !is_array($signed_urls)) {
-        die('Error: Signed URLs are not available.');
-    }
-
-    $file = fopen($file_path, 'r');
-    $file_size = filesize($file_path);
-    $part_size = ceil($file_size / count($signed_urls)); // Calculate the size of each part
-
-    $responses = [];
     
-    // Loop through signed URLs and upload file parts
-    foreach ($signed_urls as $index => $signed_url) {
-        // Seek to the correct part of the file based on the part index
-        fseek($file, $index * $part_size);
 
-        // Prepare part data
-        $part_data = fread($file, $part_size);
-        $chunk_size = 1024 * 1024 * 5; 
-        // Set cURL options for the multipart upload
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $signed_url);
-        curl_setopt($ch, CURLOPT_PUT, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Content-Type: application/octet-stream"
+function uploadFileTobucket($signed_urls, $file_path) {
+    
+    $file = fopen($file_path, 'r'); // Open the file for reading
+    $part_number = 0; // Initialize part number
+    $file_size = filesize($file_path);
+    $chunk_size = 1024 * 1024 * 10; // 10MB per chunk
+    $total_parts = ceil($file_size / $chunk_size); // Calculate total parts
+
+    // Read the file in chunks and upload each chunk
+    for ($part_number = 0; $part_number < $total_parts; $part_number++) {
+        // Read the next chunk
+        $chunk = fread($file, $chunk_size);
+        $chunk_length = strlen($chunk); // Get the length of the chunk
+        $signed_url = $signed_urls[$part_number]; // Get the signed URL for the current part
+
+        $headers = [
+            "Content-Type: application/octet-stream", // MIME type for binary data
+            "Content-Length: $chunk_length", // Set the content length for the chunk
+            "Expect: 100-continue" // Expect the server to acknowledge the request before sending the body
+        ];
+
+        $ch = curl_init(); // Initialize the cURL session
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $signed_url, // Set the URL to the signed URL
+            CURLOPT_CUSTOMREQUEST => "PUT", // Use PUT method for uploading
+            CURLOPT_HTTPHEADER => $headers, // Set headers
+            CURLOPT_RETURNTRANSFER => true, // Return the response as a string
+            CURLOPT_POSTFIELDS => $chunk // Send the chunk in the request body
         ]);
 
-        // Loop to split the file into smaller parts
-        for ($i = 0; $i < strlen($part_data); $i += $chunk_size) {
-            // Extract the current chunk
-            $chunk = substr($part_data, $i, $chunk_size);
+        $response = curl_exec($ch); // Execute the cURL request
+        $status_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE); // Get the HTTP response code
 
-            // Open a memory stream for each chunk
-            $tempStream = fopen('php://temp', 'r+');
-            fwrite($tempStream, $chunk);
-            rewind($tempStream);
-            curl_setopt($ch,CURLOPT_INFILE,$tempStream);
-            curl_setopt($ch, CURLOPT_INFILESIZE, strlen($part_data));
-            
-
-       
-        // Execute the upload request
-        $response = curl_exec($ch);
-        $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        
+        // Error handling for cURL execution
         if ($response === false) {
-            die('Error uploading part: ' . curl_error($ch) . ' error code: ' . curl_errno($ch));
-        }
-        // Check for cURL errors
-        if(curl_errno($ch)) {
-            echo 'Curl error: ' . curl_error($ch);
-        } else {
-            echo 'Upload successful: ' . $response;
+            echo 'Curl error:' . curl_error($ch) . '<br>';
+            fclose($file); // Close the file
+            curl_close($ch); // Close the cURL session
+            return;
         }
 
-        // Check if the upload was successful (HTTP 200)
-        if ($http_status === 200) {
-            echo "Upload response for part " . ($index + 1) . ": HTTP Status Code: $http_status\n";
-            echo "Raw response: $response\n";
-        } else {
-            echo "Error uploading part " . ($index + 1) . " with status $http_status\n";
+        // Check if the upload was successful (status code 200 means success)
+        if ($status_code != 200) {
+            echo "Error uploading chunk $part_number. Status code: $status_code\n";
+            curl_close($ch); // Close the cURL session
+            return;
         }
 
-        fclose($tempStream);
-    }
-        // Store the response for each part to check later
-        $responses[] = json_decode($response, true);
-        curl_close($ch);
+        curl_close($ch); // Close the cURL session after successful upload
+        echo "Chunk $part_number uploaded successfully\n";
     }
 
-    fclose($file); // Close the file after upload
-    return $responses;
-}*/
-
-function uploadFileToS3($signed_urls, $file_path)
-{
-    $file_data = file_get_contents($file_path);
-    $file_size = filesize($file_path);
-      
-    $headers = [
-        "Content-Type: application/octet-stream",
-        "Content-Length: $file_size"
-    ];
-
-
-    $ch = curl_init();
-
-    curl_setopt_array($ch, [
-        CURLOPT_URL => $signed_urls[0],
-        CURLOPT_CUSTOMREQUEST => "PUT",
-        CURLOPT_HTTPHEADER => $headers,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POSTFIELDS => $file_data
-    ]); 
-    
-    
-    $response = curl_exec($ch);
-    
-    curl_close($ch);
-
-    if($response === false)
-    {
-        echo 'Curl error:' . curl_error($ch) . '<br>' 
-        . 'Function: UploadFiles' . '<br>'
-        . 'Response: ' . '<br>';
-        var_dump($response);
-        echo '<br> <br>';
-        exit;
-
-    }
-    
-    $status_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-    
-    if($status_code != 200)
-    {
-        echo 'Autodesk error: <br>' 
-        . 'Function: UploadFiles' . '<br>'
-        . 'Status code: ' . $status_code . '<br>'
-        . 'Response: ' . '<br>';
-        var_dump($response);
-        echo '<br> <br>';
-        exit;
-    }
+    fclose($file); // Close the file after the upload is complete
+    echo "File uploaded successfully in $total_parts chunks.\n";
 
 }
 
-
+//set_time_limit(int $seconds):bool
 function completeUpload($access_token, $bucket_key, $file_name, $upload_key) {
     $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload";
     
@@ -355,6 +293,7 @@ function StartTranslationJob($access_token, $urn)
 
     return $response;
 }
+
 
 function CheckJobStatus($accessToken, $urn)
 {

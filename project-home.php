@@ -25,7 +25,7 @@
 
             <h3><a href="asset-library.php">Asset Library</a></h3>
             <ul>
-                <li><a href="view-asset-model.php">Asset 1</a></li>
+                <li>  <a href="view-asset-model.php?urn=<?= urlencode($model['urn']) ?>">Asset 1 </a></li>
                 <li><a href="view-asset-model.php">Asset 2</a></li>
                 <li><a href="view-asset-model.php">Asset 3</a></li>
             </ul>

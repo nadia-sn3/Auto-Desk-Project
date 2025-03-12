@@ -1,5 +1,6 @@
 <?php
 
+ob_start();
 if(isset($_FILES['file-upload']))
 {
     require_once("config.php");
@@ -7,16 +8,41 @@ if(isset($_FILES['file-upload']))
     $file = $_FILES['file-upload'];
     $fileName = $file['name'];
     $fileTmpName = $file['tmp_name'];
+    $part_number = 0;
+    echo "<pre>";
+    print_r($_FILES);
+    echo "</pre>";
+     // Debugging output
+     if (empty($fileTmpName)) {
+        die("Error: File path is empty.\n");
+    } else {
+        echo "Temporary file path: $fileTmpName\n";
+    }
 
+     $file_size = filesize($fileTmpName); // Get the size of the uploaded file
+     $chunk_size = 10 * 1024 * 1024; // Set part size to 10MB (you can adjust this)
+     $total_parts = ceil($file_size / $chunk_size); // Calculate total parts
+    // echo "<br><br>Part number being passed: $part_number\n";
     $access_token = getAccessToken($client_id, $client_secret);
+    // $uploadKey = createUploadSession($access_token, $bucket_key, $fileName);
+    // $signedURL = createUploadSession($access_token, $bucket_key, $fileName, $part_number);
    
-    $signedURL = getSignedUrl($access_token, $bucket_key , $fileName);
+    // uploadFileToS3($signedURLs, $fileTmpName);
+    $signedURL = createUploadSession($access_token, $bucket_key , $fileName,$total_parts);
     
-    $uploadKey = json_decode($signedURL,true)["uploadKey"]; //$signedURL["uploadKey"];
-    $signedURLs = json_decode($signedURL,true)["urls"]; //$signedURL["urls"][0];
+    $uploadKey = $signedURL["uploadKey"]; // No need to decode
+    $signedURLs = $signedURL["urls"]; // No need to decode
     
-    uploadFileToS3($signedURLs, $fileTmpName);
     
+    if (count($signedURLs) < $total_parts) {
+        die("Error: Not enough signed URLs provided for the file parts.\n");
+    }
+
+    uploadFileTobucket($signedURLs, $fileTmpName);
+
+    //$signed_url = createUploadSession($access_token, $bucket_key, $fileName, $part_number);
+   
+    // uploadFileInChunks($access_token, $bucket_key,  $fileTmpName, $fileName);
     $finalizeResult = completeUpload($access_token, $bucket_key, $fileName, $uploadKey);
 
     print_r($finalizeResult);
@@ -65,7 +91,7 @@ if(isset($_FILES['file-upload']))
     
         if(isset($status_data['status']) && $status_data['status'] == "success")
         {
-            echo "Translation is completed";
+            //echo "Translation is completed";
            
             $translated_urn = $status_data['urn'];
     
@@ -74,7 +100,7 @@ if(isset($_FILES['file-upload']))
                 echo "<script>
                         var translatedUrn = '{$translated_urn}';
                         console.log('Translated URN:', translatedUrn);
-                      </script>";
+                      </script>"; 
             } else {
                 echo "<script>
                         console.error('Error: Translated URN is undefined.');
@@ -84,9 +110,11 @@ if(isset($_FILES['file-upload']))
         }
         sleep(30);
     }
-    header("Location: /Auto-Desk-Project/view-asset-model.php?urn=" . urlencode($translated_urn) . "&objectId=" . urlencode($urn_source_file));
+    header("Location: ../../view-asset-model.php?urn=" . urlencode($translated_urn) . "&objectKey=" . urlencode($fileName));
     
     exit;
 
 } 
+
+
 ?>
