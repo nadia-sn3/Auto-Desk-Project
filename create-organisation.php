@@ -20,28 +20,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } elseif (strlen($orgName) > 200) {
         $error = "Organisation name must be less than 200 characters.";
     } else {
-        try {
-            $pdo->beginTransaction();
+try {
+    $pdo->beginTransaction();
 
-            $stmt = $pdo->prepare("INSERT INTO organisations (org_name, description) VALUES (?, ?)");
-            $stmt->execute([$orgName, $description]);
-            $orgId = $pdo->lastInsertId();
+    $stmt = $pdo->prepare("INSERT INTO organisations (org_name, description) VALUES (?, ?)");
+    $stmt->execute([$orgName, $description]);
+    $orgId = $pdo->lastInsertId();
 
-            $stmt = $pdo->prepare("INSERT INTO organisation_members (org_id, user_id, role_id, invited_by) VALUES (?, ?, 2, ?)");
-            $stmt->execute([$orgId, $userId, $userId]);
+    $stmt = $pdo->prepare("INSERT INTO organisation_members (org_id, user_id, role_id, invited_by) 
+                          VALUES (?, ?, 2, ?)");
+    $stmt->execute([$orgId, $userId, $userId]);
 
-            $pdo->commit();
-            
-            $success = "Organisation created successfully!";
-            $_SESSION['current_org_id'] = $orgId;
-            $_SESSION['org_role'] = 2;
-            
-            header("Location: organisation.php?new=1");
-            exit();
-        } catch (PDOException $e) {
-            $pdo->rollBack();
-            $error = "Error creating organisation: " . $e->getMessage();
-        }
+    $pdo->commit();
+    
+    $_SESSION['current_org_id'] = $orgId;
+    $_SESSION['org_role'] = 2;
+    
+    $stmt = $pdo->prepare("SELECT role_id FROM organisation_members WHERE org_id = ? AND user_id = ?");
+    $stmt->execute([$orgId, $userId]);
+    $role = $stmt->fetchColumn();
+    
+    if ($role != 2) {
+        throw new Exception("Failed to assign owner role to organization creator");
+    }
+    
+    header("Location: org-owner-home.php?new=1");
+    exit();
+} catch (PDOException $e) {
+    $pdo->rollBack();
+    $error = "Error creating organisation: " . $e->getMessage();
+}
     }
 }
 ?>

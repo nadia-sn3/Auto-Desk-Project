@@ -2,6 +2,30 @@
 require 'db/connection.php';
 session_start();
 
+if (!isset($_SESSION['user_id'])) {
+    header("Location: signin.php");
+    exit();
+}
+
+$userId = $_SESSION['user_id'];
+$orgId = $_SESSION['current_org_id'] ?? null;
+
+if ($orgId) {
+    $stmt = $pdo->prepare("SELECT role_id FROM organisation_members WHERE org_id = ? AND user_id = ?");
+    $stmt->execute([$orgId, $userId]);
+    $userRole = $stmt->fetchColumn();
+
+    if (!$userRole) { 
+        header("Location: project-home.php");
+        exit();
+    }
+    
+    $_SESSION['org_role'] = $userRole;
+} else {
+    header("Location: project-home.php");
+    exit();
+}
+
 $totalMembers = 0;
 $activeProjects = 0;
 $storageUsed = 0;

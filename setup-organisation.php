@@ -19,12 +19,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $inviteEmails = array_filter($inviteEmails);
 
     if (empty($orgName)) {
-        $error = "Organisation name is required";
+        $error = "Organisation name is required.";
     } elseif (strlen($orgName) > 200) {
-        $error = "Organisation name must be 200 characters or less";
+        $error = "Organisation name must be less than 200 characters.";
     } else {
         try {
             $pdo->beginTransaction();
+
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM organisations WHERE org_name = ?");
+            $stmt->execute([$orgName]);
+            if ($stmt->fetchColumn() > 0) {
+                throw new Exception("An organisation with this name already exists.");
+            }
 
             $stmt = $pdo->prepare("INSERT INTO organisations (org_name, description) VALUES (?, ?)");
             $stmt->execute([$orgName, $description]);
@@ -52,16 +58,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['current_org_id'] = $orgId;
             $_SESSION['org_role'] = 2;
             
-            header("Location: org-dashboard.php?new=1");
+            header("Location: org-owner-home.php?new=1");
             exit();
-            
-        } catch (PDOException $e) {
+        } catch (Exception $e) {
             $pdo->rollBack();
             $error = "Error creating organisation: " . $e->getMessage();
         }
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
