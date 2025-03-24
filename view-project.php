@@ -84,10 +84,33 @@ if(isset($_GET['downloadFile']))
             </div>
 
             <div class="project-model">
-            <div class="project-model-viewer" id="forgeViewer"></div> 
-                <div id="viewables_dropdown" style="display: none;">
-                    <select id="viewables"></select>
-            </div>
+                <?php if (empty($urn)): ?>
+
+                    <div class="empty-viewer-upload">
+                        <div class="upload-area-large" id="dropAreaLarge">
+                            <div class="upload-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                            </div>
+                            <h3>Upload Your First Model</h3>
+                            <p>Drag & drop your 3D model files here</p>
+                            <p class="or-text">or</p>
+                            <input type="file" id="fileInputLarge" multiple style="display: none;">
+                            <label for="fileInputLarge" class="browse-btn-large">Select Files</label>
+                            <p class="file-types">Supported formats: .rvt, .dwg, .ifc, .obj, .glb, .fbx</p>
+                        </div>
+                    </div>
+                <?php else: ?>
+
+                    <div class="project-model-viewer" id="forgeViewer"></div> 
+                    <div id="viewables_dropdown" style="display: none;">
+                        <select id="viewables"></select>
+                    </div>
+                <?php endif; ?>
+                
                 <div class="project-model-buttons">
                     <button class="btn">Share</button>
                     <button class="btn">Download</button>
@@ -95,88 +118,136 @@ if(isset($_GET['downloadFile']))
                 <div class="project-model-data">
                     <h3>Model Details</h3>
                     <ul>
-                        <li><strong>File Type:</strong> GLB</li>
-                        <li><strong>File Size:</strong> 5.2 MB</li>
-                        <li><strong>Created:</strong> 2023-10-01</li>
-                        <li><strong>Last Updated:</strong> 2023-10-15</li>
+                        <li><strong>File Type:</strong> <?php echo empty($urn) ? 'No file uploaded' : 'GLB'; ?></li>
+                        <li><strong>File Size:</strong> <?php echo empty($urn) ? '0 MB' : '5.2 MB'; ?></li>
+                        <li><strong>Created:</strong> <?php echo empty($urn) ? 'N/A' : '2023-10-01'; ?></li>
+                        <li><strong>Last Updated:</strong> <?php echo empty($urn) ? 'N/A' : '2023-10-15'; ?></li>
                     </ul>
                 </div>
             </div>
 
             <div class="project-model-timeline">
-    <div class="project-model-timeline-header">
-        <h3>Model Timeline</h3>
-        <span class="total-commits">Total Commits: 12</span>
-        <div class="filter-container">
-            <input type="date" id="filterDate" name="filterDate">
-            <button id="filterBeforeBtn" class="btn">Before</button>
-            <button id="filterAfterBtn" class="btn">After</button>
+                <div class="project-model-timeline-header">
+                    <h3>Model Timeline</h3>
+                    <span class="total-commits">Total Commits: <?php echo empty($urn) ? '0' : '12'; ?></span>
+                    <div class="filter-container">
+                        <input type="date" id="filterDate" name="filterDate">
+                        <button id="filterBeforeBtn" class="btn">Before</button>
+                        <button id="filterAfterBtn" class="btn">After</button>
+                    </div>
+                </div>
+                <div class="project-model-timeline-versions">
+                    <?php include('version.php'); ?>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="project-model-timeline-versions">
-        <?php include('version.php'); ?>
-    </div>
-</div>
-        </div>
-    </div>
-
-
 
     <?php include('include/footer.php'); ?>
 
-
-
-<div id="shareModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn">&times;</span>
-        <h2>Share Project</h2>
-        <form id="share-form">
-            <div class="form-group">
-                <label for="share-username">Search by Username</label>
-                <input type="text" id="share-username" name="share-username" placeholder="Enter username">
-            </div>
-            <div class="form-group">
-                <label for="share-email">Or Invite by Email</label>
-                <input type="email" id="share-email" name="share-email" placeholder="Enter email">
-            </div>
-            <div class="form-group">
-                <label for="share-role">Role</label>
-                <select id="share-role" name="share-role">
-                    <option value="viewer">Viewer</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="share-duration">Access Duration (days)</label>
-                <input type="number" id="share-duration" name="share-duration" placeholder="Enter number of days">
-            </div>
-            <button type="submit" class="submit-btn">Share</button>
-        </form>
+    <div id="shareModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Share Project</h2>
+            <form id="share-form">
+                <div class="form-group">
+                    <label for="share-username">Search by Username</label>
+                    <input type="text" id="share-username" name="share-username" placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label for="share-email">Or Invite by Email</label>
+                    <input type="email" id="share-email" name="share-email" placeholder="Enter email">
+                </div>
+                <div class="form-group">
+                    <label for="share-role">Role</label>
+                    <select id="share-role" name="share-role">
+                        <option value="viewer">Viewer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="share-duration">Access Duration (days)</label>
+                    <input type="number" id="share-duration" name="share-duration" placeholder="Enter number of days">
+                </div>
+                <button type="submit" class="submit-btn">Share</button>
+            </form>
+        </div>
     </div>
-</div>
 
+    <script>
+        <?php if ($access_token): ?>
+                var accessToken = "<?php echo htmlspecialchars($access_token, ENT_QUOTES, 'UTF-8'); ?>";
+                console.log('Access Token:', accessToken);
+        <?php else: ?>
+                console.log('Error: Access token not retrieved.');
+        <?php endif; ?>
+            var urn = "<?php echo htmlspecialchars($urn, ENT_QUOTES, 'UTF-8'); ?>"; 
+            
+            if (!urn || urn === 'undefined') {
+                console.log("Error: URN is undefined or invalid.");
+            } else {
+                console.log("URN passed successfully:", urn);
+            }
+    </script>
+    <script src="backend/js/main.js"></script>
+    <script src="js/share.js"></script>
+    <script src="js/upload.js"></script>
+    <script src="js/issues-dropdown.js"></script>
 
+    <script>
 
-<script>
-    <?php if ($access_token): ?>
-            var accessToken = "<?php echo htmlspecialchars($access_token, ENT_QUOTES, 'UTF-8'); ?>";
-            console.log('Access Token:', accessToken);
-    <?php else: ?>
-            console.log('Error: Access token not retrieved.');
-    <?php endif; ?>
-        var urn = "<?php echo htmlspecialchars($urn, ENT_QUOTES, 'UTF-8'); ?>"; 
-        
-        if (!urn || urn === 'undefined') {
-            console.log("Error: URN is undefined or invalid.");
-        } else {
-            console.log("URN passed successfully:", urn);
-        }
-</script>
-<script src= "backend/js/main.js"></script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropAreaLarge = document.getElementById('dropAreaLarge');
+            const fileInputLarge = document.getElementById('fileInputLarge');
+            
+            if (dropAreaLarge && fileInputLarge) {
 
-<script src="js/share.js"></script>
-<script src="js/upload.js"></script>
-<script src="js/issues-dropdown.js"></script>
-
-
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropAreaLarge.addEventListener(eventName, preventDefaults, false);
+                });
+                
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropAreaLarge.addEventListener(eventName, highlight, false);
+                });
+                
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropAreaLarge.addEventListener(eventName, unhighlight, false);
+                });
+                
+                dropAreaLarge.addEventListener('drop', handleDrop, false);
+                
+                fileInputLarge.addEventListener('change', function(e) {
+                    handleFiles(e.target.files);
+                });
+            }
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            function highlight() {
+                dropAreaLarge.classList.add('highlight');
+            }
+            
+            function unhighlight() {
+                dropAreaLarge.classList.remove('highlight');
+            }
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+            
+            function handleFiles(files) {
+                if (files.length > 0) {
+                    document.getElementById('uploadModal').style.display = 'block';
+                    document.getElementById('fileInput').files = files;
+                                        const event = new Event('change');
+                    document.getElementById('fileInput').dispatchEvent(event);
+                }
+            }
+        });
+    </script>
 </body>
 </html>

@@ -25,14 +25,6 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="file-upload">Upload Files</label>
-                    <div class="file-upload-box">
-                        <input type="file" id="file-upload" name="file-upload" multiple>
-                        <p>Drag and drop files here or click to upload</p>
-                    </div>
-                </div>
-
-                <div class="input-group">
                     <label for="invite-users">Invite Users</label>
                     <div style="display: flex; gap: 10px;">
                         <input type="text" id="invite-users" name="invite-users" placeholder="Enter username or email">
