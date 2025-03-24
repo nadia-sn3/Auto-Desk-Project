@@ -66,7 +66,7 @@ $activeProjects = $result['count'];
     <link rel="stylesheet" href="style/organisation.css">
 
     <script src="js/sidebar-toggle.js" defer></script>
-    <title>AutoDesk | Organisation</title>
+    <title>Autodesk | Organisation</title>
 </head>
 <body>
     <?php include('include/header.php'); ?>

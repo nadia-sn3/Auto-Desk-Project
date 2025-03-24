@@ -42,7 +42,7 @@ if(isset($_GET['downloadFile']))
     <link rel="stylesheet" href="backend/css/main.css">
     <link href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.css" rel="stylesheet">
     <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
-    <title>AutoDesk | Project Name</title>
+    <title>Autodesk | Project Name</title>
 </head>
 <body>
     <?php include('include/header.php'); ?>

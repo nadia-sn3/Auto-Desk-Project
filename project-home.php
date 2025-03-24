@@ -9,7 +9,7 @@
 
     <script src="js/sidebar-toggle.js" defer></script>
 
-    <title>AutoDesk | Home</title>
+    <title>Autodesk | Home</title>
 </head>
 <body>
     <?php include('include/header.php'); ?>

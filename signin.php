@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style/base.css">
     <link rel="stylesheet" href="style/signin.css">
-    <title>AutoDesk | Sign In</title>
+    <title>Autodesk | Sign In</title>
 </head>
 <body>
     <?php include('include/header.php'); ?>

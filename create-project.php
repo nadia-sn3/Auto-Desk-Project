@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoDesk | Create Project</title>
+    <title>Autodesk | Create Project</title>
     <link rel="stylesheet" href="style/create-project.css">
 </head>
 <body>

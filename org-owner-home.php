@@ -56,6 +56,7 @@ $activeProjects = $result['count'];
 
 $success = '';
 $error = '';
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
     $firstName = trim($_POST['first_name']);
     $lastName = trim($_POST['last_name']);
@@ -129,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
                     <p>An account has been created for you with our organisation. Here are your login details:</p>
                     <p><strong>Email:</strong> $email</p>
                     <p><strong>Password:</strong> " . ($customPassword ? "[The password you set]" : "Welcome123!") . "</p>
-                    <p>You can login at <a href='https://yourdomain.com/signin'>AutoDesk</a> to access your account.</p>
+                    <p>You can login at <a href='link/signin'>AutoDesk</a> to access your account.</p>
                     <p>For security reasons, we recommend changing your password after first login.</p>
                 </body>
                 </html>
@@ -184,7 +185,7 @@ if (isset($_SESSION['error'])) {
     <link rel="stylesheet" href="style/organisation.css">
 
     <script src="js/sidebar-toggle.js" defer></script>
-    <title>AutoDesk | Organisation</title>
+    <title>Autodesk | Organisation</title>
 </head>
 <body>
     <?php include('include/header.php'); ?>
