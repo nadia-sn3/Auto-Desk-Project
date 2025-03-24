@@ -23,7 +23,7 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `organizations`
+-- Table structure for table `organisations`
 --
 
 CREATE TABLE `organisations` (
@@ -35,11 +35,21 @@ CREATE TABLE `organisations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
+CREATE TABLE password_reset_tokens (
+  token_id int(11) NOT NULL AUTO_INCREMENT,
+  user_id int(11) NOT NULL,
+  token varchar(255) NOT NULL,
+  expires_at timestamp NOT NULL,
+  used tinyint(1) NOT NULL DEFAULT 0,
+  created_at timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (token_id),
+  KEY user_id (user_id),
+  CONSTRAINT password_reset_tokens_ibfk_1 FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Table structure for table `users`
 --
-
 CREATE TABLE `users` (
   `user_id` int(11) NOT NULL,
   `email` varchar(100) NOT NULL,
@@ -54,7 +64,7 @@ CREATE TABLE `users` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `organization_members`
+-- Table structure for table `organisation_members`
 --
 
 CREATE TABLE `organisation_members` (
@@ -84,8 +94,8 @@ CREATE TABLE `roles` (
 
 INSERT INTO `roles` (`role_id`, `role_name`, `permissions`) VALUES
 (1, 'System Admin', '["*"]'),
-(2, 'Organization Owner', '["org.manage","org.members.invite","org.members.remove","org.projects.create","org.projects.manage"]'),
-(3, 'Organization Admin', '["org.members.invite","org.projects.create","org.projects.manage"]'),
+(2, 'Organisation Owner', '["org.manage","org.members.invite","org.members.remove","org.projects.create","org.projects.manage"]'),
+(3, 'Organisation Admin', '["org.members.invite","org.projects.create","org.projects.manage"]'),
 (4, 'Project Manager', '["org.projects.create","org.projects.manage"]'),
 (5, 'Team Member', '["org.projects.view"]');
 

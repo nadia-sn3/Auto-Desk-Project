@@ -1,31 +1,46 @@
 <?php
 require 'db/connection.php'; 
-
 session_start(); 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = $_POST['username'];
+    $firstName = $_POST['first_name'];
+    $lastName = $_POST['last_name'];
     $email = $_POST['email'];
     $password = $_POST['password'];
-    $confirm_password = $_POST['confirm-password'];
+    $confirm_password = $_POST['confirm_password'];
+
+    if (empty($firstName) || empty($lastName) || empty($email) || empty($password)) {
+        die("All fields are required.");
+    }
 
     if ($password !== $confirm_password) {
         die("Passwords do not match.");
     }
 
+    if (strlen($password) < 8) {
+        die("Password must be at least 8 characters long.");
+    }
+
+    $stmt = $pdo->prepare("SELECT user_id FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    if ($stmt->rowCount() > 0) {
+        die("Email already registered.");
+    }
+
     $password_hash = password_hash($password, PASSWORD_BCRYPT);
 
-    $stmt = $pdo->prepare("INSERT INTO users (username, email, password_hash, role_id) VALUES (?, ?, ?, 2)");
-    if ($stmt->execute([$username, $email, $password_hash])) {
+    $stmt = $pdo->prepare("INSERT INTO users (first_name, last_name, email, password_hash, created_at) VALUES (?, ?, ?, ?, NOW())");
+    if ($stmt->execute([$firstName, $lastName, $email, $password_hash])) {
         $user_id = $pdo->lastInsertId();
         
         $_SESSION['user_id'] = $user_id;
-        $_SESSION['username'] = $username; 
+        $_SESSION['email'] = $email;
+        $_SESSION['first_name'] = $firstName;
 
         header("Location: project-home.php");
         exit();
     } else {
-        die("Signup failed.");
+        die("Signup failed. Please try again.");
     }
 }
 ?>
@@ -48,20 +63,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <h2>Sign Up</h2>
                 <form action="signup.php" method="POST" id="signup-form">
                     <div class="input-group">
-                        <label for="username">Full Name</label>
-                        <input type="text" id="username" name="username" placeholder="Enter your full name" required>
+                        <label for="first_name">First Name</label>
+                        <input type="text" id="first_name" name="first_name" placeholder="Enter your first name" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="last_name">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" placeholder="Enter your last name" required>
                     </div>
                     <div class="input-group">
                         <label for="email">Email</label>
                         <input type="email" id="email" name="email" placeholder="Enter your email" required>
                     </div>
                     <div class="input-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Create a password" required>
+                        <label for="password">Password (min 8 characters)</label>
+                        <input type="password" id="password" name="password" placeholder="Create a password" minlength="8" required>
                     </div>
                     <div class="input-group">
-                        <label for="confirm-password">Confirm Password</label>
-                        <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm your password" required>
+                        <label for="confirm_password">Confirm Password</label>
+                        <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
                     </div>
                     <button type="submit" class="signup-btn">Sign Up</button>
                 </form>
