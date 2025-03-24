@@ -290,7 +290,8 @@
     color: #000;
 }
 
-/* Alert Styles */
+
+
 .alert {
     padding: 10px 15px;
     margin-bottom: 15px;
@@ -310,7 +311,6 @@
     border: 1px solid #f5c6cb;
 }
 
-/* Form Styles */
 .form-group {
     margin-bottom: 15px;
 }
