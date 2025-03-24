@@ -57,6 +57,17 @@ $activeProjects = $result['count'];
 $success = '';
 $error = '';
 
+$stmt = $pdo->prepare("
+    SELECT u.user_id, u.first_name, u.last_name, u.email, r.role_name, om.joined_at 
+    FROM organisation_members om
+    JOIN users u ON om.user_id = u.user_id
+    JOIN roles r ON om.role_id = r.role_id
+    WHERE om.org_id = ?
+    ORDER BY om.role_id, u.last_name, u.first_name
+");
+$stmt->execute([$orgId]);
+$members = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
     $firstName = trim($_POST['first_name']);
     $lastName = trim($_POST['last_name']);
@@ -270,64 +281,48 @@ if (isset($_SESSION['error'])) {
             </section>
 
             <section id="members" class="org-section">
-                <h2>Organisation Members</h2>
-                <div class="filter-bar">
-                    <input type="text" placeholder="Search members...">
-                    <select>
-                        <option value="all">All Roles</option>
-                        <option value="creator">Creator</option>
-                        <option value="manager">Manager</option>
-                        <option value="member">Member</option>
-                    </select>
-                    <button>Filter</button>
-                </div>
-                
-                <div class="members-table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Joined</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>John Smith</td>
-                                <td>john@example.com</td>
-                                <td>Creator</td>
-                                <td>Jan 15, 2024</td>
-                                <td>
-                                    <button class="btn-small">Edit</button>
-                                    <button class="btn-small btn-danger">Remove</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Sarah Johnson</td>
-                                <td>sarah@example.com</td>
-                                <td>Manager</td>
-                                <td>Feb 2, 2024</td>
-                                <td>
-                                    <button class="btn-small">Edit</button>
-                                    <button class="btn-small btn-danger">Remove</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Michael Brown</td>
-                                <td>michael@example.com</td>
-                                <td>Member</td>
-                                <td>Mar 10, 2024</td>
-                                <td>
-                                    <button class="btn-small">Edit</button>
-                                    <button class="btn-small btn-danger">Remove</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+    <h2>Organisation Members</h2>
+    <div class="filter-bar">
+        <input type="text" placeholder="Search members...">
+        <select>
+            <option value="all">All Roles</option>
+            <option value="creator">Creator</option>
+            <option value="manager">Manager</option>
+            <option value="member">Member</option>
+        </select>
+        <button>Filter</button>
+    </div>
+    
+    <div class="members-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($members as $member): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($member['first_name'] . ' ' . $member['last_name']); ?></td>
+                    <td><?php echo htmlspecialchars($member['email']); ?></td>
+                    <td><?php echo htmlspecialchars($member['role_name']); ?></td>
+                    <td><?php echo date('M j, Y', strtotime($member['joined_at'])); ?></td>
+                    <td>
+                        <?php if ($userRole == 2 || ($userRole == 3 && $member['role_id'] > 3)): ?>
+                            <button class="btn-small">Edit</button>
+                            <button class="btn-small btn-danger">Remove</button>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</section>
 
             <section id="projects" class="org-section">
                 <h2>Organisation Projects</h2>
