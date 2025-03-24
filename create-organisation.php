@@ -41,7 +41,7 @@ try {
     $role = $stmt->fetchColumn();
     
     if ($role != 2) {
-        throw new Exception("Failed to assign owner role to organization creator");
+        throw new Exception("Failed to assign owner role to organisation creator");
     }
     
     header("Location: org-owner-home.php?new=1");

@@ -15,7 +15,13 @@ if ($orgId) {
     $stmt->execute([$orgId, $userId]);
     $userRole = $stmt->fetchColumn();
 
-    if (!$userRole) { 
+    if ($userRole == 3) { 
+        header("Location: org-admin-home.php");
+        exit();
+    } elseif ($userRole == 5) { 
+        header("Location: org-member-home.php");
+        exit();
+    } elseif ($userRole != 2) {
         header("Location: project-home.php");
         exit();
     }
@@ -26,42 +32,26 @@ if ($orgId) {
     exit();
 }
 
+$orgName = "My Organisation"; 
+$stmt = $pdo->prepare("SELECT org_name FROM organisations WHERE org_id = ?");
+$stmt->execute([$orgId]);
+if ($stmt->rowCount() > 0) {
+    $org = $stmt->fetch();
+    $orgName = htmlspecialchars($org['org_name']);
+}
+
 $totalMembers = 0;
 $activeProjects = 0;
-$storageUsed = 0;
 
-if ($orgId) {
-    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM organisation_members WHERE org_id = ?");
-    $stmt->execute([$orgId]);
-    $result = $stmt->fetch();
-    $totalMembers = $result['count'];
+$stmt = $pdo->prepare("SELECT COUNT(*) as count FROM organisation_members WHERE org_id = ?");
+$stmt->execute([$orgId]);
+$result = $stmt->fetch();
+$totalMembers = $result['count'];
 
-    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM projects WHERE org_id = ?");
-    $stmt->execute([$orgId]);
-    $result = $stmt->fetch();
-    $activeProjects = $result['count'];
-}
-
-if (!isset($_SESSION['user_id'])) {
-    header("Location: signin.php");
-    exit();
-}
-
-$orgName = "My Organisation"; 
-$orgId = $_SESSION['current_org_id'] ?? null;
-
-if ($orgId) {
-    $stmt = $pdo->prepare("SELECT org_name FROM organisations WHERE org_id = ?");
-    $stmt->execute([$orgId]);
-    if ($stmt->rowCount() > 0) {
-        $org = $stmt->fetch();
-        $orgName = htmlspecialchars($org['org_name']);
-    }
-}
-
-function generateToken($length = 32) {
-    return bin2hex(random_bytes($length));
-}
+$stmt = $pdo->prepare("SELECT COUNT(*) as count FROM projects WHERE org_id = ?");
+$stmt->execute([$orgId]);
+$result = $stmt->fetch();
+$activeProjects = $result['count'];
 
 
 $success = '';
@@ -71,7 +61,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
     $lastName = trim($_POST['last_name']);
     $email = trim($_POST['email']);
     $roleId = (int)$_POST['role_id'];
-    $orgId = (int)$_POST['org_id'];
     $customPassword = isset($_POST['password']) ? trim($_POST['password']) : null;
 
     if (empty($firstName) || empty($lastName) || empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -169,9 +158,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
         $_SESSION['error'] = $error;
     }
     
-    header("Location: organisation.php");
+    header("Location: org-owner-home.php");
     exit();
 }
+
 if (isset($_SESSION['success'])) {
     $success = $_SESSION['success'];
     unset($_SESSION['success']);
@@ -181,6 +171,7 @@ if (isset($_SESSION['error'])) {
     unset($_SESSION['error']);
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
