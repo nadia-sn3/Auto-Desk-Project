@@ -60,7 +60,7 @@ if(isset($_GET['downloadFile']))
                 <ul>
                     <li><a href="collaborators.php" class="nav-link">Collaborators</a></li>
                     <li><a href="issues.php" class="nav-link">Issues</a></li>
-                    <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Upload Files</a></li>
+                    <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Create a Commit</a></li>
                 </ul>
             </nav>
 
