@@ -36,7 +36,8 @@
     margin-right: 16px;
 }
 
-.project-nav-bar .nav-link {
+.project-nav-bar .nav-link,
+.project-nav-bar a.nav-link {
     display: inline-block;
     padding: 8px 16px;
     text-decoration: none;
@@ -46,32 +47,13 @@
     transition: border-color 0.2s ease, color 0.2s ease;
 }
 
-.project-nav-bar .nav-link:hover {
+.project-nav-bar .nav-link:hover,
+.project-nav-bar a.nav-link:hover {
     color: #0366d6;
     border-bottom-color: #0366d6;
 }
 
-.project-nav-bar .nav-link.active {
-    font-weight: 600;
-    color: #24292e;
-    border-bottom-color: #f9826c;
-}
-
-.project-nav-bar a.nav-link {
-    display: inline-block;
-    padding: 8px 16px;
-    text-decoration: none;
-    color: #24292e;
-    font-size: 14px;
-    border-bottom: 2px solid transparent; 
-    transition: color 0.2s ease, border-bottom-color 0.2s ease;
-}
-
-.project-nav-bar a.nav-link:hover {
-    color: #0366d6; 
-    border-bottom-color: #0366d6; 
-}
-
+.project-nav-bar .nav-link.active,
 .project-nav-bar a.nav-link.active {
     font-weight: 600;
     color: #24292e;
@@ -85,861 +67,6 @@
     border-radius: 10px;
     overflow: hidden;
     margin-bottom: 20px;
-}
-
-.project-model-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.btn {
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    background-color: transparent; 
-    color: black;
-    border: 1px solid black;
-}
-.project-model-data {
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    margin-bottom: 20px;
-}
-
-.hero-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-}
-
-.btn:hover {
-    background-color: #B0B0B0;
-}
-.project-model-data h3 {
-    margin-top: 0;
-}
-
-.project-model-data ul {
-    list-style: none;
-    padding: 0;
-}
-
-.project-model-data li {
-    margin-bottom: 10px;
-}
-
-.project-model-timeline {
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    margin-top: 20px;
-}
-
-.project-model-timeline-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.project-model-timeline-header h3 {
-    margin: 0;
-}
-
-.total-commits {
-    font-size: 0.875rem;
-    color: #6a737d;
-}
-
-.project-model-timeline-versions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.timeline-version {
-    border: 1px solid #ddd;
-    padding: 15px;
-    background-color: #ffffff;
-    border-radius: 8px;
-}
-
-.commit-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.commit-message {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #24292e;
-}
-
-.commit-date {
-    font-size: 0.875rem;
-    color: #6a737d;
-}
-
-.commit-details {
-    font-size: 0.875rem;
-    color: #6a737d;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.username {
-    font-weight: 500;
-    color: #0366d6;
-}
-
-.commit-location {
-    font-style: italic;
-}
-
-@media (max-width: 768px) {
-    .project-model-viewer {
-        height: 300px;
-    }
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    width: 400px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    text-align: left;
-
-}
-
-.close-btn {
-    float: right;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-.close-btn:hover {
-    color: #000;
-}
-
-.form-group {
-    margin-bottom: 15px;
-    text-align: left;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.form-group input, .form-group select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-.submit-btn {
-    background-color: #007bff;
-    color: #fff;
-    padding: 8px 16px; 
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-    display: block; 
-    margin: 0 auto;
-    width: fit-content; 
-    min-width: 120px; 
-}
-
-.submit-btn:hover {
-    background-color: #0056b3;
-}
-
-@media (max-width: 480px) {
-    .modal-content {
-        width: 90%;
-        padding: 15px;
-    }
-}
-
-.filter-container {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.filter-container input[type="date"] {
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.filter-container .btn {
-    padding: 5px 10px;
-    font-size: 0.875rem;
-}
-
-#fileList {
-    margin-top: 20px;
-}
-
-.file-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    font-size: 0.875rem;
-    color: #24292e;
-}
-
-.file-item .delete-btn {
-    background-color: #ff4444;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-}
-
-.file-item .delete-btn:hover {
-    background-color: #cc0000;
-}
-
-#commitMessageContainer {
-    margin-top: 20px;
-}
-
-#commitMessageContainer label {
-    display: block;
-    font-size: 0.875rem;
-    color: #24292e;
-    margin-bottom: 5px;
-}
-
-#commitMessage {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 0.875rem;
-    color: #24292e;
-    transition: border-color 0.3s ease;
-}
-
-#commitMessage:focus {
-    border-color: #0366d6;
-    outline: none;
-}
-
-#confirmUploadBtn {
-    background-color: #007bff;
-    color: #fff;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-    display: block;
-    margin: 0 auto; 
-    width: fit-content; 
-    min-width: 120px;
-    margin-top: 20px;
-}
-
-#confirmUploadBtn:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-}
-
-#confirmUploadBtn:hover:not(:disabled) {
-    background-color: #0056b3;
-}
-
-
-#dropArea {
-    border: 2px dashed #ccc;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    color: #666;
-    font-size: 0.875rem;
-    transition: border-color 0.3s ease, background-color 0.3s ease;
-}
-
-#dropArea.highlight {
-    border-color: #0366d6;
-    background-color: #f0f7ff;
-}
-
-#dropArea p {
-    margin: 0;
-}
-
-.browse-btn {
-    background-color: #007bff;
-    color: white;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
-}
-
-.browse-btn:hover {
-    background-color: #0056b3;
-}
-
-.modal-content {
-    max-width: 500px;
-    width: 90%;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.modal-content h2 {
-    margin-top: 0;
-    font-size: 1.25rem;
-    color: #24292e;
-}
-
-.modal-content .close {
-    float: right;
-    font-size: 24px;
-    cursor: pointer;
-    color: #666;
-    transition: color 0.3s ease;
-}
-
-.modal-content .close:hover {
-    color: #000;
-}
-
-@media (max-width: 768px) {
-    .modal-content {
-        padding: 15px;
-    }
-
-    #dropArea {
-        padding: 15px;
-    }
-
-    .browse-btn {
-        padding: 6px 12px;
-        font-size: 0.75rem;
-    }
-
-    #confirmUploadBtn {
-        padding: 8px 16px;
-        font-size: 0.75rem;
-    }
-.project-container {
-    width: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.project-header {
-    margin-bottom: 20px;
-}
-
-.project-title h1 {
-    font-size: 2rem;
-    margin: 0;
-}
-
-.project-description {
-    font-size: 1rem;
-    color: #666;
-}
-
-.project-nav-bar {
-    width: 100%;
-    border-bottom: 1px solid #e1e4e8;
-    margin-bottom: 20px;
-}
-
-.project-nav-bar ul {
-    display: flex;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.project-nav-bar li {
-    margin-right: 16px;
-}
-
-.project-nav-bar .nav-link {
-    display: inline-block;
-    padding: 8px 16px;
-    text-decoration: none;
-    color: #24292e;
-    font-size: 14px;
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.2s ease, color 0.2s ease;
-}
-
-.project-nav-bar .nav-link:hover {
-    color: #0366d6;
-    border-bottom-color: #0366d6;
-}
-
-.project-nav-bar .nav-link.active {
-    font-weight: 600;
-    color: #24292e;
-    border-bottom-color: #f9826c;
-}
-
-.project-nav-bar a.nav-link {
-    display: inline-block;
-    padding: 8px 16px;
-    text-decoration: none;
-    color: #24292e;
-    font-size: 14px;
-    border-bottom: 2px solid transparent; 
-    transition: color 0.2s ease, border-bottom-color 0.2s ease;
-}
-
-.project-nav-bar a.nav-link:hover {
-    color: #0366d6; 
-    border-bottom-color: #0366d6; 
-}
-
-.project-nav-bar a.nav-link.active {
-    font-weight: 600;
-    color: #24292e;
-    border-bottom-color: #f9826c;
-}
-
-.project-model-viewer {
-    width: 100%;
-    height: 800px;
-    background-color: #f1f1f1;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 20px;
-}
-
-.project-model-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.btn {
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    background-color: transparent; 
-    color: black;
-    border: 1px solid black;
-}
-.project-model-data {
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    margin-bottom: 20px;
-}
-
-.hero-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-}
-
-.btn:hover {
-    background-color: #B0B0B0;
-}
-.project-model-data h3 {
-    margin-top: 0;
-}
-
-.project-model-data ul {
-    list-style: none;
-    padding: 0;
-}
-
-.project-model-data li {
-    margin-bottom: 10px;
-}
-
-.project-model-timeline {
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    margin-top: 20px;
-}
-
-.project-model-timeline-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.project-model-timeline-header h3 {
-    margin: 0;
-}
-
-.total-commits {
-    font-size: 0.875rem;
-    color: #6a737d;
-}
-
-.project-model-timeline-versions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.timeline-version {
-    border: 1px solid #ddd;
-    padding: 15px;
-    background-color: #ffffff;
-    border-radius: 8px;
-}
-
-.commit-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.commit-message {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #24292e;
-}
-
-.commit-date {
-    font-size: 0.875rem;
-    color: #6a737d;
-}
-
-.commit-details {
-    font-size: 0.875rem;
-    color: #6a737d;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.username {
-    font-weight: 500;
-    color: #0366d6;
-}
-
-.commit-location {
-    font-style: italic;
-}
-
-@media (max-width: 768px) {
-    .project-model-viewer {
-        height: 300px;
-    }
-}
-
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    width: 400px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    text-align: left;
-
-}
-
-.close-btn {
-    float: right;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-.close-btn:hover {
-    color: #000;
-}
-
-.form-group {
-    margin-bottom: 15px;
-    text-align: left;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.form-group input, .form-group select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-.submit-btn {
-    background-color: #007bff;
-    color: #fff;
-    padding: 8px 16px; 
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-    display: block; 
-    margin: 0 auto;
-    width: fit-content; 
-    min-width: 120px; 
-}
-
-.submit-btn:hover {
-    background-color: #0056b3;
-}
-
-@media (max-width: 480px) {
-    .modal-content {
-        width: 90%;
-        padding: 15px;
-    }
-}
-
-.filter-container {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.filter-container input[type="date"] {
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.filter-container .btn {
-    padding: 5px 10px;
-    font-size: 0.875rem;
-}
-
-#fileList {
-    margin-top: 20px;
-}
-
-.file-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    font-size: 0.875rem;
-    color: #24292e;
-}
-
-.file-item .delete-btn {
-    background-color: #ff4444;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-}
-
-.file-item .delete-btn:hover {
-    background-color: #cc0000;
-}
-
-#commitMessageContainer {
-    margin-top: 20px;
-}
-
-#commitMessageContainer label {
-    display: block;
-    font-size: 0.875rem;
-    color: #24292e;
-    margin-bottom: 5px;
-}
-
-#commitMessage {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 0.875rem;
-    color: #24292e;
-    transition: border-color 0.3s ease;
-}
-
-#commitMessage:focus {
-    border-color: #0366d6;
-    outline: none;
-}
-
-#confirmUploadBtn {
-    background-color: #007bff;
-    color: #fff;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-    display: block;
-    margin: 0 auto; 
-    width: fit-content; 
-    min-width: 120px;
-    margin-top: 20px;
-}
-
-#confirmUploadBtn:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-}
-
-#confirmUploadBtn:hover:not(:disabled) {
-    background-color: #0056b3;
-}
-
-#dropArea {
-    border: 2px dashed #ccc;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    color: #666;
-    font-size: 0.875rem;
-    transition: border-color 0.3s ease, background-color 0.3s ease;
-}
-
-#dropArea.highlight {
-    border-color: #0366d6;
-    background-color: #f0f7ff;
-}
-
-#dropArea p {
-    margin: 0;
-}
-
-.browse-btn {
-    background-color: #007bff;
-    color: white;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
-}
-
-.browse-btn:hover {
-    background-color: #0056b3;
-}
-
-.modal-content {
-    max-width: 500px;
-    width: 90%;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.modal-content h2 {
-    margin-top: 0;
-    font-size: 1.25rem;
-    color: #24292e;
-}
-
-.modal-content .close {
-    float: right;
-    font-size: 24px;
-    cursor: pointer;
-    color: #666;
-    transition: color 0.3s ease;
-}
-
-.modal-content .close:hover {
-    color: #000;
-}
-
-@media (max-width: 768px) {
-    .modal-content {
-        padding: 15px;
-    }
-
-    #dropArea {
-        padding: 15px;
-    }
-
-    .browse-btn {
-        padding: 6px 12px;
-        font-size: 0.75rem;
-    }
-
-    #confirmUploadBtn {
-        padding: 8px 16px;
-        font-size: 0.75rem;
-    }
-}
 }
 
 .empty-viewer-upload {
@@ -979,29 +106,487 @@
     margin: 15px 0;
 }
 
-.browse-btn-large {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
-}
-
-.browse-btn-large:hover {
-    background-color: #0056b3;
-}
-
 .file-types {
     font-size: 14px;
     margin-top: 20px;
     color: #6c757d;
 }
 
+.project-model-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    background-color: transparent;
+    color: black;
+    border: 1px solid black;
+}
+
+.btn:hover {
+    background-color: #B0B0B0;
+}
+
+.browse-btn,
+.browse-btn-large,
+.submit-btn,
+#confirmUploadBtn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.browse-btn {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    margin-top: 10px;
+}
+
+.browse-btn-large {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+.submit-btn,
+#confirmUploadBtn {
+    padding: 8px 16px;
+    font-size: 14px;
+    display: block;
+    margin: 0 auto;
+    width: fit-content;
+    min-width: 120px;
+}
+
+.submit-btn:hover,
+#confirmUploadBtn:hover:not(:disabled),
+.browse-btn:hover,
+.browse-btn-large:hover {
+    background-color: #0056b3;
+}
+
+#confirmUploadBtn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.project-model-data {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.project-model-data h3 {
+    margin-top: 0;
+}
+
+.project-model-data ul {
+    list-style: none;
+    padding: 0;
+}
+
+.project-model-data li {
+    margin-bottom: 10px;
+}
+
+.project-model-timeline {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    margin-top: 20px;
+}
+
+.project-model-timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.project-model-timeline-header h3 {
+    margin: 0;
+}
+
+.total-commits {
+    font-size: 0.875rem;
+    color: #6a737d;
+}
+
+.project-model-timeline-versions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.timeline-version {
+    border: 1px solid #ddd;
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 8px;
+}
+
+.commit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.commit-message {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #24292e;
+}
+
+.commit-date {
+    font-size: 0.875rem;
+    color: #6a737d;
+}
+
+.commit-details {
+    font-size: 0.875rem;
+    color: #6a737d;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.username {
+    font-weight: 500;
+    color: #0366d6;
+}
+
+.commit-location {
+    font-style: italic;
+}
+
+.filter-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.filter-container input[type="date"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.filter-container .btn {
+    padding: 5px 10px;
+    font-size: 0.875rem;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 500px;
+    margin: 20px auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: left;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    font-size: 1.25rem;
+    color: #24292e;
+}
+
+.close-btn,
+.modal-content .close {
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.3s ease;
+}
+
+.close-btn:hover,
+.modal-content .close:hover {
+    color: #000;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#dropArea {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    color: #666;
+    font-size: 0.875rem;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+#dropArea.highlight,
 .highlight {
-    background-color: #e9f5ff;
-    border-color: #007bff;
+    border-color: #0366d6;
+    background-color: #f0f7ff;
+}
+
+#dropArea p {
+    margin: 0;
+}
+
+#fileList {
+    margin-top: 20px;
+}
+
+.file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-size: 0.875rem;
+    color: #24292e;
+}
+
+.file-item .delete-btn {
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.file-item .delete-btn:hover {
+    background-color: #cc0000;
+}
+
+#commitMessageContainer {
+    margin-top: 20px;
+}
+
+#commitMessageContainer label {
+    display: block;
+    font-size: 0.875rem;
+    color: #24292e;
+    margin-bottom: 5px;
+}
+
+#commitMessage {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    color: #24292e;
+    transition: border-color 0.3s ease;
+}
+
+#commitMessage:focus {
+    border-color: #0366d6;
+    outline: none;
+}
+
+.file-dropdown-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+    width: 280px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.file-dropdown {
+    position: relative;
+    z-index: 10;
+}
+
+.dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 16px;
+    background: white;
+    color: black;
+    border: 1px solid black;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dropdown-header:hover {
+    background-color: #B0B0B0;
+}
+
+.dropdown-title {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.dropdown-icon {
+    transition: transform 0.2s ease;
+}
+
+.file-dropdown.active .dropdown-icon {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    margin-top: 8px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid black;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.2s ease;
+    max-height: 300px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.file-dropdown.active .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.file-search {
+    padding: 12px;
+    border-bottom: 1px solid #edf2f7;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 13px;
+    color: #4a5568;
+}
+
+.search-input::placeholder {
+    color: #a0aec0;
+}
+
+.file-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.file-item:hover {
+    background: #f7fafc;
+    color: #2d3748;
+}
+
+.file-item.active {
+    background: #ebf8ff;
+    border-left: 3px solid #3182ce;
+    color: #2b6cb0;
+}
+
+.file-item svg {
+    flex-shrink: 0;
+    color: #718096;
+}
+
+.file-item.active svg {
+    color: #3182ce;
+}
+
+@media (max-width: 768px) {
+    .project-model-viewer {
+        height: 300px;
+    }
+    
+    .modal-content {
+        padding: 15px;
+        width: 90%;
+    }
+    
+    #dropArea {
+        padding: 15px;
+    }
+    
+    .browse-btn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+    
+    #confirmUploadBtn {
+        padding: 8px 16px;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        width: 90%;
+        padding: 15px;
+    }
 }

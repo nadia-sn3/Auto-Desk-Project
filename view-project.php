@@ -63,6 +63,72 @@ if(isset($_GET['downloadFile']))
                     <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Create a Commit</a></li>
                 </ul>
             </nav>
+            <!-- <div class="file-dropdown-container">
+                <button class="file-dropdown-toggle">
+                    Project Files
+                    <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+                <div class="file-dropdown-content">
+                    <ul class="file-list">
+                        <li><a href="#" class="file-item">Project_Model.rvt</a></li>
+                        <li><a href="#" class="file-item">Structural_Plans.dwg</a></li>
+                        <li><a href="#" class="file-item">MEP_Design.ifc</a></li>
+                        <li><a href="#" class="file-item">3D_Visualization.fbx</a></li>
+                        <li><a href="#" class="file-item">Site_Plan.pdf</a></li>
+                    </ul>
+                </div>
+            </div> -->
+            <div class="file-dropdown-wrapper">
+    <div class="file-dropdown">
+        <button class="dropdown-header">
+            <span class="dropdown-title">Project Files</span>
+            <svg class="dropdown-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6"/>
+            </svg>
+        </button>
+        <div class="dropdown-menu">
+            <div class="file-search">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input type="text" placeholder="Search files..." class="search-input">
+            </div>
+            <ul class="file-list">
+                <li class="file-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <span>Main_Model.rvt</span>
+                </li>
+                <li class="file-item active">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <span>Structural_Design.dwg</span>
+                </li>
+                <li class="file-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <span>MEP_Systems.ifc</span>
+                </li>
+                <li class="file-item">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <span>Render_View.fbx</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
 
             <div id="uploadModal" class="modal">
                 <div class="modal-content">
@@ -192,6 +258,7 @@ if(isset($_GET['downloadFile']))
     <script src="js/share.js"></script>
     <script src="js/upload.js"></script>
     <script src="js/issues-dropdown.js"></script>
+    <script src="js/file-list-dropdown.js"></script>
 
     <script>
 
