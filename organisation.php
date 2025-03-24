@@ -2,6 +2,22 @@
 require 'db/connection.php';
 session_start();
 
+$totalMembers = 0;
+$activeProjects = 0;
+$storageUsed = 0;
+
+if ($orgId) {
+    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM organisation_members WHERE org_id = ?");
+    $stmt->execute([$orgId]);
+    $result = $stmt->fetch();
+    $totalMembers = $result['count'];
+
+    $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM projects WHERE org_id = ?");
+    $stmt->execute([$orgId]);
+    $result = $stmt->fetch();
+    $activeProjects = $result['count'];
+}
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: signin.php");
     exit();
@@ -58,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
                 <body>
                     <h2>Hello $firstName!</h2>
                     <p>You've been added to an organisation on AutoDesk. You can now access this organisation's projects.</p>
-                    <p>Login to your account at <a href='https://yourdomain.com/signin'>AutoDesk</a> to get started.</p>
+                    <p>Login to your account at <a href='link/signin'>AutoDesk</a> to get started.</p>
                 </body>
                 </html>
                 ";
@@ -186,22 +202,18 @@ if (isset($_SESSION['error'])) {
             </div>
 
             <section id="overview" class="org-section">
-                <h2>Organisation Overview</h2>
-                <div class="org-stats">
-                    <div class="stat-card">
-                        <h3>Total Members</h3>
-                        <p>24</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Active Projects</h3>
-                        <p>8</p>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Storage Used</h3>
-                        <p>4.7 GB / 10 GB</p>
-                    </div>
-                </div>
-            </section>
+    <h2>Organisation Overview</h2>
+    <div class="org-stats">
+        <div class="stat-card">
+            <h3>Total Members</h3>
+            <p><?php echo $totalMembers; ?></p>
+        </div>
+        <div class="stat-card">
+            <h3>Active Projects</h3>
+            <p><?php echo $activeProjects; ?></p>
+        </div>
+    </div>
+</section>
 
             <section id="roles" class="org-section">
                 <h2>Organisation Roles & Permissions</h2>
@@ -311,66 +323,67 @@ if (isset($_SESSION['error'])) {
             </section>
         </main>
     </div>
+
     <div id="addMemberModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Add New Member</h3>
-            <span class="close-modal">&times;</span>
-        </div>
-        <div class="modal-body">
-            <?php if (isset($success)): ?>
-                <div class="alert alert-success"><?php echo $success; ?></div>
-            <?php elseif (isset($error)): ?>
-                <div class="alert alert-error"><?php echo $error; ?></div>
-            <?php endif; ?>
-            
-            <form id="addMemberForm" method="POST" action="organisation.php">
-                <input type="hidden" name="org_id" value="<?php echo $orgId; ?>">
-                <input type="hidden" name="add_member" value="1">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Member</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <?php if (isset($success)): ?>
+                    <div class="alert alert-success"><?php echo $success; ?></div>
+                <?php elseif (isset($error)): ?>
+                    <div class="alert alert-error"><?php echo $error; ?></div>
+                <?php endif; ?>
                 
-                <div class="form-group">
-                    <label for="first_name">First Name</label>
-                    <input type="text" id="first_name" name="first_name" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="last_name">Last Name</label>
-                    <input type="text" id="last_name" name="last_name" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="role_id">Role</label>
-                    <select id="role_id" name="role_id" required>
-                        <option value="3">Organisation Admin</option>
-                        <option value="5" selected>Team Member</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="set_custom_password"> Set custom password
-                    </label>
-                </div>
-                
-                <div class="form-group password-field" style="display: none;">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Leave blank for default password">
-                </div>
-                
-                <div class="form-actions">
-                    <button type="button" class="btn-secondary close-modal">Cancel</button>
-                    <button type="submit" class="btn-primary">Add Member</button>
-                </div>
-            </form>
+                <form id="addMemberForm" method="POST" action="organisation.php">
+                    <input type="hidden" name="org_id" value="<?php echo $orgId; ?>">
+                    <input type="hidden" name="add_member" value="1">
+                    
+                    <div class="form-group">
+                        <label for="first_name">First Name</label>
+                        <input type="text" id="first_name" name="first_name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="last_name">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="role_id">Role</label>
+                        <select id="role_id" name="role_id" required>
+                            <option value="3">Organisation Admin</option>
+                            <option value="5" selected>Team Member</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="set_custom_password"> Set custom password
+                        </label>
+                    </div>
+                    
+                    <div class="form-group password-field">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Leave blank for default password">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary close-modal">Cancel</button>
+                        <button type="submit" class="btn-primary">Add Member</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
-
+    
 <script>
     document.getElementById('set_custom_password').addEventListener('change', function() {
         const passwordField = document.querySelector('.password-field');
