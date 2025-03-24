@@ -7,6 +7,18 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+$orgName = "My Organisation"; 
+$orgId = $_SESSION['current_org_id'] ?? null;
+
+if ($orgId) {
+    $stmt = $pdo->prepare("SELECT org_name FROM organisations WHERE org_id = ?");
+    $stmt->execute([$orgId]);
+    if ($stmt->rowCount() > 0) {
+        $org = $stmt->fetch();
+        $orgName = htmlspecialchars($org['org_name']);
+    }
+}
+
 function generateToken($length = 32) {
     return bin2hex(random_bytes($length));
 }
@@ -14,14 +26,12 @@ function generateToken($length = 32) {
 
 $success = '';
 $error = '';
-
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
     $firstName = trim($_POST['first_name']);
     $lastName = trim($_POST['last_name']);
     $email = trim($_POST['email']);
     $roleId = (int)$_POST['role_id'];
     $orgId = (int)$_POST['org_id'];
-    
 
     if (empty($firstName) || empty($lastName) || empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Please provide valid information for all fields.";
@@ -30,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
         $stmt->execute([$email]);
         
         if ($stmt->rowCount() > 0) {
-
+            // Existing user - add to organization
             $user = $stmt->fetch();
             $userId = $user['user_id'];
             
@@ -38,26 +48,52 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
                                   VALUES (?, ?, ?, NOW(), ?)");
             if ($stmt->execute([$orgId, $userId, $roleId, $_SESSION['user_id']])) {
                 $success = "User added to organization successfully.";
+                
+                // Send notification email to existing user
+                $subject = "You've been added to an organization on AutoDesk";
+                $message = "
+                <html>
+                <head>
+                    <title>Organization Invitation</title>
+                </head>
+                <body>
+                    <h2>Hello $firstName!</h2>
+                    <p>You've been added to an organization on AutoDesk. You can now access this organization's projects.</p>
+                    <p>Login to your account at <a href='https://yourdomain.com/signin'>AutoDesk</a> to get started.</p>
+                </body>
+                </html>
+                ";
+                
+                $headers = "MIME-Version: 1.0" . "\r\n";
+                $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+                $headers .= "From: AutoDesk <noreply@yourdomain.com>" . "\r\n";
+                
+                mail($email, $subject, $message, $headers);
             } else {
                 $error = "Failed to add user to organization.";
             }
         } else {
-
-            $tempPassword = bin2hex(random_bytes(8));
-            $passwordHash = password_hash($tempPassword, PASSWORD_BCRYPT);
+            // New user - create account with default password
+            $defaultPassword = 'Welcome123!'; // You might want to make this configurable
+            $passwordHash = password_hash($defaultPassword, PASSWORD_BCRYPT);
             
             try {
                 $pdo->beginTransaction();
                 
+                // Create user account
                 $stmt = $pdo->prepare("INSERT INTO users (first_name, last_name, email, password_hash, created_at) 
                                       VALUES (?, ?, ?, ?, NOW())");
                 $stmt->execute([$firstName, $lastName, $email, $passwordHash]);
                 $userId = $pdo->lastInsertId();
                 
+                // Add to organization
                 $stmt = $pdo->prepare("INSERT INTO organisation_members (org_id, user_id, role_id, joined_at, invited_by) 
                                       VALUES (?, ?, ?, NOW(), ?)");
                 $stmt->execute([$orgId, $userId, $roleId, $_SESSION['user_id']]);
                 
+                $pdo->commit();
+                
+                // Send welcome email with password reset instructions
                 $token = generateToken();
                 $expiresAt = date('Y-m-d H:i:s', strtotime('+24 hours'));
                 
@@ -65,11 +101,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
                                       VALUES (?, ?, ?)");
                 $stmt->execute([$userId, $token, $expiresAt]);
                 
-                $pdo->commit();
+                $resetLink = "https://yourdomain.com/reset-password.php?token=" . urlencode($token);
                 
-                $resetLink = "link/reset-password.php?token=" . urlencode($token);
-                
-                $subject = "Welcome to AutoDesk - Set Your Password";
+                $subject = "Welcome to AutoDesk - Set Up Your Account";
                 $message = "
                 <html>
                 <head>
@@ -77,10 +111,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
                 </head>
                 <body>
                     <h2>Welcome to AutoDesk, $firstName!</h2>
-                    <p>You've been added to our organisation. Please set your password by clicking the link below:</p>
-                    <p><a href='$resetLink'>Set Your Password</a></p>
-                    <p>This link will expire in 24 hours.</p>
-                    <p>If you didn't request this, please ignore this email.</p>
+                    <p>An account has been created for you with our organization. For security reasons, we require you to set a new password for your account.</p>
+                    <p><a href='$resetLink'>Click here to set your password</a></p>
+                    <p>This link will expire in 24 hours. If you didn't request this, please ignore this email.</p>
+                    <p>If the link doesn't work, you can copy and paste this URL into your browser:</p>
+                    <p>$resetLink</p>
                 </body>
                 </html>
                 ";
@@ -90,9 +125,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
                 $headers .= "From: AutoDesk <noreply@yourdomain.com>" . "\r\n";
                 
                 if (mail($email, $subject, $message, $headers)) {
-                    $success = "User created successfully. A password setup email has been sent to $email.";
+                    $success = "User account created successfully. A password setup email has been sent to $email.";
                 } else {
-                    $error = "User created but failed to send email. Please contact support.";
+                    $error = "User account created but failed to send email. Please contact support.";
                 }
             } catch (Exception $e) {
                 $pdo->rollBack();
@@ -111,7 +146,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
     header("Location: organisation.php");
     exit();
 }
-
 if (isset($_SESSION['success'])) {
     $success = $_SESSION['success'];
     unset($_SESSION['success']);
@@ -158,7 +192,7 @@ if (isset($_SESSION['error'])) {
 
         <main class="main-content">
             <div class="org-header">
-                <h1>Organisation Management</h1>
+                <h1><?php echo $orgName; ?></h1> 
                 <div class="org-actions">
                     <button class="btn-primary">Invite Members</button>
                     <button class="btn-secondary">Create Project</button>
