@@ -11,6 +11,10 @@ function generateToken($length = 32) {
     return bin2hex(random_bytes($length));
 }
 
+
+$success = '';
+$error = '';
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
     $firstName = trim($_POST['first_name']);
     $lastName = trim($_POST['last_name']);
@@ -18,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
     $roleId = (int)$_POST['role_id'];
     $orgId = (int)$_POST['org_id'];
     
+
     if (empty($firstName) || empty($lastName) || empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Please provide valid information for all fields.";
     } else {
@@ -25,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
         $stmt->execute([$email]);
         
         if ($stmt->rowCount() > 0) {
+
             $user = $stmt->fetch();
             $userId = $user['user_id'];
             
@@ -36,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
                 $error = "Failed to add user to organization.";
             }
         } else {
+
             $tempPassword = bin2hex(random_bytes(8));
             $passwordHash = password_hash($tempPassword, PASSWORD_BCRYPT);
             
@@ -93,6 +100,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
             }
         }
     }
+    
+    if ($success) {
+        $_SESSION['success'] = $success;
+    }
+    if ($error) {
+        $_SESSION['error'] = $error;
+    }
+    
+    header("Location: organisation.php");
+    exit();
+}
+
+if (isset($_SESSION['success'])) {
+    $success = $_SESSION['success'];
+    unset($_SESSION['success']);
+}
+if (isset($_SESSION['error'])) {
+    $error = $_SESSION['error'];
+    unset($_SESSION['error']);
 }
 ?>
 
@@ -265,6 +291,59 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
             </section>
         </main>
     </div>
+
+    <div id="addMemberModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add New Member</h3>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <?php if (isset($success)): ?>
+                <div class="alert alert-success"><?php echo $success; ?></div>
+            <?php elseif (isset($error)): ?>
+                <div class="alert alert-error"><?php echo $error; ?></div>
+            <?php endif; ?>
+            
+            <form id="addMemberForm" method="POST" action="organisation.php">
+                <input type="hidden" name="org_id" value="1">
+                <input type="hidden" name="add_member" value="1">
+                
+                <div class="form-group">
+                    <label for="first_name">First Name</label>
+                    <input type="text" id="first_name" name="first_name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="role_id">Role</label>
+                    <select id="role_id" name="role_id" required>
+                        <option value="2">Organization Owner</option>
+                        <option value="3">Organization Admin</option>
+                        <option value="5" selected>Team Member</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary close-modal">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Member</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="js/sidebar-toggle.js" defer></script>
+<script src="js/add-organisation-member.js" defer></script>
 
     <?php include('include/footer.php'); ?>
 </body>
