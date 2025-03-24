@@ -32,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
     $email = trim($_POST['email']);
     $roleId = (int)$_POST['role_id'];
     $orgId = (int)$_POST['org_id'];
+    $customPassword = isset($_POST['password']) ? trim($_POST['password']) : null;
 
     if (empty($firstName) || empty($lastName) || empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Please provide valid information for all fields.";
@@ -40,25 +41,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
         $stmt->execute([$email]);
         
         if ($stmt->rowCount() > 0) {
-            // Existing user - add to organization
             $user = $stmt->fetch();
             $userId = $user['user_id'];
             
             $stmt = $pdo->prepare("INSERT INTO organisation_members (org_id, user_id, role_id, joined_at, invited_by) 
                                   VALUES (?, ?, ?, NOW(), ?)");
             if ($stmt->execute([$orgId, $userId, $roleId, $_SESSION['user_id']])) {
-                $success = "User added to organization successfully.";
+                $success = "User added to organisation successfully.";
                 
-                // Send notification email to existing user
-                $subject = "You've been added to an organization on AutoDesk";
+                $subject = "You've been added to an organisation on AutoDesk";
                 $message = "
                 <html>
                 <head>
-                    <title>Organization Invitation</title>
+                    <title>Organisation Invitation</title>
                 </head>
                 <body>
                     <h2>Hello $firstName!</h2>
-                    <p>You've been added to an organization on AutoDesk. You can now access this organization's projects.</p>
+                    <p>You've been added to an organisation on AutoDesk. You can now access this organisation's projects.</p>
                     <p>Login to your account at <a href='https://yourdomain.com/signin'>AutoDesk</a> to get started.</p>
                 </body>
                 </html>
@@ -70,40 +69,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
                 
                 mail($email, $subject, $message, $headers);
             } else {
-                $error = "Failed to add user to organization.";
+                $error = "Failed to add user to organisation.";
             }
         } else {
-            // New user - create account with default password
-            $defaultPassword = 'Welcome123!'; // You might want to make this configurable
+            $defaultPassword = $customPassword ?: 'Welcome123!';
             $passwordHash = password_hash($defaultPassword, PASSWORD_BCRYPT);
             
             try {
                 $pdo->beginTransaction();
-                
-                // Create user account
+
                 $stmt = $pdo->prepare("INSERT INTO users (first_name, last_name, email, password_hash, created_at) 
                                       VALUES (?, ?, ?, ?, NOW())");
                 $stmt->execute([$firstName, $lastName, $email, $passwordHash]);
                 $userId = $pdo->lastInsertId();
                 
-                // Add to organization
                 $stmt = $pdo->prepare("INSERT INTO organisation_members (org_id, user_id, role_id, joined_at, invited_by) 
                                       VALUES (?, ?, ?, NOW(), ?)");
                 $stmt->execute([$orgId, $userId, $roleId, $_SESSION['user_id']]);
                 
                 $pdo->commit();
                 
-                // Send welcome email with password reset instructions
-                $token = generateToken();
-                $expiresAt = date('Y-m-d H:i:s', strtotime('+24 hours'));
-                
-                $stmt = $pdo->prepare("INSERT INTO password_reset_tokens (user_id, token, expires_at) 
-                                      VALUES (?, ?, ?)");
-                $stmt->execute([$userId, $token, $expiresAt]);
-                
-                $resetLink = "https://yourdomain.com/reset-password.php?token=" . urlencode($token);
-                
-                $subject = "Welcome to AutoDesk - Set Up Your Account";
+                $subject = "Welcome to AutoDesk - Your Account Details";
                 $message = "
                 <html>
                 <head>
@@ -111,11 +97,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
                 </head>
                 <body>
                     <h2>Welcome to AutoDesk, $firstName!</h2>
-                    <p>An account has been created for you with our organization. For security reasons, we require you to set a new password for your account.</p>
-                    <p><a href='$resetLink'>Click here to set your password</a></p>
-                    <p>This link will expire in 24 hours. If you didn't request this, please ignore this email.</p>
-                    <p>If the link doesn't work, you can copy and paste this URL into your browser:</p>
-                    <p>$resetLink</p>
+                    <p>An account has been created for you with our organisation. Here are your login details:</p>
+                    <p><strong>Email:</strong> $email</p>
+                    <p><strong>Password:</strong> " . ($customPassword ? "[The password you set]" : "Welcome123!") . "</p>
+                    <p>You can login at <a href='https://yourdomain.com/signin'>AutoDesk</a> to access your account.</p>
+                    <p>For security reasons, we recommend changing your password after first login.</p>
                 </body>
                 </html>
                 ";
@@ -125,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
                 $headers .= "From: AutoDesk <noreply@yourdomain.com>" . "\r\n";
                 
                 if (mail($email, $subject, $message, $headers)) {
-                    $success = "User account created successfully. A password setup email has been sent to $email.";
+                    $success = "User account created successfully. Login details have been sent to $email.";
                 } else {
                     $error = "User account created but failed to send email. Please contact support.";
                 }
@@ -325,7 +311,6 @@ if (isset($_SESSION['error'])) {
             </section>
         </main>
     </div>
-
     <div id="addMemberModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -340,7 +325,7 @@ if (isset($_SESSION['error'])) {
             <?php endif; ?>
             
             <form id="addMemberForm" method="POST" action="organisation.php">
-                <input type="hidden" name="org_id" value="1">
+                <input type="hidden" name="org_id" value="<?php echo $orgId; ?>">
                 <input type="hidden" name="add_member" value="1">
                 
                 <div class="form-group">
@@ -361,10 +346,20 @@ if (isset($_SESSION['error'])) {
                 <div class="form-group">
                     <label for="role_id">Role</label>
                     <select id="role_id" name="role_id" required>
-                        <option value="2">Organization Owner</option>
-                        <option value="3">Organization Admin</option>
+                        <option value="3">Organisation Admin</option>
                         <option value="5" selected>Team Member</option>
                     </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="set_custom_password"> Set custom password
+                    </label>
+                </div>
+                
+                <div class="form-group password-field" style="display: none;">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Leave blank for default password">
                 </div>
                 
                 <div class="form-actions">
@@ -375,6 +370,13 @@ if (isset($_SESSION['error'])) {
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById('set_custom_password').addEventListener('change', function() {
+        const passwordField = document.querySelector('.password-field');
+        passwordField.style.display = this.checked ? 'block' : 'none';
+    });
+</script>
 
 <script src="js/sidebar-toggle.js" defer></script>
 <script src="js/add-organisation-member.js" defer></script>
