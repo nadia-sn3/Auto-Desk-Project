@@ -68,111 +68,75 @@ $stmt = $pdo->prepare("
 $stmt->execute([$orgId]);
 $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_member'])) {
-    $firstName = trim($_POST['first_name']);
-    $lastName = trim($_POST['last_name']);
-    $email = trim($_POST['email']);
-    $roleId = (int)$_POST['role_id'];
-    $customPassword = isset($_POST['password']) ? trim($_POST['password']) : null;
-
-    if (empty($firstName) || empty($lastName) || empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = "Please provide valid information for all fields.";
-    } else {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
+    try {
+        $firstName = trim($_POST['first_name']);
+        $lastName = trim($_POST['last_name']);
+        $email = trim($_POST['email']);
+        $roleId = (int)$_POST['role_id'];
+        $password = $_POST['password'] ?? '';
+        
+        if (empty($firstName) || empty($lastName) || empty($email)) {
+            throw new Exception("All fields are required");
+        }
+        
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new Exception("Invalid email format");
+        }
+        
         $stmt = $pdo->prepare("SELECT user_id FROM users WHERE email = ?");
         $stmt->execute([$email]);
-        
         if ($stmt->rowCount() > 0) {
-            $user = $stmt->fetch();
-            $userId = $user['user_id'];
-            
-            $stmt = $pdo->prepare("INSERT INTO organisation_members (org_id, user_id, role_id, joined_at, invited_by) 
-                                  VALUES (?, ?, ?, NOW(), ?)");
-            if ($stmt->execute([$orgId, $userId, $roleId, $_SESSION['user_id']])) {
-                $success = "User added to organisation successfully.";
-                
-                $subject = "You've been added to an organisation on AutoDesk";
-                $message = "
-                <html>
-                <head>
-                    <title>Organisation Invitation</title>
-                </head>
-                <body>
-                    <h2>Hello $firstName!</h2>
-                    <p>You've been added to an organisation on AutoDesk. You can now access this organisation's projects.</p>
-                    <p>Login to your account at <a href='link/signin'>AutoDesk</a> to get started.</p>
-                </body>
-                </html>
-                ";
-                
-                $headers = "MIME-Version: 1.0" . "\r\n";
-                $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-                $headers .= "From: AutoDesk <noreply@yourdomain.com>" . "\r\n";
-                
-                mail($email, $subject, $message, $headers);
-            } else {
-                $error = "Failed to add user to organisation.";
-            }
+            throw new Exception("A user with this email already exists");
+        }
+        
+        $stmt = $pdo->prepare("SELECT om.org_member_id 
+                              FROM organisation_members om
+                              JOIN users u ON om.user_id = u.user_id
+                              WHERE om.org_id = ? AND u.email = ?");
+        $stmt->execute([$orgId, $email]);
+        if ($stmt->rowCount() > 0) {
+            throw new Exception("This user is already a member of your organization");
+        }
+        
+        if (empty($password)) {
+            $password = bin2hex(random_bytes(4));
         } else {
-            $defaultPassword = $customPassword ?: 'Welcome123!';
-            $passwordHash = password_hash($defaultPassword, PASSWORD_BCRYPT);
-            
-            try {
-                $pdo->beginTransaction();
-
-                $stmt = $pdo->prepare("INSERT INTO users (first_name, last_name, email, password_hash, created_at) 
-                                      VALUES (?, ?, ?, ?, NOW())");
-                $stmt->execute([$firstName, $lastName, $email, $passwordHash]);
-                $userId = $pdo->lastInsertId();
-                
-                $stmt = $pdo->prepare("INSERT INTO organisation_members (org_id, user_id, role_id, joined_at, invited_by) 
-                                      VALUES (?, ?, ?, NOW(), ?)");
-                $stmt->execute([$orgId, $userId, $roleId, $_SESSION['user_id']]);
-                
-                $pdo->commit();
-                
-                $subject = "Welcome to AutoDesk - Your Account Details";
-                $message = "
-                <html>
-                <head>
-                    <title>Welcome to AutoDesk</title>
-                </head>
-                <body>
-                    <h2>Welcome to AutoDesk, $firstName!</h2>
-                    <p>An account has been created for you with our organisation. Here are your login details:</p>
-                    <p><strong>Email:</strong> $email</p>
-                    <p><strong>Password:</strong> " . ($customPassword ? "[The password you set]" : "Welcome123!") . "</p>
-                    <p>You can login at <a href='link/signin'>AutoDesk</a> to access your account.</p>
-                    <p>For security reasons, we recommend changing your password after first login.</p>
-                </body>
-                </html>
-                ";
-                
-                $headers = "MIME-Version: 1.0" . "\r\n";
-                $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-                $headers .= "From: AutoDesk <noreply@yourdomain.com>" . "\r\n";
-                
-                if (mail($email, $subject, $message, $headers)) {
-                    $success = "User account created successfully. Login details have been sent to $email.";
-                } else {
-                    $error = "User account created but failed to send email. Please contact support.";
-                }
-            } catch (Exception $e) {
-                $pdo->rollBack();
-                $error = "Failed to create user: " . $e->getMessage();
+            if (strlen($password) < 8) {
+                throw new Exception("Password must be at least 8 characters");
             }
         }
+        
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        
+        $pdo->beginTransaction();
+        
+        $stmt = $pdo->prepare("INSERT INTO users (role_id, email, password_hash, first_name, last_name) 
+                              VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([2, $email, $passwordHash, $firstName, $lastName]);
+        $userId = $pdo->lastInsertId();
+        
+        // Add to organization
+        $stmt = $pdo->prepare("INSERT INTO organisation_members (org_id, user_id, role_id, invited_by) 
+                              VALUES (?, ?, ?, ?)");
+        $stmt->execute([$orgId, $userId, $roleId, $_SESSION['user_id']]);
+        
+        $pdo->commit();
+        
+        // Send welcome email (function to be implemented)
+        
+        $_SESSION['success'] = "Member added successfully!";
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+        
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        $_SESSION['error'] = $e->getMessage();
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
     }
-    
-    if ($success) {
-        $_SESSION['success'] = $success;
-    }
-    if ($error) {
-        $_SESSION['error'] = $error;
-    }
-    
-    header("Location: org-owner-home.php");
-    exit();
 }
+
 
 if (isset($_SESSION['success'])) {
     $success = $_SESSION['success'];
@@ -336,64 +300,76 @@ if (isset($_SESSION['error'])) {
     </div>
 
     <div id="addMemberModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Add New Member</h3>
-                <span class="close-modal">&times;</span>
-            </div>
-            <div class="modal-body">
-                <?php if (isset($success)): ?>
-                    <div class="alert alert-success"><?php echo $success; ?></div>
-                <?php elseif (isset($error)): ?>
-                    <div class="alert alert-error"><?php echo $error; ?></div>
-                <?php endif; ?>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add New Staff Member</h3>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <?php if (!empty($success)): ?>
+                <div class="alert alert-success"><?php echo $success; ?></div>
+            <?php elseif (!empty($error)): ?>
+                <div class="alert alert-error"><?php echo $error; ?></div>
+            <?php endif; ?>
+            
+            <form id="addMemberForm" method="POST" action="">
+                <input type="hidden" name="org_id" value="<?php echo $orgId; ?>">
+                <input type="hidden" name="add_member" value="1">
                 
-                <form id="addMemberForm" method="POST" action="org-owner-home.php">
-                    <input type="hidden" name="org_id" value="<?php echo $orgId; ?>">
-                    <input type="hidden" name="add_member" value="1">
-                    
-                    <div class="form-group">
-                        <label for="first_name">First Name</label>
-                        <input type="text" id="first_name" name="first_name" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="last_name">Last Name</label>
-                        <input type="text" id="last_name" name="last_name" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="role_id">Role</label>
-                        <select id="role_id" name="role_id" required>
-                            <option value="3">Organisation Admin</option>
-                            <option value="5" selected>Team Member</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="set_custom_password"> Set custom password
-                        </label>
-                    </div>
-                    
-                    <div class="form-group password-field">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Leave blank for default password">
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="button" class="btn-secondary close-modal">Cancel</button>
-                        <button type="submit" class="btn-primary">Add Member</button>
-                    </div>
-                </form>
-            </div>
+                <div class="form-group">
+                    <label for="first_name">First Name *</label>
+                    <input type="text" id="first_name" name="first_name" required 
+                           value="<?php echo htmlspecialchars($_POST['first_name'] ?? ''); ?>">
+                </div>
+                
+                <div class="form-group">
+                    <label for="last_name">Last Name *</label>
+                    <input type="text" id="last_name" name="last_name" required
+                           value="<?php echo htmlspecialchars($_POST['last_name'] ?? ''); ?>">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" required
+                           value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
+                    <small class="form-hint">The staff member will use this to log in</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="role_id">Role *</label>
+                    <select id="role_id" name="role_id" required>
+                        <option value="3" <?php echo (isset($_POST['role_id']) && $_POST['role_id'] == 3) ? 'selected' : ''; ?>>Organisation Admin</option>
+                        <option value="4" <?php echo (isset($_POST['role_id']) && $_POST['role_id'] == 4) ? 'selected' : ''; ?>>Organisation Manager</option>
+                        <option value="5" <?php echo (!isset($_POST['role_id']) || $_POST['role_id'] == 5) ? 'selected' : ''; ?>>Team Member</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="set_custom_password" name="set_custom_password" 
+                               <?php echo isset($_POST['set_custom_password']) ? 'checked' : ''; ?>>
+                        Set custom password (optional)
+                    </label>
+                    <small class="form-hint">If unchecked, a random password will be generated</small>
+                </div>
+                
+                <div class="form-group password-field" style="display: <?php echo isset($_POST['set_custom_password']) ? 'block' : 'none'; ?>">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" 
+                           placeholder="At least 8 characters" 
+                           minlength="8"
+                           value="<?php echo htmlspecialchars($_POST['password'] ?? ''); ?>">
+                    <small class="form-hint">Leave blank to generate a random password</small>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary close-modal">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Staff Account</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
     
 <script>
     document.getElementById('set_custom_password').addEventListener('change', function() {
