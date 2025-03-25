@@ -348,7 +348,7 @@ if (isset($_SESSION['error'])) {
                     <div class="alert alert-error"><?php echo $error; ?></div>
                 <?php endif; ?>
                 
-                <form id="addMemberForm" method="POST" action="organisation.php">
+                <form id="addMemberForm" method="POST" action="org-owner-home.php">
                     <input type="hidden" name="org_id" value="<?php echo $orgId; ?>">
                     <input type="hidden" name="add_member" value="1">
                     
