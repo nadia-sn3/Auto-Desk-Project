@@ -14,8 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($user && password_verify($password, $user['password_hash'])) {
         session_start();
         $_SESSION['user_id'] = $user['user_id'];
-        $_SESSION['username'] = $user['username'];
-        
+        $_SESSION['first_name'] = $user['first_name']; // Store first name in session
+
+        // Check if user is part of an organization
         $stmt = $pdo->prepare("SELECT om.role_id, o.org_id 
                               FROM organisation_members om
                               JOIN organisations o ON om.org_id = o.org_id
@@ -49,52 +50,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style/base.css">
-    <link rel="stylesheet" href="style/signin.css">
-    <title>Autodesk | Sign In</title>
-</head>
-<body>
-    <?php include('include/header.php'); ?>
-    
-    <div class="page-container">
-        <div class="signin-container">
-            <div class="signin-box">
-                <h2>Sign In</h2>
-
-                <?php if ($error_message): ?>
-                    <div class="error-message">
-                        <p><?php echo $error_message; ?></p>
-                    </div>
-                <?php endif; ?>
-
-                <form action="signin.php" method="POST" id="signin-form">
-                    <div class="input-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                    </div>
-                    <div class="forgot-password">
-                        <a href="#">Forgot your password?</a>
-                    </div>
-                    <button type="submit" class="signin-btn">Sign In</button>
-                </form>
-
-                <div class="signup-link">
-                    <p>Don't have an account? <a href="signup.php">Sign up here</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <?php include('include/footer.php'); ?>
-</body>
-</html>
