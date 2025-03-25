@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 25, 2025 at 10:59 AM
+-- Generation Time: Mar 25, 2025 at 11:22 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -114,7 +114,8 @@ INSERT INTO `organisations` (`org_id`, `org_name`, `description`, `created_at`, 
 (8, 'testingrikns', 'test', '2025-03-24 12:49:03', '2025-03-24 12:49:03'),
 (9, 'fjehiauhu', 'huefhsuih', '2025-03-24 12:51:39', '2025-03-24 12:51:39'),
 (10, 'OrgOwner', 'Org', '2025-03-24 12:54:26', '2025-03-24 12:54:26'),
-(11, 'Autodesk', 'A 3D Asset Management Organisation', '2025-03-25 09:34:47', '2025-03-25 09:34:47');
+(11, 'Autodesk', 'A 3D Asset Management Organisation', '2025-03-25 09:34:47', '2025-03-25 09:34:47'),
+(12, 'OrgTest', 'testing', '2025-03-25 10:19:33', '2025-03-25 10:19:33');
 
 -- --------------------------------------------------------
 
@@ -136,7 +137,7 @@ CREATE TABLE `organisation_members` (
 --
 
 INSERT INTO `organisation_members` (`org_member_id`, `org_id`, `user_id`, `role_id`, `joined_at`, `invited_by`) VALUES
-(18, 11, 10, 2, '2025-03-25 09:34:47', 10);
+(19, 12, 12, 2, '2025-03-25 10:19:33', 12);
 
 -- --------------------------------------------------------
 
@@ -231,8 +232,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `role_id`, `email`, `password_hash`, `first_name`, `last_name`, `created_at`, `last_login`, `is_active`) VALUES
-(10, 1, 'admin@autodesk.com', '$2y$10$cUx5g.RjLpw09RqoS3qHbOhVQmYSxlN2uaO5JkJWGaq84TAncHhjG', 'system', 'admin', '2025-03-25 09:31:38', NULL, 1),
-(11, 2, 'test@test.com', '$2y$10$D5klTr2wUKnByX75jAYn2uHQoX9RVHb2/v/Gw/nZ8RskS.5/yMQOK', 'Test', 'test', '2025-03-25 09:50:20', NULL, 1);
+(12, 2, 'orgowner@org.com', '$2y$10$LqCjfEQtJQf6J9ziSbvnP.ODWZVb0qq/Y10PasAU0CMhQRY0CWLla', 'Org', 'Owner', '2025-03-25 10:19:23', NULL, 1);
 
 --
 -- Indexes for dumped tables
@@ -359,13 +359,13 @@ ALTER TABLE `models`
 -- AUTO_INCREMENT for table `organisations`
 --
 ALTER TABLE `organisations`
-  MODIFY `org_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `org_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `organisation_members`
 --
 ALTER TABLE `organisation_members`
-  MODIFY `org_member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `org_member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `password_reset_tokens`
@@ -395,7 +395,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- Constraints for dumped tables
