@@ -29,19 +29,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['org_role'] = $orgMembership['role_id'];
             
             switch ($orgMembership['role_id']) {
-                case 2: // Owner
+                case 3: // Org Owner
                     header("Location: org-owner-home.php");
                     break;
-                case 3: // Admin
+                case 4: // Org Admin
                     header("Location: org-admin-home.php");
                     break;
-                case 3: // Admin
+                case 6: // Org member
                     header("Location: org-member-home.php");
                     break;
                 case 1: // System Admin
                     header("Location: system-admin-home.php");
                     break;
-                default: // Org member
+                default: // Regular User
                     header("Location: project-home.php");
             }
         } else {
