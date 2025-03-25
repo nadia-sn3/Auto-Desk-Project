@@ -23,14 +23,6 @@
     width: auto;
 }
 
-.search-bar input {
-    padding: 8px 12px;
-    font-size: 16px;
-    border-radius: 20px;
-    border: 2px solid #ccc;
-    width: 250px;
-}
-
 .nav-bar ul {
     display: flex;
     list-style: none;

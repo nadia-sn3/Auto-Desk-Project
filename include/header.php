@@ -7,9 +7,6 @@
         <a href="home.php"> 
             <img src="images/Autodesk-header-logo.png" alt="Logo" class="logo" />
         </a>                
-        <div class="search-bar">
-            <input type="text" placeholder="Search...">
-        </div>
         <div class="nav-bar">
             <ul>
                 <?php if (isset($_SESSION['user_id'])): ?>
