@@ -14,7 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($user && password_verify($password, $user['password_hash'])) {
         session_start();
         $_SESSION['user_id'] = $user['user_id'];
-        $_SESSION['first_name'] = $user['first_name']; /
+        $_SESSION['first_name'] = $user['first_name']; 
+        $_SESSION['first_name'] = $user['first_name'];
 
         $stmt = $pdo->prepare("SELECT om.role_id, o.org_id 
                               FROM organisation_members om
@@ -34,11 +35,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 case 3: // Admin
                     header("Location: org-admin-home.php");
                     break;
+                case 3: // Admin
+                    header("Location: org-member-home.php");
+                    break;
                 case 1: // System Admin
                     header("Location: system-admin-home.php");
                     break;
-                default: // Regular member
-                    header("Location: org-member-home.php");
+                default: // Org member
+                    header("Location: project-home.php");
             }
         } else {
             header("Location: project-home.php");
@@ -49,6 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+
+
 <!DOCTYPE html>
  <html lang="en">
  <head>

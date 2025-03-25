@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 25, 2025 at 10:38 AM
+-- Generation Time: Mar 25, 2025 at 10:59 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -202,10 +202,11 @@ CREATE TABLE `roles` (
 
 INSERT INTO `roles` (`role_id`, `role_name`, `permissions`) VALUES
 (1, 'System Admin', '[\"*\"]'),
-(2, 'Organisation Owner', '[\"org.manage\",\"org.members.invite\",\"org.members.remove\",\"org.projects.create\",\"org.projects.manage\"]'),
-(3, 'Organisation Admin', '[\"org.members.invite\",\"org.projects.create\",\"org.projects.manage\"]'),
-(4, 'Project Manager', '[\"org.projects.create\",\"org.projects.manage\"]'),
-(5, 'Team Member', '[\"org.projects.view\"]');
+(2, 'Regular User', '[\"project.view\", \"model.view\"]'),
+(3, 'Organisation Owner', '[\"org.manage\",\"org.members.invite\",\"org.members.remove\",\"org.projects.create\",\"org.projects.manage\"]'),
+(4, 'Organisation Admin', '[\"org.members.invite\",\"org.projects.create\",\"org.projects.manage\"]'),
+(5, 'Project Manager', '[\"org.projects.create\",\"org.projects.manage\"]'),
+(6, 'Team Member', '[\"org.projects.view\"]');
 
 -- --------------------------------------------------------
 
@@ -230,7 +231,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `role_id`, `email`, `password_hash`, `first_name`, `last_name`, `created_at`, `last_login`, `is_active`) VALUES
-(10, 1, 'admin@autodesk.com', '$2y$10$cUx5g.RjLpw09RqoS3qHbOhVQmYSxlN2uaO5JkJWGaq84TAncHhjG', 'system', 'admin', '2025-03-25 09:31:38', NULL, 1);
+(10, 1, 'admin@autodesk.com', '$2y$10$cUx5g.RjLpw09RqoS3qHbOhVQmYSxlN2uaO5JkJWGaq84TAncHhjG', 'system', 'admin', '2025-03-25 09:31:38', NULL, 1),
+(11, 2, 'test@test.com', '$2y$10$D5klTr2wUKnByX75jAYn2uHQoX9RVHb2/v/Gw/nZ8RskS.5/yMQOK', 'Test', 'test', '2025-03-25 09:50:20', NULL, 1);
 
 --
 -- Indexes for dumped tables
@@ -387,13 +389,13 @@ ALTER TABLE `project_members`
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Constraints for dumped tables
