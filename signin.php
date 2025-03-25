@@ -14,9 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($user && password_verify($password, $user['password_hash'])) {
         session_start();
         $_SESSION['user_id'] = $user['user_id'];
-        $_SESSION['first_name'] = $user['first_name']; // Store first name in session
+        $_SESSION['first_name'] = $user['first_name']; 
 
-        // Check if user is part of an organization
         $stmt = $pdo->prepare("SELECT om.role_id, o.org_id 
                               FROM organisation_members om
                               JOIN organisations o ON om.org_id = o.org_id
