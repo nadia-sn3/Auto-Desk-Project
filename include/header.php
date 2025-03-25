@@ -13,7 +13,7 @@
                     <li><a href="create-project.php">Create</a></li>
                     <li><a href="project-home.php">Projects</a></li>
                     <li><a href="logout.php">Log Out</a></li>
-                    <li><a href="project-home.php">Welcome, <?php echo htmlspecialchars($_SESSION['first_name']); ?></a></li>
+                    <li><a href="project-home.php">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></a></li>
                 <?php else: ?>
                     <li><a href="signup.php" class="redirect-to-signup">Create</a></li>
                     <li><a href="signup.php" class="redirect-to-signup">Projects</a></li>
