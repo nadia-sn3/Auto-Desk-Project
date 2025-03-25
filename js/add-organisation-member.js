@@ -42,3 +42,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+document.querySelector('.btn-primary').addEventListener('click', function() {
+    document.getElementById('addMemberModal').style.display = 'block';
+});
+
+document.querySelector('.close-modal').addEventListener('click', function() {
+    document.getElementById('addMemberModal').style.display = 'none';
+});
