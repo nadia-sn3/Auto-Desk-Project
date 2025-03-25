@@ -47,12 +47,29 @@ $projectCount = $stmt->fetchColumn();
                 <h3>Total Projects</h3>
                 <p><?php echo $projectCount; ?></p>
             </div>
+            <div class="stat-card">
+                <h3>Pending Reports</h3>
+                <p><?php echo $reportedIssues; ?></p>
+            </div>
         </div>
 
         <div class="admin-actions">
-            <a href="manage-organisations.php" class="btn">Manage Organisations</a>
+            <h2>User Management</h2>
             <a href="manage-users.php" class="btn">Manage Users</a>
-            <a href="manage-projects.php" class="btn">Manage Projects</a>
+            <a href="approve-users.php" class="btn">Approve User Requests</a>
+
+            <h2>Content Moderation</h2>
+            <a href="review-reports.php" class="btn">Review User Reports</a>
+            <a href="moderate-content.php" class="btn">Moderate Content</a>
+
+            <h2>System Maintenance</h2>
+            <a href="system-status.php" class="btn">Monitor System Health</a>
+
+            <h2>Policy Enforcement</h2>
+            <a href="audit-logs.php" class="btn">View Audit Logs</a>
+
+            <h2>Reports & Analytics</h2>
+            <a href="generate-reports.php" class="btn">Generate Reports</a>
         </div>
     </div>
 
