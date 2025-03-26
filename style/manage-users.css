@@ -1,0 +1,243 @@
+.page-container {
+    width: 100%;
+    background-position: center;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    padding-top: 20px;
+    justify-content: flex-start;
+    align-items: center; 
+}
+
+.manage-users-container {
+    background: #ffffff;
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    width: 98%;
+    margin: 0 auto;
+}
+
+.manage-users-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: #f6f8fa;
+    border-bottom: 1px solid #e1e4e8;
+}
+
+.search-container {
+    flex: 1; 
+    margin: 0 20px;
+    display: flex;
+    justify-content: center;
+}
+
+#userSearch {
+    width: 60%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.manage-users-header h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #24292e;
+}
+
+.btn-create {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.btn-create:hover {
+    background-color: #0256b3;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+thead {
+    background-color: #f6f8fa;
+}
+
+th, td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e1e4e8;
+}
+
+th {
+    font-weight: 500;
+    font-size: 13px;
+    color: #24292e;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+td {
+    color: #586069;
+    font-size: 13px;
+}
+
+.user-row {
+    transition: background-color 0.3s ease;
+}
+
+.user-row:hover {
+    background-color: #f1f8ff;
+}
+
+.user-row:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-edit, .btn-delete {
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-edit {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn-edit:hover {
+    background-color: #45a049;
+    transform: scale(1.1);
+}
+
+.btn-delete {
+    background-color: #d9534f;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #c9302c;
+    transform: scale(1.1);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: left;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-btn:hover {
+    color: #000;
+}
+
+h2 {
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+    color: #24292e;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.submit-btn {
+    background-color: #6c757d; 
+    color: #fff;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: not-allowed; 
+    display: block;
+    margin: 0 auto;
+    width: fit-content;
+    min-width: 120px;
+}
+
+.submit-btn:hover {
+    background-color: #6c757d; 
+}
+
+.submit-btn.enabled {
+    background-color: #007bff; 
+    cursor: pointer;
+}
+
+.submit-btn.enabled:hover {
+    background-color: #0056b3; 
+}
+
+
+@media (max-width: 480px) {
+    .modal-content {
+        width: 90%;
+        padding: 15px;
+    }
+}

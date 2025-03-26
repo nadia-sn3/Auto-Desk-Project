@@ -1,11 +1,25 @@
 <?php
 session_start();
-if (!isset($_SESSION['role_id']) != 1) {
+require 'db/connection.php';
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
     header("Location: signin.php");
     exit();
 }
-require 'db/connection.php';
 
+// Check if user is a system admin
+$stmt = $pdo->prepare("SELECT system_role_id FROM users WHERE user_id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$user = $stmt->fetch();
+
+if (!$user || $user['system_role_id'] != 1) {
+    // User is not a system admin
+    header("Location: unauthorized.php"); // Redirect to unauthorized page or home
+    exit();
+}
+
+// Get statistics for dashboard
 $stmt = $pdo->prepare("SELECT COUNT(*) as org_count FROM organisations");
 $stmt->execute();
 $orgCount = $stmt->fetchColumn();
@@ -17,6 +31,9 @@ $userCount = $stmt->fetchColumn();
 $stmt = $pdo->prepare("SELECT COUNT(*) as project_count FROM projects");
 $stmt->execute();
 $projectCount = $stmt->fetchColumn();
+
+// Get count of pending reports if you have such a feature
+$reportedIssues = 0; // Initialize with 0 or fetch from your reports table
 ?>
 
 <!DOCTYPE html>
