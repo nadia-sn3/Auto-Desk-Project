@@ -23,7 +23,7 @@ require_once 'db/connection.php';
                     <li><a href="create-project.php">Create</a></li>
                     <li><a href="project-home.php">Projects</a></li>
                     <?php if (isset($_SESSION['current_org_id'])): ?>
-                        <li><a href="org-dashboard.php">Organisation</a></li>
+                        <li><a href="org-owner-home.php">Organisation Page</a></li>
                     <?php endif; ?>
                     <li><a href="logout.php">Log Out</a></li>
                     <li class="welcome-message">
