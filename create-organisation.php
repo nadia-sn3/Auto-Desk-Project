@@ -42,14 +42,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error)) {
             $stmt->execute([$orgName, $description]);
             $orgId = $pdo->lastInsertId();
 
-            $stmt = $pdo->prepare("INSERT INTO organisation_members (org_id, user_id, role_id, invited_by) 
-                                  VALUES (?, ?, 2, ?)");
+            $stmt = $pdo->prepare("INSERT INTO organisation_members (org_id, user_id, org_role_id, invited_by) 
+                                  VALUES (?, ?, 1, ?)");
             $stmt->execute([$orgId, $userId, $userId]);
 
             if (!empty($inviteEmails)) {
                 $inviteStmt = $pdo->prepare("INSERT INTO invitations 
-                                            (org_id, email, token, role_id, invited_by, status) 
-                                            VALUES (?, ?, ?, 3, ?, 'pending')");
+                                            (org_id, email, token, org_role_id, invited_by, status) 
+                                            VALUES (?, ?, ?, 2, ?, 'pending')");
                 
                 foreach ($inviteEmails as $email) {
                     if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -62,9 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error)) {
             $pdo->commit();
             
             $_SESSION['current_org_id'] = $orgId;
-            $_SESSION['org_role'] = 2;
+            $_SESSION['current_org_role_id'] = 1;
+            $_SESSION['current_org_role_name'] = 'Organisation Owner';
             
-            header("Location: org-owner-home.php?new=1");
+            header("Location: org-dashboard.php?new=1");
             exit();
         } catch (Exception $e) {
             $pdo->rollBack();

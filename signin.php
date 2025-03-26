@@ -1,5 +1,6 @@
 <?php
 require 'db/connection.php'; 
+session_start();
 
 $error_message = ''; 
 
@@ -12,40 +13,52 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password_hash'])) {
-        session_start();
         $_SESSION['user_id'] = $user['user_id'];
-        $_SESSION['first_name'] = $user['first_name']; 
+        $_SESSION['email'] = $user['email'];
         $_SESSION['first_name'] = $user['first_name'];
+        $_SESSION['system_role_id'] = $user['system_role_id'];
 
-        $stmt = $pdo->prepare("SELECT om.role_id, o.org_id 
+        $stmt = $pdo->prepare("SELECT om.org_role_id, o.org_id, oroles.role_name 
                               FROM organisation_members om
                               JOIN organisations o ON om.org_id = o.org_id
+                              JOIN organisation_roles oroles ON om.org_role_id = oroles.org_role_id
                               WHERE om.user_id = ?");
         $stmt->execute([$user['user_id']]);
-        $orgMembership = $stmt->fetch();
+        $orgMemberships = $stmt->fetchAll();
 
-        if ($orgMembership) {
-            $_SESSION['current_org_id'] = $orgMembership['org_id'];
-            $_SESSION['org_role'] = $orgMembership['role_id'];
+        if (!empty($orgMemberships)) {
+
+            $_SESSION['org_memberships'] = $orgMemberships;
             
-            switch ($orgMembership['role_id']) {
-                case 3: // Org Owner
-                    header("Location: org-owner-home.php");
-                    break;
-                case 4: // Org Admin
-                    header("Location: org-admin-home.php");
-                    break;
-                case 6: // Org member
-                    header("Location: org-member-home.php");
-                    break;
-                case 1: // System Admin
-                    header("Location: system-admin-home.php");
-                    break;
-                default: // Regular User
+            $_SESSION['current_org_id'] = $orgMemberships[0]['org_id'];
+            $_SESSION['current_org_role_id'] = $orgMemberships[0]['org_role_id'];
+            $_SESSION['current_org_role_name'] = $orgMemberships[0]['role_name'];
+        }
+
+        $stmt = $pdo->prepare("SELECT pm.project_role_id, p.project_id, proles.role_name 
+                              FROM project_members pm
+                              JOIN projects p ON pm.project_id = p.project_id
+                              JOIN project_roles proles ON pm.project_role_id = proles.project_role_id
+                              WHERE pm.user_id = ?");
+        $stmt->execute([$user['user_id']]);
+        $projectMemberships = $stmt->fetchAll();
+
+        if (!empty($projectMemberships)) {
+            $_SESSION['project_memberships'] = $projectMemberships;
+        }
+
+
+        switch ($user['system_role_id']) {
+            case 1:
+                header("Location: system-admin-home.php");
+                break;
+            case 2: 
+            default:
+                if (!empty($orgMemberships)) {
+                    header("Location: org-dashboard.php");
+                } else {
                     header("Location: project-home.php");
-            }
-        } else {
-            header("Location: project-home.php");
+                }
         }
         exit();
     } else {
@@ -54,52 +67,51 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
 
-
 <!DOCTYPE html>
- <html lang="en">
- <head>
-     <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <link rel="stylesheet" href="style/base.css">
-     <link rel="stylesheet" href="style/signin.css">
-     <title>Autodesk | Sign In</title>
- </head>
- <body>
-     <?php include('include/header.php'); ?>
-     
-     <div class="page-container">
-         <div class="signin-container">
-             <div class="signin-box">
-                 <h2>Sign In</h2>
- 
-                 <?php if ($error_message): ?>
-                     <div class="error-message">
-                         <p><?php echo $error_message; ?></p>
-                     </div>
-                 <?php endif; ?>
- 
-                 <form action="signin.php" method="POST" id="signin-form">
-                     <div class="input-group">
-                         <label for="email">Email</label>
-                         <input type="email" id="email" name="email" placeholder="Enter your email" required>
-                     </div>
-                     <div class="input-group">
-                         <label for="password">Password</label>
-                         <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                     </div>
-                     <div class="forgot-password">
-                         <a href="#">Forgot your password?</a>
-                     </div>
-                     <button type="submit" class="signin-btn">Sign In</button>
-                 </form>
- 
-                 <div class="signup-link">
-                     <p>Don't have an account? <a href="signup.php">Sign up here</a></p>
-                 </div>
-             </div>
-         </div>
-     </div>
- 
-     <?php include('include/footer.php'); ?>
- </body>
- </html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style/base.css">
+    <link rel="stylesheet" href="style/signin.css">
+    <title>Autodesk | Sign In</title>
+</head>
+<body>
+    <?php include('include/header.php'); ?>
+    
+    <div class="page-container">
+        <div class="signin-container">
+            <div class="signin-box">
+                <h2>Sign In</h2>
+
+                <?php if ($error_message): ?>
+                    <div class="error-message">
+                        <p><?php echo $error_message; ?></p>
+                    </div>
+                <?php endif; ?>
+
+                <form action="signin.php" method="POST" id="signin-form">
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    </div>
+                    <div class="forgot-password">
+                        <a href="forgot-password.php">Forgot your password?</a>
+                    </div>
+                    <button type="submit" class="signin-btn">Sign In</button>
+                </form>
+
+                <div class="signup-link">
+                    <p>Don't have an account? <a href="signup.php">Sign up here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?php include('include/footer.php'); ?>
+</body>
+</html>

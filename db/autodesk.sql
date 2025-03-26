@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 25, 2025 at 11:22 AM
+-- Generation Time: Mar 26, 2025 at 10:55 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `auto_desk`
+-- Database: `autodesk`
 --
 
 -- --------------------------------------------------------
@@ -61,7 +61,7 @@ CREATE TABLE `invitations` (
   `org_id` int(11) NOT NULL,
   `email` varchar(100) NOT NULL,
   `token` varchar(255) NOT NULL,
-  `role_id` int(11) NOT NULL,
+  `org_role_id` int(11) NOT NULL,
   `invited_by` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `expires_at` timestamp NOT NULL DEFAULT (current_timestamp() + interval 7 day),
@@ -100,23 +100,6 @@ CREATE TABLE `organisations` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `organisations`
---
-
-INSERT INTO `organisations` (`org_id`, `org_name`, `description`, `created_at`, `updated_at`) VALUES
-(1, 'Test', 'test', '2025-03-24 11:12:44', '2025-03-24 11:12:44'),
-(3, 'test', 'test', '2025-03-24 11:17:53', '2025-03-24 11:17:53'),
-(4, 'test', 'test', '2025-03-24 11:20:56', '2025-03-24 11:20:56'),
-(5, 'AUTO', 'AUTO', '2025-03-24 12:36:23', '2025-03-24 12:36:23'),
-(6, 'ooorog', 'grjsgka', '2025-03-24 12:45:25', '2025-03-24 12:45:25'),
-(7, 'org', 'org', '2025-03-24 12:46:24', '2025-03-24 12:46:24'),
-(8, 'testingrikns', 'test', '2025-03-24 12:49:03', '2025-03-24 12:49:03'),
-(9, 'fjehiauhu', 'huefhsuih', '2025-03-24 12:51:39', '2025-03-24 12:51:39'),
-(10, 'OrgOwner', 'Org', '2025-03-24 12:54:26', '2025-03-24 12:54:26'),
-(11, 'Autodesk', 'A 3D Asset Management Organisation', '2025-03-25 09:34:47', '2025-03-25 09:34:47'),
-(12, 'OrgTest', 'testing', '2025-03-25 10:19:33', '2025-03-25 10:19:33');
-
 -- --------------------------------------------------------
 
 --
@@ -127,17 +110,31 @@ CREATE TABLE `organisation_members` (
   `org_member_id` int(11) NOT NULL,
   `org_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `role_id` int(11) NOT NULL,
+  `org_role_id` int(11) NOT NULL,
   `joined_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `invited_by` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
 --
--- Dumping data for table `organisation_members`
+-- Table structure for table `organisation_roles`
 --
 
-INSERT INTO `organisation_members` (`org_member_id`, `org_id`, `user_id`, `role_id`, `joined_at`, `invited_by`) VALUES
-(19, 12, 12, 2, '2025-03-25 10:19:33', 12);
+CREATE TABLE `organisation_roles` (
+  `org_role_id` int(11) NOT NULL,
+  `role_name` varchar(50) NOT NULL,
+  `permissions` text DEFAULT NULL COMMENT 'JSON array of permissions'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `organisation_roles`
+--
+
+INSERT INTO `organisation_roles` (`org_role_id`, `role_name`, `permissions`) VALUES
+(1, 'Organisation Owner', '[\"org.manage\",\"org.members.invite\",\"org.members.remove\",\"org.projects.create\",\"org.projects.manage\"]'),
+(2, 'Organisation Admin', '[\"org.members.invite\",\"org.projects.create\",\"org.projects.manage\"]'),
+(3, 'Organisation Member', '[\"org.projects.view\"]');
 
 -- --------------------------------------------------------
 
@@ -180,7 +177,7 @@ CREATE TABLE `project_members` (
   `project_member_id` int(11) NOT NULL,
   `project_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `role_id` int(11) NOT NULL,
+  `project_role_id` int(11) NOT NULL,
   `added_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `added_by` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -188,26 +185,44 @@ CREATE TABLE `project_members` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `roles`
+-- Table structure for table `project_roles`
 --
 
-CREATE TABLE `roles` (
-  `role_id` int(11) NOT NULL,
+CREATE TABLE `project_roles` (
+  `project_role_id` int(11) NOT NULL,
   `role_name` varchar(50) NOT NULL,
   `permissions` text DEFAULT NULL COMMENT 'JSON array of permissions'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `roles`
+-- Dumping data for table `project_roles`
 --
 
-INSERT INTO `roles` (`role_id`, `role_name`, `permissions`) VALUES
+INSERT INTO `project_roles` (`project_role_id`, `role_name`, `permissions`) VALUES
+(1, 'Project Admin', '[\"project.manage\",\"project.members.invite\",\"project.members.remove\"]'),
+(2, 'Project Editor', '[\"project.edit\",\"model.upload\",\"model.update\"]'),
+(3, 'Project Viewer', '[\"project.view\",\"model.view\"]'),
+(4, 'Project Contractor', '[\"limited.access\"]');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `system_roles`
+--
+
+CREATE TABLE `system_roles` (
+  `system_role_id` int(11) NOT NULL,
+  `role_name` varchar(50) NOT NULL,
+  `permissions` text DEFAULT NULL COMMENT 'JSON array of permissions'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `system_roles`
+--
+
+INSERT INTO `system_roles` (`system_role_id`, `role_name`, `permissions`) VALUES
 (1, 'System Admin', '[\"*\"]'),
-(2, 'Regular User', '[\"project.view\", \"model.view\"]'),
-(3, 'Organisation Owner', '[\"org.manage\",\"org.members.invite\",\"org.members.remove\",\"org.projects.create\",\"org.projects.manage\"]'),
-(4, 'Organisation Admin', '[\"org.members.invite\",\"org.projects.create\",\"org.projects.manage\"]'),
-(5, 'Project Manager', '[\"org.projects.create\",\"org.projects.manage\"]'),
-(6, 'Team Member', '[\"org.projects.view\"]');
+(2, 'Regular User', '[\"basic.access\"]');
 
 -- --------------------------------------------------------
 
@@ -217,7 +232,7 @@ INSERT INTO `roles` (`role_id`, `role_name`, `permissions`) VALUES
 
 CREATE TABLE `users` (
   `user_id` int(11) NOT NULL,
-  `role_id` int(1) NOT NULL,
+  `system_role_id` int(11) NOT NULL DEFAULT 2,
   `email` varchar(100) NOT NULL,
   `password_hash` varchar(255) NOT NULL,
   `first_name` varchar(50) NOT NULL,
@@ -231,8 +246,9 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `role_id`, `email`, `password_hash`, `first_name`, `last_name`, `created_at`, `last_login`, `is_active`) VALUES
-(12, 2, 'orgowner@org.com', '$2y$10$LqCjfEQtJQf6J9ziSbvnP.ODWZVb0qq/Y10PasAU0CMhQRY0CWLla', 'Org', 'Owner', '2025-03-25 10:19:23', NULL, 1);
+INSERT INTO `users` (`user_id`, `system_role_id`, `email`, `password_hash`, `first_name`, `last_name`, `created_at`, `last_login`, `is_active`) VALUES
+(13, 1, 'admin@autodesk.com', '$2y$10$RVe.sS0fXXDj08sv.dACu..9WD/gflJkgj2gBSzXkF..rrh4fdgLW', 'admin', 'admin', '2025-03-26 09:37:24', NULL, 1),
+(14, 2, 'user@autodesk.com', '$2y$10$iSEPB3LxPJIuK6hsiCJUTer/SQOrI/gLJq3a2D60Ymxl9iAj9O6A2', 'user', 'user', '2025-03-26 09:39:20', NULL, 1);
 
 --
 -- Indexes for dumped tables
@@ -262,7 +278,7 @@ ALTER TABLE `invitations`
   ADD PRIMARY KEY (`invitation_id`),
   ADD UNIQUE KEY `token` (`token`),
   ADD KEY `org_id` (`org_id`),
-  ADD KEY `role_id` (`role_id`),
+  ADD KEY `org_role_id` (`org_role_id`),
   ADD KEY `invited_by` (`invited_by`);
 
 --
@@ -286,8 +302,14 @@ ALTER TABLE `organisation_members`
   ADD PRIMARY KEY (`org_member_id`),
   ADD UNIQUE KEY `org_user_unique` (`org_id`,`user_id`),
   ADD KEY `user_id` (`user_id`),
-  ADD KEY `role_id` (`role_id`),
+  ADD KEY `org_role_id` (`org_role_id`),
   ADD KEY `invited_by` (`invited_by`);
+
+--
+-- Indexes for table `organisation_roles`
+--
+ALTER TABLE `organisation_roles`
+  ADD PRIMARY KEY (`org_role_id`);
 
 --
 -- Indexes for table `password_reset_tokens`
@@ -311,21 +333,28 @@ ALTER TABLE `project_members`
   ADD PRIMARY KEY (`project_member_id`),
   ADD UNIQUE KEY `project_user_unique` (`project_id`,`user_id`),
   ADD KEY `user_id` (`user_id`),
-  ADD KEY `role_id` (`role_id`),
+  ADD KEY `project_role_id` (`project_role_id`),
   ADD KEY `added_by` (`added_by`);
 
 --
--- Indexes for table `roles`
+-- Indexes for table `project_roles`
 --
-ALTER TABLE `roles`
-  ADD PRIMARY KEY (`role_id`);
+ALTER TABLE `project_roles`
+  ADD PRIMARY KEY (`project_role_id`);
+
+--
+-- Indexes for table `system_roles`
+--
+ALTER TABLE `system_roles`
+  ADD PRIMARY KEY (`system_role_id`);
 
 --
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD UNIQUE KEY `email` (`email`),
+  ADD KEY `system_role_id` (`system_role_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -359,13 +388,19 @@ ALTER TABLE `models`
 -- AUTO_INCREMENT for table `organisations`
 --
 ALTER TABLE `organisations`
-  MODIFY `org_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `org_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `organisation_members`
 --
 ALTER TABLE `organisation_members`
-  MODIFY `org_member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `org_member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+
+--
+-- AUTO_INCREMENT for table `organisation_roles`
+--
+ALTER TABLE `organisation_roles`
+  MODIFY `org_role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `password_reset_tokens`
@@ -386,16 +421,22 @@ ALTER TABLE `project_members`
   MODIFY `project_member_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `roles`
+-- AUTO_INCREMENT for table `project_roles`
 --
-ALTER TABLE `roles`
-  MODIFY `role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+ALTER TABLE `project_roles`
+  MODIFY `project_role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `system_roles`
+--
+ALTER TABLE `system_roles`
+  MODIFY `system_role_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- Constraints for dumped tables
@@ -421,7 +462,7 @@ ALTER TABLE `commit_files`
 --
 ALTER TABLE `invitations`
   ADD CONSTRAINT `invitations_ibfk_1` FOREIGN KEY (`org_id`) REFERENCES `organisations` (`org_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `invitations_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`),
+  ADD CONSTRAINT `invitations_ibfk_2` FOREIGN KEY (`org_role_id`) REFERENCES `organisation_roles` (`org_role_id`),
   ADD CONSTRAINT `invitations_ibfk_3` FOREIGN KEY (`invited_by`) REFERENCES `users` (`user_id`);
 
 --
@@ -437,7 +478,7 @@ ALTER TABLE `models`
 ALTER TABLE `organisation_members`
   ADD CONSTRAINT `organisation_members_ibfk_1` FOREIGN KEY (`org_id`) REFERENCES `organisations` (`org_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `organisation_members_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `organisation_members_ibfk_3` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`),
+  ADD CONSTRAINT `organisation_members_ibfk_3` FOREIGN KEY (`org_role_id`) REFERENCES `organisation_roles` (`org_role_id`),
   ADD CONSTRAINT `organisation_members_ibfk_4` FOREIGN KEY (`invited_by`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
 
 --
@@ -459,8 +500,14 @@ ALTER TABLE `projects`
 ALTER TABLE `project_members`
   ADD CONSTRAINT `project_members_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`project_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `project_members_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `project_members_ibfk_3` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`),
+  ADD CONSTRAINT `project_members_ibfk_3` FOREIGN KEY (`project_role_id`) REFERENCES `project_roles` (`project_role_id`),
   ADD CONSTRAINT `project_members_ibfk_4` FOREIGN KEY (`added_by`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`system_role_id`) REFERENCES `system_roles` (`system_role_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

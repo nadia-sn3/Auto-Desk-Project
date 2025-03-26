@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';
-$db = 'auto_desk';
+$db = 'autodesk';
 $user = 'root';
 $pass = '';
 

@@ -29,16 +29,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $password_hash = password_hash($password, PASSWORD_BCRYPT);
 
-    $default_role_id = 2;
+    $default_system_role_id = 2;
     
-    $stmt = $pdo->prepare("INSERT INTO users (first_name, last_name, email, password_hash, role_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
-    if ($stmt->execute([$firstName, $lastName, $email, $password_hash, $default_role_id])) {
+    $stmt = $pdo->prepare("INSERT INTO users (first_name, last_name, email, password_hash, system_role_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
+    if ($stmt->execute([$firstName, $lastName, $email, $password_hash, $default_system_role_id])) {
         $user_id = $pdo->lastInsertId();
         
         $_SESSION['user_id'] = $user_id;
         $_SESSION['email'] = $email;
         $_SESSION['first_name'] = $firstName;
-        $_SESSION['role_id'] = $default_role_id;
+        $_SESSION['system_role_id'] = $default_system_role_id;
 
         header("Location: project-home.php");
         exit();
