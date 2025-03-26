@@ -59,12 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleFiles(files) {
         selectedFiles = []; // Reset selected files
         for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            if (file.name.endsWith('.obj')) {
-                selectedFiles.push(file);
-            } else {
-                alert(`File "${file.name}" is not a valid .obj file. Only .obj files are allowed.`);
-            }
+            selectedFiles.push(files[i]); // No restriction on file type
         }
         updateFileList();
     }

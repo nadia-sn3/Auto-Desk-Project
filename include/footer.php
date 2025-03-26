@@ -5,6 +5,7 @@
     <img src="images/Autodesk-Emblem.png" alt="Company Logo" class="footer-logo">
         <p>&copy; 2025 YourCompany. All rights reserved.</p>
         <nav class="footer-nav">
+            <a href="create-organisation.php">Organisations</a>
             <a href="#">Privacy Policy</a>
             <a href="#">Terms of Service</a>
             <a href="#">Contact</a>

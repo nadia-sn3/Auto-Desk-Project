@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoDesk | Create Project</title>
+    <title>Autodesk | Create Project</title>
     <link rel="stylesheet" href="style/create-project.css">
 </head>
 <body>
@@ -12,7 +12,8 @@
     <div class="page-container">
         <div class="create-project-box">
             <h2>Create Project</h2>
-            <form action="backend/php/upload.php" method="POST" enctype="multipart/form-data" id="create-project-form">
+            <form action="view-project.php" method="POST" enctype="multipart/form-data" id="create-project-form">
+            <input type="hidden" name="project_id" value="<?= $project_id; ?>" />
 
             <div class="input-group">
                     <label for="project-name">Project Name</label>
@@ -22,14 +23,6 @@
                 <div class="input-group">
                     <label for="project-description">Description</label>
                     <textarea id="project-description" name="project-description" placeholder="Enter a short description" rows="3" required></textarea>
-                </div>
-
-                <div class="input-group">
-                    <label for="file-upload">Upload Files</label>
-                    <div class="file-upload-box">
-                        <input type="file" id="file-upload" name="file-upload" multiple>
-                        <p>Drag and drop files here or click to upload</p>
-                    </div>
                 </div>
 
                 <div class="input-group">

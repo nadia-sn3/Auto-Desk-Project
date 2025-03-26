@@ -9,7 +9,7 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style/base.css">
     <link rel="stylesheet" href="style/home.css">
-    <title>AutoDesk | Home</title>
+    <title>Autodesk | Home</title>
 </head>
 <body>
     <?php include('include/header.php'); ?>
