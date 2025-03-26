@@ -29,3 +29,4 @@
     <div class="notification-footer">
         <a href="notifications.php">View all notifications</a>
     </div>
+</div>
