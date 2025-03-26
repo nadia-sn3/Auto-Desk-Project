@@ -241,3 +241,42 @@ h2 {
         padding: 15px;
     }
 }
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    gap: 15px; 
+}
+
+.search-container {
+    flex: 1; 
+    max-width: 250px; 
+    min-width: 150px; 
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 20px; 
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.admin-section .section-title {
+    color: #dc3545;
+    margin: 0;
+}
+
+.regular-section .section-title {
+    color: #17a2b8;
+    margin: 0;
+}

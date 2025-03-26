@@ -16,9 +16,17 @@ if (!$user || $user['system_role_id'] != 1) {
     exit();
 }
 
-$stmt = $pdo->prepare("SELECT user_id, email, first_name, last_name, system_role_id FROM users ORDER BY user_id DESC");
+$stmt = $pdo->prepare("SELECT user_id, email, first_name, last_name, system_role_id FROM users ORDER BY system_role_id DESC, user_id DESC");
 $stmt->execute();
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$regularUsers = array_filter($users, function($user) {
+    return $user['system_role_id'] != 1;
+});
+
+$adminUsers = array_filter($users, function($user) {
+    return $user['system_role_id'] == 1;
+});
 ?>
 
 <!DOCTYPE html>
@@ -38,51 +46,88 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="manage-users-container">
             <div class="manage-users-header">
                 <h4>Manage Users</h4>
-
-                <div class="search-container">
-                    <input type="text" id="userSearch" placeholder="Search users by name or email...">
-                </div>
-
                 <a href="create-user.php" class="btn-create">Create New User</a>
             </div>
 
-            <table class="users-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($users as $user): ?>
-                    <tr class="user-row">
-                        <td><?php echo htmlspecialchars($user['user_id']); ?></td>
-                        <td class="user-name"><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></td>
-                        <td class="user-email"><?php echo htmlspecialchars($user['email']); ?></td>
-                        <td><?php echo $user['system_role_id'] == 1 ? 'System Admin' : 'Regular User'; ?></td>
-                        <td class="actions">
-                            <a href="edit-user.php?id=<?php echo $user['user_id']; ?>" class="btn-edit">Edit</a>
-                            <?php if ($user['user_id'] != $_SESSION['user_id']): ?>
+            <div class="user-section admin-section">
+                <div class="section-header">
+                    <h3 class="section-title">Administrators</h3>
+                    <div class="search-container">
+                        <input type="text" id="adminSearch" placeholder="Search administrators..." class="search-input">
+                    </div>
+                </div>
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminTableBody">
+                        <?php foreach ($adminUsers as $user): ?>
+                        <tr class="user-row">
+                            <td><?php echo htmlspecialchars($user['user_id']); ?></td>
+                            <td class="user-name"><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></td>
+                            <td class="user-email"><?php echo htmlspecialchars($user['email']); ?></td>
+                            <td class="actions">
+                                <a href="edit-user.php?id=<?php echo $user['user_id']; ?>" class="btn-edit">Edit</a>
+                                <?php if ($user['user_id'] != $_SESSION['user_id']): ?>
+                                    <a href="delete-user.php?id=<?php echo $user['user_id']; ?>" 
+                                       class="btn-delete" 
+                                       onclick="return confirm('Are you sure you want to delete this admin?');">
+                                        Delete
+                                    </a>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="user-section regular-section">
+                <div class="section-header">
+                    <h3 class="section-title">Regular Users</h3>
+                    <div class="search-container">
+                        <input type="text" id="regularSearch" placeholder="Search regular users..." class="search-input">
+                    </div>
+                </div>
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="regularTableBody">
+                        <?php foreach ($regularUsers as $user): ?>
+                        <tr class="user-row">
+                            <td><?php echo htmlspecialchars($user['user_id']); ?></td>
+                            <td class="user-name"><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></td>
+                            <td class="user-email"><?php echo htmlspecialchars($user['email']); ?></td>
+                            <td class="actions">
+                                <a href="edit-user.php?id=<?php echo $user['user_id']; ?>" class="btn-edit">Edit</a>
                                 <a href="delete-user.php?id=<?php echo $user['user_id']; ?>" 
                                    class="btn-delete" 
                                    onclick="return confirm('Are you sure you want to delete this user?');">
                                     Delete
                                 </a>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <?php include('include/footer.php'); ?>
-
     <script src="js/search-users.js"></script>
+
 
 </body>
 </html>
