@@ -1,4 +1,7 @@
-<?php session_start(); ?>
+<?php 
+session_start();
+require_once 'db/connection.php';
+?>
 <link rel="stylesheet" href="style/header.css">
 <link rel="stylesheet" href="style/create-modal.css">
 
@@ -9,11 +12,25 @@
         </a>                
         <div class="nav-bar">
             <ul>
-                <?php if (isset($_SESSION['user_id'])): ?>
+                <?php if (isset($_SESSION['user_id'])): 
+                    if (!isset($_SESSION['first_name'])) {
+                        $stmt = $pdo->prepare("SELECT first_name FROM users WHERE user_id = ?");
+                        $stmt->execute([$_SESSION['user_id']]);
+                        $user = $stmt->fetch();
+                        $_SESSION['first_name'] = $user['first_name'] ?? 'User';
+                    }
+                ?>
                     <li><a href="create-project.php">Create</a></li>
                     <li><a href="project-home.php">Projects</a></li>
+                    <?php if (isset($_SESSION['current_org_id'])): ?>
+                        <li><a href="org-dashboard.php">Organisation</a></li>
+                    <?php endif; ?>
                     <li><a href="logout.php">Log Out</a></li>
-                    <li><a href="project-home.php">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></a></li>
+                    <li class="welcome-message">
+                        <a href="profile.php">
+                            Welcome, <?php echo htmlspecialchars($_SESSION['first_name']); ?>
+                        </a>
+                    </li>
                 <?php else: ?>
                     <li><a href="signup.php" class="redirect-to-signup">Create</a></li>
                     <li><a href="signup.php" class="redirect-to-signup">Projects</a></li>
