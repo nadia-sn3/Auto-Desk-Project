@@ -13,22 +13,38 @@ require_once 'db/connection.php';
         <div class="nav-bar">
             <ul>
                 <?php if (isset($_SESSION['user_id'])): 
-                    if (!isset($_SESSION['first_name'])) {
-                        $stmt = $pdo->prepare("SELECT first_name FROM users WHERE user_id = ?");
+                    if (!isset($_SESSION['first_name']) || !isset($_SESSION['is_admin'])) {
+                        $stmt = $pdo->prepare("SELECT first_name, system_role_id FROM users WHERE user_id = ?");
                         $stmt->execute([$_SESSION['user_id']]);
                         $user = $stmt->fetch();
                         $_SESSION['first_name'] = $user['first_name'] ?? 'User';
+                        $_SESSION['is_admin'] = ($user['system_role_id'] == 1);
                     }
+                    
+                    $isAdmin = $_SESSION['is_admin'] ?? false;
                 ?>
-                    <li><a href="create-project.php">Create</a></li>
-                    <li><a href="project-home.php">Projects</a></li>
+                    <?php if (!$isAdmin): ?>
+                        <li><a href="create-project.php">Create</a></li>
+                        <li><a href="project-home.php">Projects</a></li>
+                    <?php else: ?>
+                        <li><a href="system-admin-home.php">Admin Dashboard</a></li>
+                    <?php endif; ?>
+                    
                     <?php if (isset($_SESSION['current_org_id'])): ?>
                         <li><a href="org-owner-home.php">Organisation Page</a></li>
                     <?php endif; ?>
+                    
+                    <?php if ($isAdmin): ?>
+                        <li><a href="manage-users.php">Manage Users</a></li>
+                    <?php endif; ?>
+                    
                     <li><a href="logout.php">Log Out</a></li>
                     <li class="welcome-message">
                         <a href="profile.php">
                             Welcome, <?php echo htmlspecialchars($_SESSION['first_name']); ?>
+                            <?php if ($isAdmin): ?>
+                                <span class="admin-badge">(Admin)</span>
+                            <?php endif; ?>
                         </a>
                     </li>
                 <?php else: ?>

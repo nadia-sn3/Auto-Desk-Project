@@ -45,6 +45,15 @@
     border-radius: 5px;
 }
 
+.admin-badge {
+    font-size: 0.8em;
+    background-color: #f44336;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 5px;
+}
+
 
 @media (max-width: 768px) {
     .header {
