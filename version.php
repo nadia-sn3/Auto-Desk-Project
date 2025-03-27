@@ -1,6 +1,6 @@
 <div class="project-model-timeline-versions">
     <div class="timeline-version">
-        <span class="commit-message">Changes to models</span>
+        <span class="commit-message">Changes to models <?php echo $commit['commit_id']; ?></span>
         <span class="commit-info">
             <span class="username">User</span>
             <span class="commit-date">yesterday</span>

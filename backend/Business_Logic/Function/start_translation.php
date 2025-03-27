@@ -4,7 +4,7 @@ require_once 'config.php';
 require_once 'upload.php';
 require_once 'getAccessToken.php';
 require_once 'uploaddatabase.php';
-require_once 'upload-projectfile.php';
+//require_once 'upload-projectfile.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Retrieve the URN from the URL query string
@@ -15,6 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         // Call the function to start translation
         try {
+           // echo json_encode(["status" => "success", "result" => $result]);
             $result = StartTranslationJob($accessToken, $urn);
             echo json_encode(["status" => "success", "result" => $result]);
         } catch (Exception $e) {

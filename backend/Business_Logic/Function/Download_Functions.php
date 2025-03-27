@@ -1,8 +1,10 @@
 <?php
+require_once "db/connection.php";
 
-function ObtainSignedURL($accessToken, $bucketKey, $objectKey)
+
+function ObtainSignedCookie($accessToken, $urnSourceFile, $urnObjFile)
 {
-    $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucketKey/objects/$objectKey/signeds3download";
+    $url = "https://developer.api.autodesk.com/modelderivative/v2/designdata/$urnSourceFile/manifest/$urnObjFile/signedcookies";
 
     $headers = [
         "Authorization: Bearer $accessToken"
@@ -14,6 +16,7 @@ function ObtainSignedURL($accessToken, $bucketKey, $objectKey)
         CURLOPT_URL => $url,
         CURLOPT_CUSTOMREQUEST => "GET",
         CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_HEADER => true,
         CURLOPT_RETURNTRANSFER => true
     ]);
 
@@ -24,7 +27,7 @@ function ObtainSignedURL($accessToken, $bucketKey, $objectKey)
     if($response == false)
     {
         echo 'Curl error:' . curl_error($ch) . '<br>' 
-        . 'Function: ObtainSignedURL' . '<br>'
+        . 'Function: StartTranslationJob' . '<br>'
         . 'Response: ' . '<br>';
         var_dump($response);
         echo '<br> <br>';
@@ -36,30 +39,56 @@ function ObtainSignedURL($accessToken, $bucketKey, $objectKey)
     if($status_code != 200 && $status_code != 201)
     {
         echo 'Autodesk error: <br>' 
-        . 'Function: ObtainSignedURL' . '<br>'
+        . 'Function: ObtainSignedCookie' . '<br>'
         . 'Status code: ' . $status_code . '<br>'
         . 'Response: ' . '<br>';
         var_dump($response);
         echo '<br> <br>';
         exit;
     }
+
+    $headerSize = curl_getinfo($ch,CURLINFO_HEADER_SIZE);
     
-    return json_decode($response, true);
+    $header = substr($response, 0, $headerSize);
+
+    // echo '<br> <br>';
+    // echo 'Header: <br>';
+    // echo $header;
+    // echo '<br> <br>';
+
+    $body =json_decode(substr($response, $headerSize),true);
+    
+    $response =
+    [
+        "header"=>$header,
+        "body"=>$body
+    ];
+
+    return $response;
+    //return json_decode($response,true);
 }
 
-function DownloadFile($downloadURL, $saveAsFileName)
+function DownloadThumbnail($downloadURL, $cookiesList, $saveAsFileName)
 {
+    var_dump($downloadURL);
+    /*$headers = [
+        "Cookie: ".$cookiesList[0].';'.$cookiesList[1].';'.$cookiesList[2]
+    ];*/
+
     $ch = curl_init();
 
     curl_setopt_array($ch, [
         CURLOPT_URL => $downloadURL,
         CURLOPT_CUSTOMREQUEST => "GET",
+        //CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_COOKIE => $cookiesList[0].'; '.$cookiesList[1].'; '.$cookiesList[2],
         CURLOPT_RETURNTRANSFER => true
     ]);
 
     $response = curl_exec($ch);
 
     curl_close($ch);
+
 
     if($response === false)
     {
@@ -83,10 +112,29 @@ function DownloadFile($downloadURL, $saveAsFileName)
         echo '<br> <br>';
         exit;
     }
-
-    $saveAsFilePath = "Temp_Download\\$saveAsFileName";
+    
+    $saveAsFilePath = "backend\\Download_Process\\thumbnail\\$saveAsFileName";
     file_put_contents($saveAsFilePath, $response);
 
+    return $saveAsFilePath;
 }
+
+
+    function SaveThumbnailData($downloadURL, $saveAsFilePath, $projectId) 
+    {
+        global $pdo;
+        $stmt = $pdo->prepare("UPDATE Project SET thumbnail_path = ? WHERE project_id = ?;");
+        if ($stmt === false) {
+            die("Database statement preparation failed.");
+        }
+        
+        if (!$stmt->execute([$saveAsFilePath, $projectId])) {
+            die("Database insertion failed: " . $stmt->error);
+        }
+
+    
+        return true;
+    }
+    
 
 ?>

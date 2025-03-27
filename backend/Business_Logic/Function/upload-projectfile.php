@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Array to store newly added files
     $newlyAddFiles = [];
-    
+
     // Check if files are uploaded
     if (isset($_FILES['file-upload']) && !empty($_FILES['file-upload']['name'][0])) {
         $file = $_FILES['file-upload'];
@@ -58,7 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // // Object key format: projectId_fileName_Version
-             $objectKey = $fileFullName;
+            $objectKey = $project_id.$fileName.$latestVersion;
+            $objectKey = EncodeObjectKey($objectKey);
+
 
             // Get file size and calculate total parts for chunk upload
             $file_size = filesize($fileTmpName);
@@ -73,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             uploadFileToBucket($signedURLs, $fileTmpName, $chunk_size);
 
             // Finalize the upload
+            
             $finalizeResult = completeUpload($access_token, $bucket_key, $objectKey, $uploadKey);
 
             // Check if upload is successful
@@ -80,12 +83,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $objectId = $finalizeResult['objectId'];
                 $objectKey = $finalizeResult['objectKey'];
                 $urn_source_file = base64UrlEncodeUnpadded($objectId);
-
                 // Save file metadata in the database
                 InsertBucketFile($fileFullName, $project_id, $urn_source_file, $objectKey, $entryPoint);
             } else {
                 echo "Error: URN not found for $fileFullName.\n";
             }
+           // require_once("Generate_Thumbnail.php");
+            
         }
 
         $projectFileList_1 = GetAllProjectFiles($project_id);
@@ -100,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         InsertFilesForCommit($projectFileList, $commitId);
 
-
+        
         // Redirect to the commit result page
         header("Location: file-list.php?commitStatus=true&project_id=$project_id");
         exit;

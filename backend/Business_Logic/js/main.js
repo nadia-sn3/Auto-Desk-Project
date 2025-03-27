@@ -19,8 +19,9 @@ Autodesk.Viewing.Initializer(options, () => {
         link.addEventListener("click", async (e) => {
             e.preventDefault();
             const fileType = link.getAttribute("data-file-type");
-            const urn = link.getAttribute("data-urn");
             const fileName = link.getAttribute("data-file-name");
+            const urn = link.getAttribute("data-urn");
+            const object_key = link.getAttribute("data-object-key");
 
             // Check if the file is a 3D model (obj, dwg, stl)
             if (fileType === 'obj' || fileType === 'dwg' || fileType === 'stl') {
@@ -49,9 +50,14 @@ Autodesk.Viewing.Initializer(options, () => {
                         console.error("Error during translation process:", error);
                     }
                 }
-            } 
+            }
+            else
+            {
+                await tempDownloadFile(object_key, fileName);
+            }
+
             // Check for image file types (jpg, jpeg, png)
-            else if (fileType === 'jpg' || fileType === 'jpeg' || fileType === 'png') {
+            if (fileType === 'jpg' || fileType === 'jpeg' || fileType === 'png') {
                 // Hide the Forge viewer and show the image container
                 const forgeViewer = document.getElementById('forgeViewer');
                 forgeViewer.style.visibility = 'hidden';  // Hide Forge viewer
@@ -59,7 +65,7 @@ Autodesk.Viewing.Initializer(options, () => {
                 imageContainer.style.visibility = 'visible';  // Show image container
 
                 // Assuming the file is already saved in the server's uploads directory, extract its path
-                const filePath = 'http://localhost/Auto-Desk-Project/backend/Business_Logic/Uploaded_Process/uploads/' + fileName;  // Adjust path accordingly
+                const filePath = 'http://localhost/Backend/Auto-Desk-Project/backend/Business_Logic/Uploaded_Process/uploads/' + fileName;  // Adjust path accordingly
 
                 // Create an image element
                 const imageElement = document.createElement('img');
@@ -82,7 +88,7 @@ Autodesk.Viewing.Initializer(options, () => {
                 const imageContainer = document.getElementById('imageContainer');
                 imageContainer.style.visibility = 'visible';  // Show image container
 
-                const fileDownloadPath = `http://localhost/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${encodeURIComponent(decodeURIComponent(fileName))}`;
+                const fileDownloadPath = `http://localhost/Backend/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${encodeURIComponent(decodeURIComponent(fileName))}`;
 
                 // Create a download button
                 imageContainer.innerHTML = '';  // Clear previous content
@@ -102,7 +108,7 @@ Autodesk.Viewing.Initializer(options, () => {
 
                 // PDF rendering logic
                 if (fileType === 'pdf') {
-                    const pdfPath = `http://localhost/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${encodeURIComponent(decodeURIComponent(fileName))}`;
+                    const pdfPath = `http://localhost/Backend/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${fileName}`;
                     const loadingTask = pdfjsLib.getDocument(pdfPath);
 
                     loadingTask.promise.then(function(pdf) {
@@ -145,7 +151,7 @@ Autodesk.Viewing.Initializer(options, () => {
                 // DOCX or DOC file rendering logic
                 else if (fileType === 'docx' || fileType === 'doc') {
                     // Construct the path to the .docx file served by your PHP backend
-    const docxPath = `http://localhost/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${encodeURIComponent(decodeURIComponent(fileName))}`;
+    const docxPath = `http://localhost/Backend/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${encodeURIComponent(decodeURIComponent(fileName))}`;
     
     // Fetch the .docx file
     fetch(docxPath)
@@ -176,7 +182,7 @@ Autodesk.Viewing.Initializer(options, () => {
             }
                 
             }else if (fileType === 'video' || fileType === 'mp4' || fileType === 'webm' || fileType === 'ogg') {
-                const videoPath = `http://localhost/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${encodeURIComponent(decodeURIComponent(fileName))}`;
+                const videoPath = `http://localhost/Backend/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${encodeURIComponent(decodeURIComponent(fileName))}`;
             
                 // Clear previous content
                 imageContainer.innerHTML = '';
@@ -216,19 +222,32 @@ Autodesk.Viewing.Initializer(options, () => {
     });
 });
 
-
+async function tempDownloadFile(object_key, file_name) 
+{
+    try {
+        const response = await fetch(`http://localhost/Backend/Auto-Desk-Project/backend/Business_Logic/Function/temp_download.php?objectKey=${object_key}&fileName=${file_name}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+            // body: new URLSearchParams({
+            //     'objectKey': object_key,
+            //     'fileName': file_name
+            // })
+        });
+    } catch (error) {
+        console.error('Failed to call start_translation.php:', error);
+    }
+}
 
 
 async function startTranslation(urn) {
     try {
-        const response = await fetch(`http://localhost/Auto-Desk-Project/backend/Business_Logic/Function/start_translation.php?urn=${urn}`, {
-            method: 'POST',
+        const response = await fetch(`http://localhost/Backend/Auto-Desk-Project/backend/Business_Logic/Function/start_translation.php?urn=${urn}`, {
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams({
-                'urn': urn
-            })
+            }
         });
 
         // Get the raw response text
@@ -242,7 +261,7 @@ async function startTranslation(urn) {
         const data = JSON.parse(cleanResponseText);
 
         // Check if the response is successful
-        if (data.result === 'created') {
+        if (data.status == 'success') {
             console.log('Translation started:', data.result);
             return data.result;
         } else {
@@ -260,7 +279,7 @@ async function startTranslation(urn) {
 
 async function checkTranslationStatus(urn) {
     try {
-        const response = await fetch(`http://localhost/Auto-Desk-Project/backend/Business_Logic/Function/check_job_status.php?urn=${urn}`, {
+        const response = await fetch(`http://localhost/Backend/Auto-Desk-Project/backend/Business_Logic/Function/check_job_status.php?urn=${urn}`, {
             method: 'GET',
         });
 

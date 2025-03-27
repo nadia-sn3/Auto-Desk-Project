@@ -16,10 +16,10 @@ if ($orgId) {
     $stmt->execute([$orgId, $userId]);
     $userRole = $stmt->fetchColumn();
 
-    if ($userRole == 2) { r
+    if ($userRole == 2) { 
         header("Location: org-owner-home.php");
         exit();
-    } elseif ($userRole == 5) { /
+    } elseif ($userRole == 5) { 
         header("Location: org-member-home.php");
         exit();
     } elseif ($userRole != 3) { 

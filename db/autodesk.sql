@@ -149,9 +149,6 @@ CREATE TABLE `organisation_members` (
 
 -- --------------------------------------------------------
 
---
--- Table structure for table `organisation_roles`
---
 
 CREATE TABLE `organisation_roles` (
   `org_role_id` int(11) NOT NULL,
@@ -185,12 +182,6 @@ CREATE TABLE `password_reset_tokens` (
 
 -- --------------------------------------------------------
 
-
--- --------------------------------------------------------
-
---
--- Table structure for table `project_members`
---
 
 CREATE TABLE `project_members` (
   `project_member_id` int(11) NOT NULL,
@@ -249,23 +240,15 @@ INSERT INTO `system_roles` (`system_role_id`, `role_name`, `permissions`) VALUES
 -- Table structure for table `users`
 --
 
-CREATE TABLE `users` (
-  `user_id` int(11) NOT NULL,
-  `system_role_id` int(11) NOT NULL DEFAULT 2,
-  `email` varchar(100) NOT NULL,
-  `password_hash` varchar(255) NOT NULL,
-  `first_name` varchar(50) NOT NULL,
-  `last_name` varchar(50) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `last_login` timestamp NULL DEFAULT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`user_id`, `system_role_id`, `email`, `password_hash`, `first_name`, `last_name`, `created_at`, `last_login`, `is_active`) VALUES
-(13, 1, 'admin@autodesk.com', '$2y$10$RVe.sS0fXXDj08sv.dACu..9WD/gflJkgj2gBSzXkF..rrh4fdgLW', 'admin', 'admin', '2025-03-26 09:37:24', NULL, 1),
-(14, 2, 'user@autodesk.com', '$2y$10$iSEPB3LxPJIuK6hsiCJUTer/SQOrI/gLJq3a2D60Ymxl9iAj9O6A2', 'user', 'user', '2025-03-26 09:39:20', NULL, 1);
+-- CREATE TABLE `users` (
+--   `user_id` int(11) NOT NULL,
+--   `system_role_id` int(11) NOT NULL DEFAULT 2,
+--   `email` varchar(100) NOT NULL,
+--   `password_hash` varchar(255) NOT NULL,
+--   `first_name` varchar(50) NOT NULL,
+--   `last_name` varchar(50) NOT NULL,
+--   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+--   `last_login` timestamp NULL DEFAULT NULL,
+--   `is_active` tinyint(1) NOT NULL DEFAULT 1
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

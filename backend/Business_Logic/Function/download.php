@@ -1,7 +1,7 @@
 <?php
 if (isset($_GET['file'])) {
     $file = $_GET['file'];
-    $file_path = 'backend/Uploaded_Process/uploads/' . $file;
+    $file_path = '..\\..\\Business_Logic\\Uploaded_Process\\uploads\\' . $file;
 
     if (file_exists($file_path)) {
         // Set headers to force download

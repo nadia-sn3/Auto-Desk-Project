@@ -46,15 +46,15 @@
             </div>
 
             <div class="preview-projects">
-                <?php include('preview.php'); ?>
-                <?php include('preview.php'); ?>
-                <?php include('preview.php'); ?>
-                <?php include('preview.php'); ?>
-                <?php include('preview.php'); ?>
-
-                <?php include('preview.php'); ?>
-
-                <?php include('preview.php'); ?>
+                <?php 
+                $projects = require_once('backend\\Business_Logic\\Script\\Get_All_Projects.php');
+                foreach ($projects as $project) {
+                    $projectId = $project['project_id'];
+                    $projectName = $project['project_name'];
+                    $projectDescription = $project['description'];
+                    include('preview.php');
+                }
+                ?>
             </div>
         </main>
     </div>

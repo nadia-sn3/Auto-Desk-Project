@@ -18,11 +18,6 @@
     background-color: #f0f0f0; /* Light background */
 }
 
-#imageContainer {
-    width: 100%;
-    height: 200px; /* Adjust image container height */
-    background-color: #ddd; /* Placeholder color */
-}
 
 #forgeViewer {
     width: 80%;
@@ -30,6 +25,21 @@
     background-color: #eaeaea; /* Placeholder background */
 }
 
-#viewables_dropdown {
-   
+/* Styles for the image */
+#imageContainer img {
+    max-width: 100%;   /* Ensure the image width is contained within the container */
+    max-height: calc(100vh - 100px); 
+    object-fit: contain; /* Keep the aspect ratio and make sure it fits */
 }
+
+#imageContainer {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    font-size: 14px;
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 20px;
+}
+
+
+

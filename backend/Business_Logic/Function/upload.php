@@ -1,5 +1,5 @@
 <?php
-require_once("db/connection.php");
+
 function createUploadSession($access_token, $bucket_key, $file_name, $total_parts) 
 {
     $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload?minutesExpiration=10&parts=$total_parts";
@@ -147,7 +147,12 @@ function AdjustFileVersion($fileName, $projectId, $adjustmentValue = 1)
 {
     global $pdo;
     
-    $sql = "UPDATE Project_File SET latest_version = latest_version + :adjustmentValue WHERE file_name = :file_name AND project_id = :project_id";
+    $sql = 
+    "UPDATE Project_File 
+    SET latest_version = latest_version + :adjustmentValue 
+    WHERE file_name = :file_name 
+    AND project_id = :project_id";
+    
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':adjustmentValue', $adjustmentValue, PDO::PARAM_INT);
     $stmt->bindParam(':file_name', $fileName, PDO::PARAM_STR);
@@ -175,7 +180,7 @@ function InsertBucketFile($fileName, $projectId, $objectId, $objectKey, $entryPo
 {
     global $pdo;
     
-    $sql = "SELECT project_file_id, latest_version FROM Project_File WHERE file_name = :file_name AND project_id = :project_id";
+    $sql = "SELECT project_file_id, MAX(latest_version) as latest_version FROM Project_File WHERE file_name = :file_name AND project_id = :project_id";
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':project_id', $projectId, PDO::PARAM_INT);
     $stmt->bindParam(':file_name', $fileName, PDO::PARAM_STR);
@@ -196,7 +201,16 @@ function InsertBucketFile($fileName, $projectId, $objectId, $objectKey, $entryPo
     $stmt->execute();   
 }
 
-
-
+function EncodeObjectKey($objectKey) {
+    $encoded="";
+    for ($i = 0; $i < strlen($objectKey); $i++) {
+        if ($objectKey[$i] >= '0' && $objectKey[$i] <= '9') {
+            $encoded .= chr((ord($objectKey[$i])-ord('0')) + ord('a'));
+        } else {
+            $encoded .= $objectKey[$i]; // Keep non-numeric characters as is
+        }
+    }
+    return $encoded;
+}
 
 ?>

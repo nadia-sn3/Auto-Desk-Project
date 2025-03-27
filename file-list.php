@@ -26,7 +26,8 @@ try {
     $project = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // Fetch project files
-    $files = GetAllProjectFiles2($project_id, $pdo);
+    $files = GetAllProjectFiles2($project_id);
+    var_dump(json_encode($files), JSON_PRETTY_PRINT);
 
 
     // Close the database connection (not always necessary in PDO, but you can unset the connection object)
@@ -122,7 +123,8 @@ $access_token = getAccessToken($client_id, $client_secret);
             <a href="#" class="file-link" 
                 data-file-name="<?= urlencode($file['file_name']) ?>" 
                 data-file-type="<?= pathinfo($file['file_name'], PATHINFO_EXTENSION) ?>" 
-                data-urn="<?= htmlspecialchars($file['object_id']) ?>" onclick="showFileDetails(event)">
+                data-urn="<?= htmlspecialchars($file['object_id']) ?>" 
+                data-object-key="<?= htmlspecialchars($file['object_key']) ?>" onclick="showFileDetails(event)">
                 
                 <!-- SVG Icon (you can adjust this based on file type) -->
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -158,8 +160,9 @@ $access_token = getAccessToken($client_id, $client_secret);
         </div>        
     </div>    
  </div>
+ 
 
-<?php if (!empty($files)): ?>
+ <?php if(!empty($files)): ?>
     <div class="project-model">
         <div class="project-model-buttons">
             <button class="btn">Share</button>
@@ -179,15 +182,19 @@ $access_token = getAccessToken($client_id, $client_secret);
         <div class="project-model-timeline">
                 <div class="project-model-timeline-header">
                     <h3>Model Timeline</h3>
-                    <span class="total-commits">Total Commits: <?php echo empty($urn) ? '0' : '12'; ?></span>
+                    <?php
+                        $commits = require_once 'backend/Business_Logic/Function/Get_All_Commits.php';;
+                        $totalCommits = is_array($commits) ? count($commits) : 0;
+                    ?>
+<span class="total-commits">Total Commits: <?php echo $totalCommits; ?></span>
                     <div class="filter-container">
                         <input type="date" id="filterDate" name="filterDate">
                         <button id="filterBeforeBtn" class="btn">Before</button>
                         <button id="filterAfterBtn" class="btn">After</button>
                     </div>
                 </div>
-                <div class="project-model-timeline-versions">
-                    <?php include('version.php'); ?>
+                <div id="commitDetails">
+                    <!-- Commit messages will be dynamically injected here -->
                 </div>
             </div>
     </div>
@@ -199,22 +206,28 @@ $access_token = getAccessToken($client_id, $client_secret);
 
 
 
-<!-- Upload Modal -->
-<div id="uploadModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Upload Files</h2>
-        <div class="upload-area" id="dropArea">
-            <p>Drag & Drop files here</p>
-            <p>or</p>
-            <input type="file" id="fileInput" multiple>
-            <label for="fileInput" class="browse-btn">Browse Files</label>
-        </div>
-        <div id="fileList"></div>
-        <button id="confirmUploadBtn" class="browse-btn" style="display: none;">Upload</button>
-    </div>
-</div>
+<form method="POST" enctype="multipart/form-data" id="upload-form"> 
 
+        <div id="uploadModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2>Upload Files</h2>
+                        <div class="upload-area" id="dropArea">
+                            <p>Drag & Drop files here</p>
+                            <p>or</p>
+                            <input type="file" id="file-upload" name="file-upload[]" multiple>
+                            <label for="file-upload" class="browse-btn">Browse Files</label>
+                        </div>
+                        <div id="fileList"></div>
+                        <div id="commitMessageContainer" style="display: none;">
+                            <label for="commitMessage">Commit Message:</label>
+                            <input type="text" id="commitMessage" name= "commitMessage" placeholder="Enter commit message" required>
+                        </div>
+                        <button type="submit" class="browse-btn">Upload</button>
+                    </div>
+                </div>
+                
+        </form> 
 
 
 
@@ -248,6 +261,9 @@ $access_token = getAccessToken($client_id, $client_secret);
 </div>
 
 <script src="backend/Business_Logic/js/main.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
 <!-- <script src="js/share.js"></script> -->
 <script>
     // Modal functionality for upload and share modals
@@ -345,9 +361,63 @@ $access_token = getAccessToken($client_id, $client_secret);
             }
         });
     </script>
+<script>document.addEventListener("DOMContentLoaded", function () {
+    const uploadBtn = document.getElementById("uploadBtn");
+    const uploadModal = document.getElementById("uploadModal");
+    const commitMessageContainer = document.getElementById("commitMessageContainer");
+    const closeModal = document.querySelector(".close");
+
+    if (uploadBtn) {
+        uploadBtn.addEventListener("click", function () {
+            uploadModal.style.display = "block";  // Show the upload modal
+            commitMessageContainer.style.display = "block";  // Ensure commit message input is visible
+        });
+    }
+
+    if (closeModal) {
+        closeModal.addEventListener("click", function () {
+            uploadModal.style.display = "none"; // Close the modal when the close button is clicked
+        });
+    }
+
+    window.addEventListener("click", function (event) {
+        if (event.target === uploadModal) {
+            uploadModal.style.display = "none"; // Close modal if clicked outside
+        }
+    });
+});
+</script>
 
 
+<script>
+    function showCommitMessages(project_id) {
+    // Fetch commit messages for the given project_id
+    fetch(`/backend/Business_Logic/Function/Fetch_Commits.php?project_id=${project_id}`)
+        .then(response => response.json())  // Parse the JSON response
+        .then(data => {
+            // Clear any existing commit details
+            const commitDetails = document.getElementById('commitDetails');
+            commitDetails.innerHTML = '';  // Clear previous commit messages
 
+            // Check if there are commits
+            if (data.length > 0) {
+                // Loop through each commit and display it
+                data.forEach(commit => {
+                    const commitDiv = document.createElement('div');
+                    commitDiv.classList.add('commit-item');
+                    commitDiv.innerHTML = `<p>${commit.message}</p>`;  // Assuming the column name is 'message'
+                    commitDetails.appendChild(commitDiv);
+                });
+            } else {
+                commitDetails.innerHTML = '<p>No commits found for this project.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+
+</script>
 
 <script src="js/issues-dropdown.js"></script>
     <script src="js/file-list-dropdown.js"></script>
