@@ -6,81 +6,18 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: signin.php");
     exit();
 }
-
 $userId = $_SESSION['user_id'];
-$orgId = $_SESSION['current_org_id'] ?? null;
 
-if ($orgId) {
-    $stmt = $pdo->prepare("SELECT om.org_role_id, oroles.role_name 
-                          FROM organisation_members om
-                          JOIN organisation_roles oroles ON om.org_role_id = oroles.org_role_id
-                          WHERE om.org_id = ? AND om.user_id = ?");
-    $stmt->execute([$orgId, $userId]);
-    $orgMembership = $stmt->fetch();
-
-    if (!$orgMembership) {
-        header("Location: project-home.php");
-        exit();
-    }
-
-    $_SESSION['current_org_role_id'] = $orgMembership['org_role_id'];
-    $_SESSION['current_org_role_name'] = $orgMembership['role_name'];
-} else {
-    header("Location: project-home.php");
-    exit();
+$successMessage = '';
+if (isset($_GET['new']) && $_GET['new'] == 1) {
+    $successMessage = "Congratulations! Your organisation has been created successfully.";
 }
 
-$orgName = "My Organisation"; 
-$orgDescription = "";
 $stmt = $pdo->prepare("SELECT org_name, description FROM organisations WHERE org_id = ?");
-$stmt->execute([$orgId]);
-if ($stmt->rowCount() > 0) {
-    $org = $stmt->fetch();
-    $orgName = htmlspecialchars($org['org_name']);
-    $orgDescription = htmlspecialchars($org['description']);
-}
-
-$totalMembers = 0;
-$activeProjects = 0;
-
-$stmt = $pdo->prepare("SELECT COUNT(*) as count FROM organisation_members WHERE org_id = ?");
-$stmt->execute([$orgId]);
-$result = $stmt->fetch();
-$totalMembers = $result['count'];
-
-$stmt = $pdo->prepare("SELECT COUNT(*) as count FROM projects WHERE org_id = ?");
-$stmt->execute([$orgId]);
-$result = $stmt->fetch();
-$activeProjects = $result['count'];
-
-$stmt = $pdo->prepare("
-    SELECT u.user_id, u.first_name, u.last_name, u.email, oroles.role_name, om.joined_at 
-    FROM organisation_members om
-    JOIN users u ON om.user_id = u.user_id
-    JOIN organisation_roles oroles ON om.org_role_id = oroles.org_role_id
-    WHERE om.org_id = ?
-    ORDER BY om.org_role_id, u.last_name, u.first_name
-    LIMIT 5
-");
-$stmt->execute([$orgId]);
-$members = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$stmt = $pdo->prepare("
-    SELECT p.project_id, p.project_name, p.description, p.created_at, 
-           COUNT(pm.user_id) as member_count
-    FROM projects p
-    LEFT JOIN project_members pm ON p.project_id = pm.project_id
-    WHERE p.org_id = ?
-    GROUP BY p.project_id
-    ORDER BY p.created_at DESC
-    LIMIT 3
-");
-$stmt->execute([$orgId]);
-$projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$stmt = $pdo->prepare("SELECT * FROM organisation_roles ORDER BY org_role_id");
-$stmt->execute();
-$orgRoles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt->execute([$_SESSION['current_org_id']]);
+$org = $stmt->fetch();
+$orgName = $org['org_name'];
+$orgDescription = $org['description'];
 ?>
 
 <!DOCTYPE html>

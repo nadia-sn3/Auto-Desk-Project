@@ -216,17 +216,13 @@ async function startTranslation(urn) {
             })
         });
 
-        // Get the raw response text
         const responseText = await response.text();
-        console.log('Raw server response:', responseText);  // Log raw response for debugging
+        console.log('Raw server response:', responseText);  
 
-        // Remove the comment and any other non-JSON content
-        const cleanResponseText = responseText.replace(/\/\/.*$/g, '').trim();  // Regex to remove comments
+        const cleanResponseText = responseText.replace(/\/\/.*$/g, '').trim(); 
 
-        // Attempt to parse the cleaned response text as JSON
         const data = JSON.parse(cleanResponseText);
 
-        // Check if the response is successful
         if (data.result === 'created') {
             console.log('Translation started:', data.result);
             return data.result;
@@ -252,19 +248,17 @@ async function checkTranslationStatus(urn) {
         const responseText = await response.text();
         console.log('Translation Status Response:', responseText);
 
-        const cleanResponseText = responseText.replace(/\/\/.*$/g, '').trim();  // Clean response text
+        const cleanResponseText = responseText.replace(/\/\/.*$/g, '').trim();  
 
         const statusData = JSON.parse(cleanResponseText);
 
         if (statusData.status === 'success') {
-            const result = JSON.parse(statusData.result);  // The result is a stringified JSON
+            const result = JSON.parse(statusData.result);  
             console.log('Translation is complete:', result);
 
-            // Check if the progress is complete
             if (result.progress === 'complete') {
                 console.log('Translation completed successfully.');
-                // Now that translation is complete, load the model
-                loadModel(urn); // Call loadModel with the urn
+                loadModel(urn); 
             } else {
                 console.log('Translation is still in progress...');
             }

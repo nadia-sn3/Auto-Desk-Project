@@ -61,12 +61,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error)) {
 
             $pdo->commit();
             
-            $_SESSION['current_org_id'] = $orgId;
-            $_SESSION['current_org_role_id'] = 1;
-            $_SESSION['current_org_role_name'] = 'Organisation Owner';
-            
-            header("Location: org-dashboard.php?new=1");
-            exit();
+$_SESSION['current_org_id'] = $orgId;
+$_SESSION['current_org_role_id'] = 1; 
+$_SESSION['current_org_role_name'] = 'Organisation Owner';
+
+header("Location: org-dashboard.php?new=1");
+exit();
+
         } catch (Exception $e) {
             $pdo->rollBack();
             $error = "Error creating organisation: " . $e->getMessage();
@@ -98,8 +99,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error)) {
                 <div class="alert error"><?= htmlspecialchars($error) ?></div>
                 <?php if (strpos($error, 'already a member') !== false): ?>
                     <div class="form-actions">
-                        <a href="org-owner-home.php" class="btn primary">Return to Dashboard</a>
+                        <a href="org-dashboard.php" class="btn primary">Return to Dashboard</a>
                     </div>
+
                 <?php endif; ?>
             <?php else: ?>
             
