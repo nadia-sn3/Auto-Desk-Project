@@ -1,3 +1,124 @@
+<?php
+session_start();
+require_once 'db/connection.php';
+
+$success = '';
+$error = '';
+$orgId = 1; /
+$members = [];
+$totalMembers = 0;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
+    try {
+        if (empty($_POST['first_name']) || empty($_POST['last_name']) || empty($_POST['email']) || empty($_POST['org_role_id'])) {
+            throw new Exception("All fields are required");
+        }
+
+        $firstName = trim($_POST['first_name']);
+        $lastName = trim($_POST['last_name']);
+        $email = trim($_POST['email']);
+        $roleId = (int)$_POST['org_role_id'];
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new Exception("Invalid email format");
+        }
+
+        $stmt = $pdo->prepare("SELECT user_id FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        
+        if ($stmt->rowCount() > 0) {
+            $user = $stmt->fetch();
+            $userId = $user['user_id'];
+            
+            $stmt = $pdo->prepare("SELECT org_member_id FROM organisation_members WHERE org_id = ? AND user_id = ?");
+            $stmt->execute([$orgId, $userId]);
+            
+            if ($stmt->rowCount() > 0) {
+                throw new Exception("User already in organization");
+            }
+            
+            $stmt = $pdo->prepare("
+                INSERT INTO organisation_members 
+                (org_id, user_id, org_role_id, joined_at, invited_by) 
+                VALUES (?, ?, ?, NOW(), ?)
+            ");
+            $invitedBy = $_SESSION['user_id'] ?? 1;
+            $stmt->execute([$orgId, $userId, $roleId, $invitedBy]);
+            
+            $success = "User added to organization";
+            $stmt = $pdo->prepare("
+            SELECT u.first_name, u.last_name, u.email, om.joined_at, r.role_name, u.user_id 
+            FROM organisation_members om
+            JOIN users u ON om.user_id = u.user_id
+            JOIN roles r ON om.org_role_id = r.role_id
+            WHERE om.org_id = ? 
+            AND u.user_id NOT IN (
+                SELECT user_id FROM organisation_members WHERE org_id <> ?
+            )
+        ");
+        $stmt->execute([$orgId, $orgId]);
+        
+        $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode(['members' => $members, 'success' => true]);
+        exit();
+
+        } else {
+            $password = isset($_POST['set_custom_password']) && !empty($_POST['password']) 
+                ? $_POST['password'] 
+                : bin2hex(random_bytes(4));
+            
+            if (strlen($password) < 8) {
+                throw new Exception("Password must be 8+ characters");
+            }
+            
+            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+            
+            $pdo->beginTransaction();
+            
+            $stmt = $pdo->prepare("
+                INSERT INTO users 
+                (system_role_id, email, password_hash, first_name, last_name, created_at, is_active) 
+                VALUES (2, ?, ?, ?, ?, NOW(), 1)
+            ");
+            $stmt->execute([$email, $passwordHash, $firstName, $lastName]);
+            $userId = $pdo->lastInsertId();
+            
+            $stmt = $pdo->prepare("
+                INSERT INTO organisation_members 
+                (org_id, user_id, org_role_id, joined_at, invited_by) 
+                VALUES (?, ?, ?, NOW(), ?)
+            ");
+            $invitedBy = $_SESSION['user_id'] ?? 1; 
+            $stmt->execute([$orgId, $userId, $roleId, $invitedBy]);
+            
+            $pdo->commit();
+            $success = "New user created and added to organization";
+        }
+
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM organisation_members WHERE org_id = ?");
+        $stmt->execute([$orgId]);
+        $totalMembers = $stmt->fetchColumn(); 
+
+        $stmt = $pdo->prepare("
+            SELECT u.first_name, u.last_name, u.email, om.joined_at, r.role_name, u.user_id 
+            FROM organisation_members om
+            JOIN users u ON om.user_id = u.user_id
+            JOIN roles r ON om.org_role_id = r.role_id
+            WHERE om.org_id = ?
+        ");
+        $stmt->execute([$orgId]);
+        $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        if (isset($pdo) && $pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        $error = $e->getMessage();
+    }
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -260,6 +381,8 @@
                 document.getElementById('addMemberModal').style.display = 'none';
             }
         });
+
+
     </script>
 
     <?php include('include/footer.php'); ?>
