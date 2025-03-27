@@ -2,16 +2,45 @@
 session_start();
 require_once 'db/connection.php';
 
-// Initialize variables
 $success = '';
 $error = '';
-$orgId = 1; // Hardcoded for testing - should come from session in production
+$orgId = 1;
 $members = [];
-$totalMembers = 0; // Initialize total members count
+$totalMembers = 0;
+$orgName = "Your Organisation";
+$orgDescription = "Organisation description";
+$activeProjects = 0;
+$projects = [];
+
+try {
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM organisation_members WHERE org_id = ?");
+    $stmt->execute([$orgId]);
+    $totalMembers = $stmt->fetchColumn();
+
+    $stmt = $pdo->prepare("
+        SELECT u.user_id, u.first_name, u.last_name, u.email, 
+               om.joined_at, oroles.role_name, oroles.org_role_id
+        FROM organisation_members om
+        JOIN users u ON om.user_id = u.user_id
+        JOIN organisation_roles oroles ON om.org_role_id = oroles.org_role_id
+        WHERE om.org_id = ?
+        ORDER BY oroles.org_role_id, om.joined_at DESC
+    ");
+    $stmt->execute([$orgId]);
+    $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM Project WHERE created_by = ?");
+    $stmt->execute([$orgId]);
+    $activeProjects = $stmt->fetchColumn();
+
+} catch (PDOException $e) {
+    $error = "Database error: " . $e->getMessage();
+} catch (Exception $e) {
+    $error = "Error: " . $e->getMessage();
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
     try {
-        // Validate inputs
         if (empty($_POST['first_name']) || empty($_POST['last_name']) || empty($_POST['email']) || empty($_POST['org_role_id'])) {
             throw new Exception("All fields are required");
         }
@@ -25,7 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             throw new Exception("Invalid email format");
         }
 
-        // Check if user exists
         $stmt = $pdo->prepare("SELECT user_id FROM users WHERE email = ?");
         $stmt->execute([$email]);
         
@@ -33,7 +61,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             $user = $stmt->fetch();
             $userId = $user['user_id'];
             
-            // Check if already in organization
             $stmt = $pdo->prepare("SELECT org_member_id FROM organisation_members WHERE org_id = ? AND user_id = ?");
             $stmt->execute([$orgId, $userId]);
             
@@ -41,33 +68,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
                 throw new Exception("User already in organization");
             }
             
-            // Add to organization
             $stmt = $pdo->prepare("
                 INSERT INTO organisation_members 
                 (org_id, user_id, org_role_id, joined_at, invited_by) 
                 VALUES (?, ?, ?, NOW(), ?)
             ");
-            $invitedBy = $_SESSION['user_id'] ?? 1; // Fallback to admin@admin.com (user_id 5)
+            $invitedBy = $_SESSION['user_id'] ?? 1;
             $stmt->execute([$orgId, $userId, $roleId, $invitedBy]);
             
             $success = "User added to organization";
-            // Fetch the updated list of members to send back
-$stmt = $pdo->prepare("
-SELECT u.first_name, u.last_name, u.email, om.joined_at, r.role_name, u.user_id 
-FROM organisation_members om
-JOIN users u ON om.user_id = u.user_id
-JOIN roles r ON om.org_role_id = r.role_id
-WHERE om.org_id = ?
-");
-$stmt->execute([$orgId]);
-$members = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Return data as JSON
-echo json_encode(['members' => $members, 'success' => true]);
-exit();
-
         } else {
-            // Create new user
             $password = isset($_POST['set_custom_password']) && !empty($_POST['password']) 
                 ? $_POST['password'] 
                 : bin2hex(random_bytes(4));
@@ -80,7 +90,7 @@ exit();
             
             $pdo->beginTransaction();
             
-            // Insert user
+
             $stmt = $pdo->prepare("
                 INSERT INTO users 
                 (system_role_id, email, password_hash, first_name, last_name, created_at, is_active) 
@@ -89,34 +99,34 @@ exit();
             $stmt->execute([$email, $passwordHash, $firstName, $lastName]);
             $userId = $pdo->lastInsertId();
             
-            // Add to organization
             $stmt = $pdo->prepare("
                 INSERT INTO organisation_members 
                 (org_id, user_id, org_role_id, joined_at, invited_by) 
                 VALUES (?, ?, ?, NOW(), ?)
             ");
-            $invitedBy = $_SESSION['user_id'] ?? 1; // Fallback to admin@admin.com (user_id 5)
+            $invitedBy = $_SESSION['user_id'] ?? 1;
             $stmt->execute([$orgId, $userId, $roleId, $invitedBy]);
             
             $pdo->commit();
             $success = "New user created and added to organization";
         }
 
-        // Fetch the updated total member count
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM organisation_members WHERE org_id = ?");
         $stmt->execute([$orgId]);
-        $totalMembers = $stmt->fetchColumn(); // Fetch the total number of members
+        $totalMembers = $stmt->fetchColumn();
 
-        // Fetch the updated list of members to display in the table
         $stmt = $pdo->prepare("
-            SELECT u.first_name, u.last_name, u.email, om.joined_at, r.role_name, u.user_id 
+            SELECT u.user_id, u.first_name, u.last_name, u.email, 
+                   om.joined_at, oroles.role_name, oroles.org_role_id
             FROM organisation_members om
             JOIN users u ON om.user_id = u.user_id
-            JOIN roles r ON om.org_role_id = r.role_id
+            JOIN organisation_roles oroles ON om.org_role_id = oroles.org_role_id
             WHERE om.org_id = ?
+            ORDER BY oroles.org_role_id, om.joined_at DESC
         ");
         $stmt->execute([$orgId]);
         $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
     } catch (Exception $e) {
         if (isset($pdo) && $pdo->inTransaction()) {
             $pdo->rollBack();
@@ -228,18 +238,22 @@ exit();
             <section id="members" class="org-section">
                 <h2>Organisation Members</h2>
                 <div class="filter-bar">
-                    <input type="text" placeholder="Search members...">
-                    <select>
+                    <input type="text" placeholder="Search members..." id="memberSearch">
+                    <select id="roleFilter">
                         <option value="all">All Roles</option>
-                        <option value="owner">Owner</option>
-                        <option value="admin">Admin</option>
-                        <option value="member">Member</option>
+                        <option value="1">Owner</option>
+                        <option value="2">Admin</option>
+                        <option value="3">Member</option>
                     </select>
-                    <button>Filter</button>
+                    <button id="filterButton">Filter</button>
                 </div>
                 
+                <?php if (!empty($error)): ?>
+                    <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
+                <?php endif; ?>
+                
                 <div class="members-table">
-                    <table>
+                    <table id="membersTable">
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -250,25 +264,32 @@ exit();
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($members as $member): ?>
-                            <tr>
-                                <td><?= $member['first_name'] . ' ' . $member['last_name'] ?></td>
-                                <td><?= $member['email'] ?></td>
-                                <td><?= $member['role_name'] ?></td>
-                                <td><?= date('M j, Y', strtotime($member['joined_at'])) ?></td>
-                                <td>
-                                    <button class="btn-small edit-member" 
-                                            data-user-id="<?= $member['user_id'] ?>"
-                                            data-current-role="<?= $member['role_name'] ?>">Edit</button>
-                                    <button class="btn-small btn-danger remove-member"
-                                            data-user-id="<?= $member['user_id'] ?>">Remove</button>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
+                            <?php if (!empty($members)): ?>
+                                <?php foreach ($members as $member): ?>
+                                    <tr data-role-id="<?= $member['role_id'] ?>">
+                                        <td><?= htmlspecialchars($member['first_name'] . ' ' . $member['last_name']) ?></td>
+                                        <td><?= htmlspecialchars($member['email']) ?></td>
+                                        <td><?= htmlspecialchars($member['role_name']) ?></td>
+                                        <td><?= date('M j, Y', strtotime($member['joined_at'])) ?></td>
+                                        <td>
+                                            <button class="btn-small edit-member" 
+                                                    data-user-id="<?= $member['user_id'] ?>"
+                                                    data-current-role="<?= $member['role_name'] ?>">Edit</button>
+                                            <button class="btn-small btn-danger remove-member"
+                                                    data-user-id="<?= $member['user_id'] ?>">Remove</button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="5">No members found in this organisation</td>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </section>
+
 
             <section id="projects" class="org-section">
                 <h2>Recent Projects</h2>
@@ -368,6 +389,24 @@ exit();
     </div>
 
     <script>
+                document.getElementById('filterButton').addEventListener('click', function() {
+            const searchTerm = document.getElementById('memberSearch').value.toLowerCase();
+            const roleFilter = document.getElementById('roleFilter').value;
+            const rows = document.querySelectorAll('#membersTable tbody tr');
+            
+            rows.forEach(row => {
+                const name = row.cells[0].textContent.toLowerCase();
+                const email = row.cells[1].textContent.toLowerCase();
+                const role = row.cells[2].textContent.toLowerCase();
+                const roleId = row.getAttribute('data-role-id');
+                
+                const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm);
+                const matchesRole = roleFilter === 'all' || roleId === roleFilter;
+                
+                row.style.display = (matchesSearch && matchesRole) ? '' : 'none';
+            });
+        });
+
 
         document.querySelectorAll('.open-modal').forEach(btn => {
             btn.addEventListener('click', () => {
