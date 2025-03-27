@@ -290,12 +290,13 @@ h2 {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    align-items: center;
-    justify-content: center;
 }
 
 .modal.active {
     display: flex;
+    align-items: flex-start; 
+    padding-top: 60px; 
+    box-sizing: border-box;
 }
 
 .modal-content {
@@ -306,6 +307,29 @@ h2 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: left;
     position: relative;
+    margin: auto;
+    margin-top: 240px; 
+
+}
+
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-btn:hover {
+    color: #000;
+}
+
+h2 {
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+    color: #24292e;
 }
 
 .modal-content h3 {
@@ -353,13 +377,23 @@ h2 {
 }
 
 .cancel-btn {
-    background-color: #3085d6;
+    background-color: #18ab55;
     color: white;
 }
 
 .cancel-btn:hover {
     background-color: #1a7abc;
 }
+p {
+    font-size: 16px;
+    color: #333;
+    text-align: center;
+    margin-top: 15px; 
+}
+#deleteModal {
+    display: none; 
+}
+
 
 @media (max-width: 480px) {
     .modal-content {
