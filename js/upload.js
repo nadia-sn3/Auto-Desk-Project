@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let selectedFiles = [];
 
+    function sanitizeFileName(filename) {
+        return filename.replace(/[\s_]/g, '-');
+    }
+
     uploadBtn.addEventListener('click', () => {
         uploadModal.style.display = 'flex';
     });
@@ -57,11 +61,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function handleFiles(files) {
-        selectedFiles = []; // Reset selected files
+        selectedFiles = []; 
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             if (file.name.endsWith('.obj')) {
-                selectedFiles.push(file);
+                const sanitizedName = sanitizeFileName(file.name);
+                const newFile = new File([file], sanitizedName, { type: file.type });
+                selectedFiles.push(newFile);
             } else {
                 alert(`File "${file.name}" is not a valid .obj file. Only .obj files are allowed.`);
             }
