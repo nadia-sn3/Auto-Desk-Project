@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../../../db/Database_Connection.php';  
+require_once __DIR__ . '/../../../db/connection.php';  
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    global $db;  // Ensure $db is accessible
+    global $pdo;  // Ensure $db is accessible
     $latest_version = 1;
     $project_name = $_POST['project-name'] ?? null;
     $description = $_POST['project-description'] ?? null;
@@ -11,26 +11,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($project_name && $description) {
         try {
             // Prepare SQL query
-            $stmt = $db->prepare("INSERT INTO Project (project_name, description, created_by,latest_version) VALUES (:project_name, :description, :created_by, :latest_version);");
+            $stmt = $pdo->prepare("INSERT INTO Project (project_name, description, created_by, latest_version) VALUES (:project_name, :description, :created_by, :latest_version)");
             
             // Bind parameters
-            $stmt->bindValue(':project_name', $project_name, SQLITE3_TEXT);
-            $stmt->bindValue(':description', $description, SQLITE3_TEXT);
-            $stmt->bindValue(':created_by', $created_by, SQLITE3_INTEGER);
-            $stmt->bindValue(':latest_version', $latest_version, SQLITE3_INTEGER);
+            $stmt->bindParam(':project_name', $project_name, PDO::PARAM_STR);
+            $stmt->bindParam(':description', $description, PDO::PARAM_STR);
+            $stmt->bindParam(':created_by', $created_by, PDO::PARAM_INT);
+            $stmt->bindParam(':latest_version', $latest_version, PDO::PARAM_INT);
             
             // Execute the query
-            $result = $stmt->execute();
-
-            if ($result) {
-                $project_id = $db->lastInsertRowID(); // Get the last inserted project ID
+            if ($stmt->execute()) {
+                $project_id = $pdo->lastInsertId(); // Get the last inserted project ID
                 header("Location: view-project.php?project_id=$project_id");
                 exit;
             } else {
-                echo "Error: " . $db->lastErrorMsg();
+                echo "Error: Failed to insert project.";
             }
-
-        } catch (Exception $e) {
+        } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
         }
     } else {

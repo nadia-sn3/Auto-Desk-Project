@@ -1,5 +1,5 @@
 <?php
-require 'db/Database_Connection.php'; 
+require 'db/connection.php'; 
 session_start();
 
 $error_message = ''; 
@@ -8,17 +8,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    $stmt = $db->prepare("SELECT * FROM users WHERE email = :email");
-    $stmt->bindParam(':email', $email, SQLITE3_TEXT);
-    $user = $stmt->execute()->fetchArray();
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
+    $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user && password_verify($password, $user['password_hash'])) {
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['email'] = $user['email'];
-        $_SESSION['username'] = $user['first_name'];
+        $_SESSION['username'] = $user['first_name']." ". $user['last_name'];
         $_SESSION['system_role_id'] = $user['system_role_id'];
 
-        $stmt = $db->prepare("SELECT om.org_role_id, o.org_id, oroles.role_name 
+        $stmt = $pdo->prepare("SELECT om.org_role_id, o.org_id, oroles.role_name 
                               FROM organisation_members om
                               JOIN organisations o ON om.org_id = o.org_id
                               JOIN organisation_roles oroles ON om.org_role_id = oroles.org_role_id
@@ -35,9 +36,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['current_org_role_name'] = $orgMemberships[0]['role_name'];
         }
 
-        $stmt = $db->prepare("SELECT pm.project_role_id, p.project_id, proles.role_name 
+        $stmt = $pdo->prepare("SELECT pm.project_role_id, p.project_id, proles.role_name 
                               FROM project_members pm
-                              JOIN projects p ON pm.project_id = p.project_id
+                              JOIN project p ON pm.project_id = p.project_id
                               JOIN project_roles proles ON pm.project_role_id = proles.project_role_id
                               WHERE pm.user_id = ?");
         $stmt->execute([$user['user_id']]);
@@ -100,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <input type="password" id="password" name="password" placeholder="Enter your password" required>
                     </div>
                     <div class="forgot-password">
-                        <a href="#">Forgot your password?</a>
+                        <a href="forgot-password.php">Forgot your password?</a>
                     </div>
                     <button type="submit" class="signin-btn">Sign In</button>
                 </form>

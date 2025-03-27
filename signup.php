@@ -1,5 +1,5 @@
 <?php
-require 'db/Database_Connection.php'; 
+require 'db/connection.php'; 
 session_start(); 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -21,32 +21,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die("Password must be at least 8 characters long.");
     }
 
-    $stmt = $db->prepare("SELECT user_id FROM users WHERE email = :email");
-    $stmt->bindParam(':email', $email, SQLITE3_TEXT);
-    $result = $stmt->execute()->fetchArray();
-    if ($result) {
+    $stmt = $pdo->prepare("SELECT user_id FROM users WHERE email = :email");
+    $stmt->bindParam(':email', $email, PDO::PARAM_STR); // Bind the email parameter
+    $stmt->execute();
+    
+    if ($stmt->rowCount() > 0) {
         die("Email already registered.");
     }
-    
+
     $password_hash = password_hash($password, PASSWORD_BCRYPT);
-    
+
     $default_system_role_id = 2;
     
-    $sql = 
-    "INSERT INTO users (first_name, last_name, email, password_hash, system_role_id, created_at) 
-    VALUES (:first_name, :last_name, :email, :password_hash, :system_role_id, datetime('now'))";
-    $stmt = $db->prepare($sql);
-    $stmt->bindParam(':first_name', $firstName, SQLITE3_TEXT);
-    $stmt->bindParam(':last_name', $lastName, SQLITE3_TEXT);
-    $stmt->bindParam(':email', $email, SQLITE3_TEXT);
-    $stmt->bindParam(':password_hash', $password_hash, SQLITE3_TEXT);
-    $stmt->bindParam(':system_role_id', $default_system_role_id, SQLITE3_INTEGER);
-    if ($stmt->execute()) {
-        $user_id = $db->lastInsertRowID();
+    $stmt = $pdo->prepare("INSERT INTO users (first_name, last_name, email, password_hash, system_role_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
+    if ($stmt->execute([$firstName, $lastName, $email, $password_hash, $default_system_role_id])) {
+        $user_id = $pdo->lastInsertId();
         
         $_SESSION['user_id'] = $user_id;
         $_SESSION['email'] = $email;
-        $_SESSION['username'] = $firstName;
+        $_SESSION['username'] = $firstName." ".$lastName;
         $_SESSION['system_role_id'] = $default_system_role_id;
 
         header("Location: project-home.php");

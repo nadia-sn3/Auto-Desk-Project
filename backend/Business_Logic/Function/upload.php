@@ -1,5 +1,5 @@
 <?php
-require_once("db/Database_Connection.php");
+require_once("db/connection.php");
 function createUploadSession($access_token, $bucket_key, $file_name, $total_parts) 
 {
     $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload?minutesExpiration=10&parts=$total_parts";
@@ -132,87 +132,67 @@ function completeUpload($access_token, $bucket_key, $file_name, $upload_key) {
 
 function CheckIfFileExist($fileName, $projectId)
 {
-    global $db;
+    global $pdo;
     
-    $sql = 
-    "SELECT * FROM Project_File 
-    WHERE file_name = :file_name 
-    AND project_id = :project_id;";    
+    $sql = "SELECT * FROM Project_File WHERE file_name = :file_name AND project_id = :project_id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':file_name', $fileName, PDO::PARAM_STR);
+    $stmt->bindParam(':project_id', $projectId, PDO::PARAM_INT);
+    $stmt->execute();
     
-    $stmt = $db->prepare($sql);
-    $stmt->bindParam(':file_name', $fileName, SQLITE3_TEXT);
-    $stmt->bindParam(':project_id', $projectId, SQLITE3_INTEGER);
-    $result= $stmt->execute();
-    $arrayResult = [];
-    while($row=$result->fetchArray()){
-        $arrayResult [] = $row;
-    }
-    
-    return (count($arrayResult) == 1);
+    return ($stmt->rowCount() == 1);
 }
+
 function AdjustFileVersion($fileName, $projectId, $adjustmentValue = 1)
 {
-    global $db;
+    global $pdo;
     
-    $sql = 
-    'UPDATE Project_File
-    SET latest_version = latest_version + :adjustmentValue
-    WHERE file_name = :file_name AND project_id = :project_id;';    
-    
-    $stmt = $db->prepare($sql);
-    $stmt->bindParam(':adjustmentValue', $adjustmentValue, SQLITE3_INTEGER);
-    $stmt->bindParam(':file_name', $fileName, SQLITE3_TEXT);
-    $stmt->bindParam(':project_id', $projectId, SQLITE3_INTEGER);
+    $sql = "UPDATE Project_File SET latest_version = latest_version + :adjustmentValue WHERE file_name = :file_name AND project_id = :project_id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':adjustmentValue', $adjustmentValue, PDO::PARAM_INT);
+    $stmt->bindParam(':file_name', $fileName, PDO::PARAM_STR);
+    $stmt->bindParam(':project_id', $projectId, PDO::PARAM_INT);
     $stmt->execute();
 }
 
 function InsertProjectFile($fileName, $fileType, $projectId, $entryPoint)
 {
-    global $db;
+    global $pdo;
     
     $latest_version = 1;
 
-    $sql = 
-    "INSERT INTO Project_File(project_id, file_name, latest_version, first_added_at_version,file_type)
-    VALUES (:project_id, :file_name, :latest_version, :first_added_at_version, :file_type);";
-    $stmt = $db->prepare($sql);
-    $stmt->bindParam(':project_id', $projectId, SQLITE3_INTEGER);
-    $stmt->bindParam(':file_name', $fileName, SQLITE3_TEXT);
-    $stmt->bindParam(':latest_version', $latest_version, SQLITE3_INTEGER);
-    $stmt->bindParam(':first_added_at_version', $entryPoint, SQLITE3_INTEGER);
-    $stmt->bindParam(':file_type', $fileType, SQLITE3_TEXT);
+    $sql = "INSERT INTO Project_File(project_id, file_name, latest_version, first_added_at_version, file_type) VALUES (:project_id, :file_name, :latest_version, :first_added_at_version, :file_type)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':project_id', $projectId, PDO::PARAM_INT);
+    $stmt->bindParam(':file_name', $fileName, PDO::PARAM_STR);
+    $stmt->bindParam(':latest_version', $latest_version, PDO::PARAM_INT);
+    $stmt->bindParam(':first_added_at_version', $entryPoint, PDO::PARAM_INT);
+    $stmt->bindParam(':file_type', $fileType, PDO::PARAM_STR);
     $stmt->execute();
 }
 
 function InsertBucketFile($fileName, $projectId, $objectId, $objectKey, $entryPoint)
 {
-    global $db;
+    global $pdo;
     
-    $sql = 
-    "SELECT project_file_id, latest_version 
-    FROM Project_File 
-    WHERE file_name = :file_name 
-    AND project_id = :project_id;";    
+    $sql = "SELECT project_file_id, latest_version FROM Project_File WHERE file_name = :file_name AND project_id = :project_id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':project_id', $projectId, PDO::PARAM_INT);
+    $stmt->bindParam(':file_name', $fileName, PDO::PARAM_STR);
+    $stmt->execute();
     
-    $stmt = $db->prepare($sql);
-    $stmt->bindParam(':project_id', $projectId, SQLITE3_INTEGER);
-    $stmt->bindParam(':file_name', $fileName, SQLITE3_TEXT);
-    $result= $stmt->execute();
-    while($row=$result->fetchArray()){
-        $arrayResult [] = $row;
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$result) {
+        return; // No matching record found
     }
     
-    $result = $arrayResult[0];
-    
-    $sql = 
-    'INSERT INTO Bucket_File(project_file_id, file_version, object_id, object_key, first_added_at_version)
-    VALUES (:project_file_id, :file_version, :object_id, :object_key, :first_added_at_version)';
-    $stmt = $db->prepare($sql);
-    $stmt->bindParam(':project_file_id', $result['project_file_id'], SQLITE3_TEXT);
-    $stmt->bindParam(':file_version', $result['latest_version'], SQLITE3_INTEGER);
-    $stmt->bindParam(':object_id', $objectId, SQLITE3_TEXT);
-    $stmt->bindParam(':object_key', $objectKey, SQLITE3_TEXT);
-    $stmt->bindParam(':first_added_at_version', $entryPoint, SQLITE3_INTEGER);
+    $sql = "INSERT INTO Bucket_File(project_file_id, file_version, object_id, object_key, first_added_at_version) VALUES (:project_file_id, :file_version, :object_id, :object_key, :first_added_at_version)";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':project_file_id', $result['project_file_id'], PDO::PARAM_INT);
+    $stmt->bindParam(':file_version', $result['latest_version'], PDO::PARAM_INT);
+    $stmt->bindParam(':object_id', $objectId, PDO::PARAM_STR);
+    $stmt->bindParam(':object_key', $objectKey, PDO::PARAM_STR);
+    $stmt->bindParam(':first_added_at_version', $entryPoint, PDO::PARAM_INT);
     $stmt->execute();   
 }
 

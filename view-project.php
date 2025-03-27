@@ -6,7 +6,7 @@ require_once 'backend/Business_Logic/Function/functions.php';
 require_once 'backend/Business_Logic/Function/Download_Functions.php';
 require_once 'backend/Business_Logic/Function/create_project.php';
 require_once 'backend/Business_Logic/Function/upload-projectfile.php';
-require_once 'db/Database_Connection.php';
+require_once 'db/connection.php';
 $urn = isset($_GET['urn']) ? htmlspecialchars($_GET['urn']) : '';
 
 $access_token = getAccessToken($client_id, $client_secret);
@@ -40,15 +40,14 @@ if (!$project_id) {
     die("Project ID missing!");
 }
 
-// Fetch project details
-$stmt = $db->prepare("SELECT * FROM Project WHERE project_id = :project_id");
-$stmt->bindValue(':project_id', $project_id, SQLITE3_INTEGER);
+$stmt = $pdo->prepare("SELECT * FROM Project WHERE project_id = :project_id");
+$stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);
 
 // Execute query
-$result = $stmt->execute();
+$stmt->execute();
 
 // Fetch project details
-$project = $result->fetchArray(SQLITE3_ASSOC);
+$project = $stmt->fetch(PDO::FETCH_ASSOC);
 
 ?>
 

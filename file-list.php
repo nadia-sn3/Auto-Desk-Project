@@ -6,8 +6,7 @@ require_once 'backend/Business_Logic/Function/functions.php';
 require_once 'backend/Business_Logic/Function/uploaddatabase.php';
 require_once 'backend/Business_Logic/Function/upload-projectfile.php';
 require_once 'backend/Business_Logic/Function/upload.php';
-require_once 'db/Database_Connection.php';
-
+require_once 'db/connection.php';
 
 try {
     $project_id = $_GET['project_id'] ?? null;
@@ -15,32 +14,23 @@ try {
         die("Project ID missing!");
     }
 
-
-    // $sql = "SELECT pf.project_file_id, b.object_id
-    // FROM Project_File pf
-    // JOIN Bucket_File b ON pf.project_file_id = b.project_file_id
-    // WHERE pf.project_id = :project_id";
-    // $stmt = $db->prepare($sql);
-    // $stmt->bindValue(':project_id', $project_id, SQLITE3_INTEGER);
-
-    // // Execute and fetch results
-    // $result = $stmt->execute();
-    // $files = [];
-    // while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-    //     $files[] = $row;
-    // }
-
-
-    // Fetch project details
+    // Fetch project details using MySQL PDO
     $sql = "SELECT * FROM Project WHERE project_id = :project_id";
-    $stmt = $db->prepare($sql);
-    $stmt->bindValue(':project_id', $project_id, SQLITE3_INTEGER);
-    $project = $stmt->execute()->fetchArray(SQLITE3_ASSOC);
+    $stmt = $pdo->prepare($sql);
 
-    $files = GetAllProjectFiles2($project_id);
+    // Bind the project_id to the prepared statement
+    $stmt->bindValue(':project_id', $project_id, PDO::PARAM_INT);
 
-    // Close the database connection
-    $db->close();
+    // Execute the query and fetch the project details
+    $stmt->execute();
+    $project = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Fetch project files
+    $files = GetAllProjectFiles2($project_id, $pdo);
+
+
+    // Close the database connection (not always necessary in PDO, but you can unset the connection object)
+    $pdo = null;
 
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage();
