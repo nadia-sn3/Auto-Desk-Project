@@ -42,6 +42,7 @@ $adminUsers = array_filter($users, function($user) {
 
     <?php include('include/header.php'); ?>
 
+
     <div class="page-container">
         <div class="manage-users-container">
             <div class="manage-users-header">
@@ -74,9 +75,7 @@ $adminUsers = array_filter($users, function($user) {
                             <td class="actions">
                                 <a href="edit-user.php?id=<?php echo $user['user_id']; ?>" class="btn-edit">Edit</a>
                                 <?php if ($user['user_id'] != $_SESSION['user_id']): ?>
-                                    <a href="delete-user.php?id=<?php echo $user['user_id']; ?>" 
-                                       class="btn-delete" 
-                                       onclick="return confirm('Are you sure you want to delete this admin?');">
+                                    <a href="#" class="btn-delete" onclick="confirmDelete(event, <?php echo $user['user_id']; ?>)">
                                         Delete
                                     </a>
                                 <?php endif; ?>
@@ -111,9 +110,7 @@ $adminUsers = array_filter($users, function($user) {
                             <td class="user-email"><?php echo htmlspecialchars($user['email']); ?></td>
                             <td class="actions">
                                 <a href="edit-user.php?id=<?php echo $user['user_id']; ?>" class="btn-edit">Edit</a>
-                                <a href="delete-user.php?id=<?php echo $user['user_id']; ?>" 
-                                   class="btn-delete" 
-                                   onclick="return confirm('Are you sure you want to delete this user?');">
+                                <a href="#" class="btn-delete" onclick="confirmDelete(event, <?php echo $user['user_id']; ?>)">
                                     Delete
                                 </a>
                             </td>
@@ -125,9 +122,37 @@ $adminUsers = array_filter($users, function($user) {
         </div>
     </div>
 
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h3>Are you sure you want to delete this user?</h3>
+            <p>This action cannot be undone!</p>
+            <div class="modal-buttons">
+                <button id="confirmDelete" class="confirm-btn">Yes, delete it!</button>
+                <button id="cancelDelete" class="cancel-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <?php include('include/footer.php'); ?>
     <script src="js/search-users.js"></script>
+    <script src="js/manage-users.js"></script>
+
 
 
 </body>
+
+<?php
+if (isset($_SESSION['success'])) {
+    echo '<div class="alert success">'.htmlspecialchars($_SESSION['success']).'</div>';
+    unset($_SESSION['success']);
+}
+if (isset($_SESSION['error'])) {
+    echo '<div class="alert error">'.htmlspecialchars($_SESSION['error']).'</div>';
+    unset($_SESSION['error']);
+}
+?>
+
+
+
 </html>
