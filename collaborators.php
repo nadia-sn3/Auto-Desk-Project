@@ -1,7 +1,9 @@
 <?php
 require_once 'backend/Business_Logic/Function/config.php';
 require_once 'db/connection.php';
-
+if (isset($_GET['success']) && $_GET['success'] == 1) {
+    echo '<div class="success-message">Collaborator added successfully!</div>';
+}
 try {
     $project_id = $_GET['project_id'] ?? null;
     if (!$project_id) {
@@ -68,16 +70,16 @@ try {
                         </thead>
                         <tbody>
                             <?php foreach ($collaborators as $collaborator): ?>
-                            <tr>
-                                <td><div class="profile-circle"><?php echo strtoupper(substr($collaborator['first_name'], 0, 1) . substr($collaborator['last_name'], 0, 1)); ?></div></td>
-                                <td><?php echo htmlspecialchars($collaborator['first_name'] . ' ' . $collaborator['last_name']); ?></td>
-                                <td><?php echo htmlspecialchars($collaborator['email']); ?></td>
-                                <td><?php echo htmlspecialchars($collaborator['role_name']); ?></td>
-                                <td>
-                                    <button class="action-btn edit-btn">Edit</button>
-                                    <button class="action-btn remove-btn">Remove</button>
-                                </td>
-                            </tr>
+                                <tr data-user-id="<?php echo $collaborator['user_id']; ?>">
+    <td><div class="profile-circle"><?php echo strtoupper(substr($collaborator['first_name'], 0, 1) . substr($collaborator['last_name'], 0, 1)); ?></div></td>
+    <td><?php echo htmlspecialchars($collaborator['first_name'] . ' ' . $collaborator['last_name']); ?></td>
+    <td><?php echo htmlspecialchars($collaborator['email']); ?></td>
+    <td><?php echo htmlspecialchars($collaborator['role_name']); ?></td>
+    <td>
+        <button class="action-btn edit-btn">Edit</button>
+        <button class="action-btn remove-btn">Remove</button>
+    </td>
+</tr>
                             <?php endforeach; ?>
                             <?php if (empty($collaborators)): ?>
                             <tr>
@@ -120,6 +122,7 @@ try {
     <?php include('include/footer.php'); ?>
 
     <script src="js/add-collaborator-modal.js"></script>
+    <script src="js/remove-collaborator.js"></script>
     <script src="js/user-search.js"></script>
 </body>
 </html>

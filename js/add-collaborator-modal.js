@@ -82,3 +82,25 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+document.getElementById("collaborator-form").addEventListener("submit", function(event) {
+    event.preventDefault(); // Prevent default form submission
+    
+    var formData = new FormData(this);
+    
+    fetch(this.action, {
+        method: 'POST',
+        body: formData
+    }).then(response => response.json())
+      .then(data => {
+          if (data.status === 'success') {
+              // If the collaborator is added successfully, reload the page
+              window.location.href = '/collaborators.php?project_id=' + data.project_id + '&success=1';
+          } else {
+              // Show error message if any
+              alert('Error: ' + data.message);
+          }
+      })
+      .catch(error => {
+          alert('Request failed: ' + error.message);
+      });
+});
