@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 27, 2025 at 01:32 PM
+-- Generation Time: Mar 27, 2025 at 03:02 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -47,7 +47,11 @@ INSERT INTO `Bucket_File` (`bucket_file_id`, `project_file_id`, `file_version`, 
 (4, 2, 3, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 4),
 (5, 2, 4, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 5),
 (6, 2, 5, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 6),
-(7, 3, 1, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 2);
+(7, 3, 1, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 2),
+(8, 4, 1, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 2),
+(9, 4, 2, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 3),
+(10, 5, 1, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 2),
+(11, 6, 1, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 2);
 
 -- --------------------------------------------------------
 
@@ -71,7 +75,11 @@ INSERT INTO `Commit_File` (`commit_id`, `bucket_file_id`) VALUES
 (4, 1),
 (5, 1),
 (6, 1),
-(7, 7);
+(7, 7),
+(8, 8),
+(9, 1),
+(10, 10),
+(12, 11);
 
 -- --------------------------------------------------------
 
@@ -123,6 +131,13 @@ CREATE TABLE `organisations` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `organisations`
+--
+
+INSERT INTO `organisations` (`org_id`, `org_name`, `description`, `created_at`, `updated_at`) VALUES
+(1, 'kjhgf', ',keh', '2025-03-27 13:19:36', '2025-03-27 13:19:36');
+
 -- --------------------------------------------------------
 
 --
@@ -137,6 +152,13 @@ CREATE TABLE `organisation_members` (
   `joined_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `invited_by` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `organisation_members`
+--
+
+INSERT INTO `organisation_members` (`org_member_id`, `org_id`, `user_id`, `org_role_id`, `joined_at`, `invited_by`) VALUES
+(1, 1, 5, 1, '2025-03-27 13:19:36', 5);
 
 -- --------------------------------------------------------
 
@@ -195,7 +217,14 @@ CREATE TABLE `Project` (
 INSERT INTO `Project` (`project_id`, `project_name`, `description`, `created_by`, `latest_version`) VALUES
 (1, 'susu', 'susu', 1, 2),
 (2, 'susu', 'susu', 1, 6),
-(3, 'susu', 'susu', 1, 2);
+(3, 'susu', 'susu', 1, 2),
+(4, 'test', 'test', 1, 1),
+(5, 't', 't', 5, 1),
+(6, 'fseuyg', 'hefsgygyuqw', 5, 3),
+(7, 'hya7t', 'ytwd', 5, 2),
+(8, 'esrfdgt', 'werfdg', 5, 1),
+(9, 'wergty', 'wefrtgyh', 5, 1),
+(11, 'test', 'test', 5, 2);
 
 -- --------------------------------------------------------
 
@@ -221,7 +250,12 @@ INSERT INTO `Project_Commit` (`commit_id`, `commit_message`, `project_id`, `proj
 (4, 'jk', 2, 4),
 (5, 'gu', 2, 5),
 (6, 'gu', 2, 6),
-(7, 'enhufaj', 3, 2);
+(7, 'enhufaj', 3, 2),
+(8, 'liuytres', 6, 2),
+(9, 'liuyjthg', 6, 3),
+(10, 'dwansiud', 7, 2),
+(11, 'Initial project creation', 11, 1),
+(12, 'efhsdyx', 11, 2);
 
 -- --------------------------------------------------------
 
@@ -245,7 +279,10 @@ CREATE TABLE `Project_File` (
 INSERT INTO `Project_File` (`project_file_id`, `project_id`, `file_name`, `latest_version`, `first_added_at_version`, `file_type`) VALUES
 (1, 1, 'one.obj', 1, 2, 'obj'),
 (2, 2, 'one.obj', 5, 2, 'obj'),
-(3, 3, 'one.obj', 1, 2, 'obj');
+(3, 3, 'one.obj', 1, 2, 'obj'),
+(4, 6, 'one.obj', 2, 2, 'obj'),
+(5, 7, 'one.obj', 1, 2, 'obj'),
+(6, 11, 'one.obj', 1, 2, 'obj');
 
 -- --------------------------------------------------------
 
@@ -261,6 +298,13 @@ CREATE TABLE `project_members` (
   `added_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `added_by` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `project_members`
+--
+
+INSERT INTO `project_members` (`project_member_id`, `project_id`, `user_id`, `project_role_id`, `added_at`, `added_by`) VALUES
+(1, 11, 5, 1, '2025-03-27 13:47:08', 5);
 
 -- --------------------------------------------------------
 
@@ -330,7 +374,8 @@ INSERT INTO `users` (`user_id`, `system_role_id`, `email`, `password_hash`, `fir
 (1, 2, 'su@gmail.com', '$2y$10$OxAIfun39pby6PBZ2/AlHe.pSoyl8UvBsonheeMUdGczNvySLRl4.', 'susu', 'susu', '2025-03-27 11:52:41', NULL, NULL),
 (2, 2, 'su1@gmail.com', '$2y$10$lbB3k2xNY5lU8gQR8UHl5.0saoHebr8.3jthkuOhNTWnhnHBIwh/i', 'sususu', 'susu', '2025-03-27 11:55:15', NULL, NULL),
 (3, 2, 's@gmail.com', '$2y$10$nreCM2W56S3WZQGP31jA2uQe1X9Mg1xtV6.KNADXRZLuLibxIld1O', 'sussu', 'susu', '2025-03-27 12:13:36', NULL, NULL),
-(4, 2, 't@t.com', '$2y$10$g3tRLJmPzaaSNSxv85puaOtQJVZWBD/iZwJzBAez0m/iZ0V.UNNhu', 't', 't', '2025-03-27 12:26:53', NULL, NULL);
+(4, 2, 't@t.com', '$2y$10$g3tRLJmPzaaSNSxv85puaOtQJVZWBD/iZwJzBAez0m/iZ0V.UNNhu', 't', 't', '2025-03-27 12:26:53', NULL, NULL),
+(5, 2, 'admin@admin.com', '$2y$10$fs5eAuGRoiwlLTCYi8dhju5IOe34qispPttBQLgTsDwV1UdwGgitq', 'admin', 'admin', '2025-03-27 12:33:18', NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -349,6 +394,28 @@ ALTER TABLE `Bucket_File`
 ALTER TABLE `Commit_File`
   ADD PRIMARY KEY (`commit_id`,`bucket_file_id`),
   ADD KEY `bucket_file_id` (`bucket_file_id`);
+
+--
+-- Indexes for table `invitations`
+--
+ALTER TABLE `invitations`
+  ADD PRIMARY KEY (`invitation_id`),
+  ADD KEY `org_id` (`org_id`);
+
+--
+-- Indexes for table `organisations`
+--
+ALTER TABLE `organisations`
+  ADD PRIMARY KEY (`org_id`);
+
+--
+-- Indexes for table `organisation_members`
+--
+ALTER TABLE `organisation_members`
+  ADD PRIMARY KEY (`org_member_id`),
+  ADD KEY `org_id` (`org_id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `org_role_id` (`org_role_id`);
 
 --
 -- Indexes for table `Project`
@@ -371,6 +438,12 @@ ALTER TABLE `Project_File`
   ADD KEY `project_id` (`project_id`);
 
 --
+-- Indexes for table `project_members`
+--
+ALTER TABLE `project_members`
+  ADD PRIMARY KEY (`project_member_id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -384,31 +457,55 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `Bucket_File`
 --
 ALTER TABLE `Bucket_File`
-  MODIFY `bucket_file_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `bucket_file_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `invitations`
+--
+ALTER TABLE `invitations`
+  MODIFY `invitation_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `organisations`
+--
+ALTER TABLE `organisations`
+  MODIFY `org_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `organisation_members`
+--
+ALTER TABLE `organisation_members`
+  MODIFY `org_member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `Project`
 --
 ALTER TABLE `Project`
-  MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `Project_Commit`
 --
 ALTER TABLE `Project_Commit`
-  MODIFY `commit_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `commit_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `Project_File`
 --
 ALTER TABLE `Project_File`
-  MODIFY `project_file_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `project_file_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `project_members`
+--
+ALTER TABLE `project_members`
+  MODIFY `project_member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables
