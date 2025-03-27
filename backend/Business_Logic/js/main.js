@@ -218,6 +218,7 @@ Autodesk.Viewing.Initializer(options, () => {
 
 
 
+
 async function startTranslation(urn) {
     try {
         const response = await fetch(`http://localhost/Auto-Desk-Project/backend/Business_Logic/Function/start_translation.php?urn=${urn}`, {
@@ -251,6 +252,7 @@ async function startTranslation(urn) {
         console.error('Failed to call start_translation.php:', error);
     }
 }
+
 
 
 

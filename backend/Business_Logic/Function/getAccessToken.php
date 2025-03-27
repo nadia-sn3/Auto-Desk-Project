@@ -8,7 +8,7 @@ function getAccessToken($client_id, $client_secret){
     //Data to send in the request 
     $data = [
         "grant_type" => "client_credentials",
-        "scope" => "data:write data:read bucket:create bucket:delete bucket:read"
+        "scope" => "data:write data:read data:create bucket:create bucket:delete bucket:read"
     ];
 
     // Set up cURL request

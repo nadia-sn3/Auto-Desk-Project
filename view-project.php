@@ -5,6 +5,7 @@ require_once 'backend/Business_Logic/Function/getAccessToken.php';
 require_once 'backend/Business_Logic/Function/functions.php';
 require_once 'backend/Business_Logic/Function/Download_Functions.php';
 require_once 'backend/Business_Logic/Function/create_project.php';
+require_once 'backend/Business_Logic/Function/upload-projectfile.php';
 require_once 'db/Database_Connection.php';
 $urn = isset($_GET['urn']) ? htmlspecialchars($_GET['urn']) : '';
 
@@ -150,8 +151,9 @@ $project = $result->fetchArray(SQLITE3_ASSOC);
     </div>
 </div>
 
-        <!-- <form action="backend/Business_Logic/Function/.php" method="POST" enctype="multipart/form-data" id="upload-form"> -->
-                <div id="uploadModal" class="modal">
+        <form method="POST" enctype="multipart/form-data" id="upload-form"> 
+
+        <div id="uploadModal" class="modal">
                     <div class="modal-content">
                         <span class="close">&times;</span>
                         <h2>Upload Files</h2>
@@ -164,13 +166,13 @@ $project = $result->fetchArray(SQLITE3_ASSOC);
                         <div id="fileList"></div>
                         <div id="commitMessageContainer" style="display: none;">
                             <label for="commitMessage">Initial Commit Message:</label>
-                            <input type="text" id="commitMessage" placeholder="Enter commit message" required>
+                            <input type="text" id="commitMessage" name= "commitMessage" placeholder="Enter commit message" required>
                         </div>
                         <button type="submit" class="browse-btn">Upload</button>
                     </div>
                 </div>
                 
-        <!-- </form> -->
+        </form> 
 
             <div class="project-model">
                 <?php if (empty($urn)): ?>

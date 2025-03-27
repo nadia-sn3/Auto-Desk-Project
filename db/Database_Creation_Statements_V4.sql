@@ -29,6 +29,46 @@ CREATE TABLE "organisation_members" (
   "invited_by" INTEGER DEFAULT NULL
 ) ;
 
+CREATE TABLE organisation_roles (
+    org_role_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    role_name TEXT NOT NULL,
+    permissions TEXT DEFAULT NULL -- JSON array of permissions
+);
+
+CREATE TABLE password_reset_tokens (
+    token_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    token TEXT NOT NULL,
+    expires_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    used INTEGER NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE system_roles (
+    system_role_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    role_name TEXT NOT NULL,
+    permissions TEXT DEFAULT NULL 
+);
+
+
+CREATE TABLE invitations (
+    invitation_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    org_id INTEGER NOT NULL,
+    email TEXT NOT NULL,
+    token TEXT NOT NULL,
+    org_role_id INTEGER NOT NULL,
+    invited_by INTEGER NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME NOT NULL DEFAULT (datetime(CURRENT_TIMESTAMP, '+7 days')),
+    status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending', 'accepted', 'expired'))
+);
+
+CREATE TABLE project_roles (
+    project_role_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    role_name TEXT NOT NULL,
+    permissions TEXT DEFAULT NULL
+);
+
 
 CREATE TABLE "Project" (
 	"project_id" INTEGER NOT NULL,
@@ -45,6 +85,7 @@ CREATE TABLE "Project_File" (
 	"file_name"	TEXT NOT NULL,
 	"latest_version" INTEGER NOT NULL,
 	"first_added_at_version" INTEGER NOT NULL,
+	"file_type" TEXT NOT NULL,
 	PRIMARY KEY("project_file_id" AUTOINCREMENT),
 	FOREIGN KEY("project_id") REFERENCES "Project"("project_id")
 );

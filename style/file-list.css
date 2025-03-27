@@ -1,0 +1,35 @@
+.page-container1 {
+    max-width: 1200px;  /* Limits the width */
+    max-height: 800px;  /* Limits the height */
+    overflow: hidden;   /* Prevents content overflow */
+    margin: auto;       /* Centers the container */
+    display: flex;      /* Ensures internal elements are aligned properly */
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #ccc; /* Optional border for visibility */
+    padding: 10px;
+}
+
+.viewer-container {
+    width: 100%;
+    height: 600px; /* Adjust as needed */
+    display: flex;
+    justify-content: center;
+    background-color: #f0f0f0; /* Light background */
+}
+
+#imageContainer {
+    width: 100%;
+    height: 200px; /* Adjust image container height */
+    background-color: #ddd; /* Placeholder color */
+}
+
+#forgeViewer {
+    width: 80%;
+    height: 70%;
+    background-color: #eaeaea; /* Placeholder background */
+}
+
+#viewables_dropdown {
+   
+}

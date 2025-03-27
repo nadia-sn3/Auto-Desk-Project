@@ -3,25 +3,49 @@ require_once 'backend/Business_Logic/Function/config.php';
 require_once 'backend/Business_Logic/Function/createBucket.php';
 require_once 'backend/Business_Logic/Function/getAccessToken.php';
 require_once 'backend/Business_Logic/Function/functions.php';
-require_once 'db/connection.php';
+require_once 'backend/Business_Logic/Function/uploaddatabase.php';
+require_once 'backend/Business_Logic/Function/upload-projectfile.php';
+require_once 'backend/Business_Logic/Function/upload.php';
+require_once 'db/Database_Connection.php';
 
 
 try {
-    $project_id = isset($_GET['project_id']) ? (int) $_GET['project_id'] : 0;
+    $project_id = $_GET['project_id'] ?? null;
+    if (!$project_id) {
+        die("Project ID missing!");
+    }
 
-    $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4";
-    $pdo = new PDO($dsn, $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $sql = "SELECT * FROM project_files WHERE project_id = :project_id";
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);
-    $stmt->execute();
-    $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // $sql = "SELECT pf.project_file_id, b.object_id
+    // FROM Project_File pf
+    // JOIN Bucket_File b ON pf.project_file_id = b.project_file_id
+    // WHERE pf.project_id = :project_id";
+    // $stmt = $db->prepare($sql);
+    // $stmt->bindValue(':project_id', $project_id, SQLITE3_INTEGER);
 
-} catch (PDOException $e) {
+    // // Execute and fetch results
+    // $result = $stmt->execute();
+    // $files = [];
+    // while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+    //     $files[] = $row;
+    // }
+
+
+    // Fetch project details
+    $sql = "SELECT * FROM Project WHERE project_id = :project_id";
+    $stmt = $db->prepare($sql);
+    $stmt->bindValue(':project_id', $project_id, SQLITE3_INTEGER);
+    $project = $stmt->execute()->fetchArray(SQLITE3_ASSOC);
+
+    $files = GetAllProjectFiles2($project_id);
+
+    // Close the database connection
+    $db->close();
+
+} catch (Exception $e) {
     echo "Error: " . $e->getMessage();
 }
+
 
 function getPreviewIcon($fileName) {
     $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
@@ -66,55 +90,123 @@ $access_token = getAccessToken($client_id, $client_secret);
 <body>
 <?php include('include/header.php'); ?>
 
-<div class="page-container1">
-    <!-- Sidebar -->
-     <!-- Mobile Menu Button -->
-    <div class="menu-btn" id="menuBtn">
-        &#9776; 
-    </div>
-    <aside class="sidebar1" id="sidebar">
-        <h3>Project Files</h3>
-        <ul class="file-list1">
+
+
+<div class="page-container">
+        <div class="project-container">
+            <div class="project-header">
+                <div class="project-title">
+                <h2>Project: <?php echo htmlspecialchars($project['project_name']); ?></h2>
+                    <p><?php echo htmlspecialchars($project['description']); ?></p>
+                </div>
+            </div>
+
+            <nav class="project-nav-bar">
+                <ul>
+                    <li><a href="collaborators.php" class="nav-link">Collaborators</a></li>
+                    <li><a href="issues.php" class="nav-link">Issues</a></li>
+                    <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Create a Commit</a></li>
+                </ul>
+            </nav>
+            <div class="file-dropdown-wrapper">
+    <div class="file-dropdown">
+        <button class="dropdown-header">
+            <span class="dropdown-title">Project Files</span>
+            <svg class="dropdown-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9l6 6 6-6"/>
+            </svg>
+        </button>
+        <div class="dropdown-menu">
+            <div class="file-search">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input type="text" placeholder="Search files..." class="search-input">
+            </div>
+            <ul class="file-list">
             <?php if (!empty($files)): ?>
-                <?php foreach ($files as $file): ?>
-                    <li class="file-item1">
-                        <a href="#" class="file-link" data-file-name="<?= urlencode($file['file_name']) ?>" data-file-type="<?= pathinfo($file['file_name'], PATHINFO_EXTENSION) ?>" data-urn="<?= htmlspecialchars($file['urn']) ?>">
-                            <img src="<?= getPreviewIcon($file['file_name']) ?>" alt="File Icon" class="preview-icon" />
-                            <?= htmlspecialchars($file['file_name']) ?>
-                        </a>
-                    </li>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <li>No files found.</li>
-            <?php endif; ?>
+    <?php foreach ($files as $file): ?>
+        <li class="file-item">
+            <!-- Link to the file -->
+            <a href="#" class="file-link" 
+                data-file-name="<?= urlencode($file['file_name']) ?>" 
+                data-file-type="<?= pathinfo($file['file_name'], PATHINFO_EXTENSION) ?>" 
+                data-urn="<?= htmlspecialchars($file['object_id']) ?>" onclick="showFileDetails(event)">
+                
+                <!-- SVG Icon (you can adjust this based on file type) -->
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                
+                <!-- File Name -->
+                <span>
+                    <?= htmlspecialchars($file['file_name']); ?>
+                </span>
+            </a>
+        </li>
+    <?php endforeach; ?>
+<?php else: ?>
+    <li>No files found.</li>
+<?php endif; ?>
+
+
         </ul>
-    </aside>
+        </div>
+    </div>
+</div>
+
+<div class="page-container1"> 
+    
 
     <div id="imageContainer"></div>
-    <!-- Main content area -->
     <div class="viewer-container">
         <div id="forgeViewer"></div>
         <div id="viewables_dropdown" style="display: none;">
             <select id="viewables"></select>
         </div>        
     </div>    
-</div>
+ </div>
 
-<div class="project-model">
-            <div class="project-model-buttons">
-                <button class="btn">Share</button>
-                <button class="btn">Download</button>
+<?php if (!empty($files)): ?>
+    <div class="project-model">
+        <div class="project-model-buttons">
+            <button class="btn">Share</button>
+            <button class="btn">Download</button>
+        </div>
+
+        <div class="project-model-data">
+            <!-- This section will be populated dynamically via JavaScript -->
+            <h3>Model Details</h3>
+            <ul>
+                <li><strong>File Name:</strong> N/A</li>
+                <li><strong>File Type:</strong> N/A</li>
+                <li><strong>Created By:</strong> N/A</li>
+            </ul>
+        </div>
+
+        <div class="project-model-timeline">
+                <div class="project-model-timeline-header">
+                    <h3>Model Timeline</h3>
+                    <span class="total-commits">Total Commits: <?php echo empty($urn) ? '0' : '12'; ?></span>
+                    <div class="filter-container">
+                        <input type="date" id="filterDate" name="filterDate">
+                        <button id="filterBeforeBtn" class="btn">Before</button>
+                        <button id="filterAfterBtn" class="btn">After</button>
+                    </div>
+                </div>
+                <div class="project-model-timeline-versions">
+                    <?php include('version.php'); ?>
+                </div>
             </div>
-            <div class="project-model-data">
-                <h3>Model Details</h3>
-                <ul>
-                    <li><strong>File Type:</strong> GLB</li>
-                    <li><strong>File Size:</strong> 5.2 MB</li>
-                    <li><strong>Created:</strong> 2023-10-01</li>
-                    <li><strong>Last Updated:</strong> 2023-10-15</li>
-                </ul>
-            </div>
-</div>
+    </div>
+<?php else: ?>
+    <p>No files available for this project.</p>
+<?php endif; ?>
+
+
+
 
 
 <!-- Upload Modal -->
@@ -175,6 +267,100 @@ $access_token = getAccessToken($client_id, $client_secret);
     });
     
 </script>
+
+<script>
+    function showFileDetails(event) {
+    event.preventDefault();  // Prevents the default link action (like navigation)
+
+    const fileLink = event.currentTarget;  // The clicked link
+    const fileName = fileLink.getAttribute('data-file-name');
+    const fileType = fileLink.getAttribute('data-file-type');
+    const createdBy = fileLink.getAttribute('data-created-by');
+
+    // Find the model section where the details will be displayed
+    const projectModelData = document.querySelector('.project-model-data');
+    
+    // Update the project model with the file details
+    projectModelData.innerHTML = `
+        <h3>Model Details</h3>
+        <ul>
+            <li><strong>File Name:</strong> ${decodeURIComponent(fileName)}</li>
+            <li><strong>File Type:</strong> ${fileType.toUpperCase()}</li>
+            <li><strong>Created By:</strong> ${createdBy}</li>
+        </ul>
+    `;
+}
+
+</script>
+
+
+
+<script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropAreaLarge = document.getElementById('dropAreaLarge');
+            const fileInputLarge = document.getElementById('fileInputLarge');
+            
+            if (dropAreaLarge && fileInputLarge) {
+
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropAreaLarge.addEventListener(eventName, preventDefaults, false);
+                });
+                
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropAreaLarge.addEventListener(eventName, highlight, false);
+                });
+                
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropAreaLarge.addEventListener(eventName, unhighlight, false);
+                });
+                
+                dropAreaLarge.addEventListener('drop', handleDrop, false);
+                
+                fileInputLarge.addEventListener('change', function(e) {
+                    handleFiles(e.target.files);
+                });
+            }
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            function highlight() {
+                dropAreaLarge.classList.add('highlight');
+            }
+            
+            function unhighlight() {
+                dropAreaLarge.classList.remove('highlight');
+            }
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+            
+            function handleFiles(files) {
+                if (files.length > 0) {
+                    document.getElementById('uploadModal').style.display = 'block';
+                    document.getElementById('file-upload').files = files;
+
+                    // Show commit message field
+                    document.getElementById('commitMessageContainer').style.display = 'block';
+                    document.querySelector('#upload-form button[type="submit"]').style.display = 'block';
+                    const event = new Event('change');
+                    document.getElementById('file-upload').dispatchEvent(event);
+                }
+            }
+        });
+    </script>
+
+
+
+
+<script src="js/issues-dropdown.js"></script>
+    <script src="js/file-list-dropdown.js"></script>
 <?php include('include/footer.php'); ?>
 
 <div id="shareModal" class="modal">
@@ -207,5 +393,6 @@ $access_token = getAccessToken($client_id, $client_secret);
 
 
 </body>
+
 
 </html>

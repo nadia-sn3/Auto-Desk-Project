@@ -1,5 +1,5 @@
 <?php
-require_once("../../../db/connection.php");
+require_once("db/Database_Connection.php");
 function createUploadSession($access_token, $bucket_key, $file_name, $total_parts) 
 {
     $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload?minutesExpiration=10&parts=$total_parts";
@@ -130,20 +130,57 @@ function completeUpload($access_token, $bucket_key, $file_name, $upload_key) {
 }
 
 
-function InsertProjectFile($fileName, $projectId, $entryPoint)
+function CheckIfFileExist($fileName, $projectId)
+{
+    global $db;
+    
+    $sql = 
+    "SELECT * FROM Project_File 
+    WHERE file_name = :file_name 
+    AND project_id = :project_id;";    
+    
+    $stmt = $db->prepare($sql);
+    $stmt->bindParam(':file_name', $fileName, SQLITE3_TEXT);
+    $stmt->bindParam(':project_id', $projectId, SQLITE3_INTEGER);
+    $result= $stmt->execute();
+    $arrayResult = [];
+    while($row=$result->fetchArray()){
+        $arrayResult [] = $row;
+    }
+    
+    return (count($arrayResult) == 1);
+}
+function AdjustFileVersion($fileName, $projectId, $adjustmentValue = 1)
+{
+    global $db;
+    
+    $sql = 
+    'UPDATE Project_File
+    SET latest_version = latest_version + :adjustmentValue
+    WHERE file_name = :file_name AND project_id = :project_id;';    
+    
+    $stmt = $db->prepare($sql);
+    $stmt->bindParam(':adjustmentValue', $adjustmentValue, SQLITE3_INTEGER);
+    $stmt->bindParam(':file_name', $fileName, SQLITE3_TEXT);
+    $stmt->bindParam(':project_id', $projectId, SQLITE3_INTEGER);
+    $stmt->execute();
+}
+
+function InsertProjectFile($fileName, $fileType, $projectId, $entryPoint)
 {
     global $db;
     
     $latest_version = 1;
 
     $sql = 
-    "INSERT INTO Project_File(project_id, file_name, latest_version, first_added_at_version)
-    VALUES (:project_id, :file_name, :latest_version, :first_added_at_version)";
+    "INSERT INTO Project_File(project_id, file_name, latest_version, first_added_at_version,file_type)
+    VALUES (:project_id, :file_name, :latest_version, :first_added_at_version, :file_type);";
     $stmt = $db->prepare($sql);
     $stmt->bindParam(':project_id', $projectId, SQLITE3_INTEGER);
     $stmt->bindParam(':file_name', $fileName, SQLITE3_TEXT);
     $stmt->bindParam(':latest_version', $latest_version, SQLITE3_INTEGER);
     $stmt->bindParam(':first_added_at_version', $entryPoint, SQLITE3_INTEGER);
+    $stmt->bindParam(':file_type', $fileType, SQLITE3_TEXT);
     $stmt->execute();
 }
 
@@ -178,6 +215,8 @@ function InsertBucketFile($fileName, $projectId, $objectId, $objectKey, $entryPo
     $stmt->bindParam(':first_added_at_version', $entryPoint, SQLITE3_INTEGER);
     $stmt->execute();   
 }
+
+
 
 
 ?>

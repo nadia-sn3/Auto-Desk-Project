@@ -8,7 +8,7 @@ function base64UrlEncodeUnpadded($data) {
     
     // Replace characters to make it URL-safe
     $urlSafeBase64 = strtr($base64, '+/', '-_');
-    
+
     // Remove the padding (=)
     return rtrim($urlSafeBase64, '=');
 }
@@ -88,7 +88,7 @@ function base64UrlEncodeUnpadded($data) {
 function StartTranslationJob($access_token, $urn)
 {
     $url = "https://developer.api.autodesk.com/modelderivative/v2/designdata/job";
-
+    
     $header = [
         "Authorization: Bearer $access_token",
         "Content-Type: application/json"
@@ -124,22 +124,26 @@ function StartTranslationJob($access_token, $urn)
     $response = curl_exec($ch);
     $status_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
 
-    curl_close($ch);
-
     if ($response === false) {
         echo json_encode(['error' => 'Curl error: ' . curl_error($ch), 'status_code' => $status_code]);
         exit;
     }
+
+    curl_close($ch);
 
     if ($status_code !== 200 && $status_code !== 201) {
         echo json_encode(['error' => 'Autodesk error', 'status_code' => $status_code, 'response' => $response]);
         exit;
     }
 
+    // Decode the response JSON to check if there are additional details
+    $responseData = json_decode($response, true);
+    
     // Return the response in JSON format (no extra output)
-    echo $response;
+    echo json_encode($responseData);
     exit;
 }
+
 
 
 
