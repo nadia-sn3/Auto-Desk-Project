@@ -12,7 +12,20 @@ if (!$user_id) {
 $stmt = $pdo->prepare("SELECT * FROM Project WHERE created_by = :user_id ORDER BY project_id DESC");
 $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 $stmt->execute();
-$projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$created_projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$stmt = $pdo->prepare("
+    SELECT p.* 
+    FROM Project p
+    JOIN project_members pm ON p.project_id = pm.project_id
+    WHERE pm.user_id = :user_id AND p.created_by != :user_id
+    ORDER BY p.project_id DESC
+");
+$stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt->execute();
+$member_projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$projects = array_merge($created_projects, $member_projects);
 ?>
 
 <!DOCTYPE html>
