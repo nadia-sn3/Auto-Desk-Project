@@ -1,3 +1,6 @@
+Upload.js
+
+
 document.addEventListener('DOMContentLoaded', function() {
     const uploadBtn = document.getElementById('uploadBtn');
     const uploadModal = document.getElementById('uploadModal');
@@ -61,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function handleFiles(files) {
-        selectedFiles = []; 
+        selectedFiles = []; // Reset selected files
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             if (file.name.endsWith('.obj')) {
