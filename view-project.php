@@ -306,7 +306,6 @@ $project = $stmt->fetch(PDO::FETCH_ASSOC);
                     document.getElementById('uploadModal').style.display = 'block';
                     document.getElementById('file-upload').files = files;
 
-                    // Show commit message field
                     document.getElementById('commitMessageContainer').style.display = 'block';
                     document.querySelector('#upload-form button[type="submit"]').style.display = 'block';
                     const event = new Event('change');
