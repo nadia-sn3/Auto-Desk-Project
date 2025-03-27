@@ -31,15 +31,6 @@ session_start();
             </div>
         </section>
 
-        <section class="featured-models">
-            <h2>Featured Models</h2>
-            <div class="model-grid">
-                <?php include('preview.php'); ?>
-                <?php include('preview.php'); ?>
-                <?php include('preview.php'); ?>
-            </div>
-        </section>
-
         <section class="cta-section">
             <div class="cta-content">
                 <?php if (isset($_SESSION['user_id'])): ?>
