@@ -43,7 +43,7 @@
             </div>
         </div>
     </div>
-
+    
 <div id="collaboratorModal" class="modal">
 
     <div class="modal-content">
