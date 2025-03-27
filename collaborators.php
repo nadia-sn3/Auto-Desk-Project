@@ -97,20 +97,15 @@ try {
             <h2>Add Collaborator</h2>
             <form id="collaborator-form" method="POST" action="backend/add_collaborator.php">
                 <input type="hidden" name="project_id" value="<?php echo $project_id; ?>">
+
                 <div class="form-group">
-                    <label for="collaborator-username">Search by Username</label>
-                    <input type="text" id="collaborator-username" name="collaborator-username" placeholder="Enter username">
-                    <div id="username-suggestions" class="suggestions"></div>
-                </div>
-                <div class="form-group">
-                    <label for="collaborator-email">Or Invite by Email</label>
+                    <label for="collaborator-email">Add by Email</label>
                     <input type="email" id="collaborator-email" name="collaborator-email" placeholder="Enter email">
                     <div id="email-suggestions" class="suggestions"></div>
                 </div>
                 <div class="form-group">
                     <label for="collaborator-role">Role</label>
                     <select id="collaborator-role" name="collaborator-role">
-                        <option value="1">Administrator</option>
                         <option value="2">Project Manager</option>
                         <option value="3">Editor</option>
                         <option value="4">Viewer</option>
