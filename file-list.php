@@ -30,7 +30,6 @@ try {
     echo "Error: " . $e->getMessage();
 }
 
-
 function getPreviewIcon($fileName) {
     $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
     switch (strtolower($fileExtension)) {
@@ -73,8 +72,6 @@ $access_token = getAccessToken($client_id, $client_secret);
 </head>
 <body>
 <?php include('include/header.php'); ?>
-
-
 
 <div class="page-container">
         <div class="project-container">
@@ -262,8 +259,6 @@ $access_token = getAccessToken($client_id, $client_secret);
 
 </script>
 
-
-
 <script>
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -323,9 +318,6 @@ $access_token = getAccessToken($client_id, $client_secret);
             }
         });
     </script>
-
-
-
 
 <script src="js/issues-dropdown.js"></script>
     <script src="js/file-list-dropdown.js"></script>
