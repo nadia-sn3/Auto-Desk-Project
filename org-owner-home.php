@@ -2,14 +2,16 @@
 session_start();
 require_once 'db/connection.php';
 
+// Initialize variables
 $success = '';
 $error = '';
-$orgId = 1; /
+$orgId = 1; // Hardcoded for testing - should come from session in production
 $members = [];
-$totalMembers = 0;
+$totalMembers = 0; // Initialize total members count
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
     try {
+        // Validate inputs
         if (empty($_POST['first_name']) || empty($_POST['last_name']) || empty($_POST['email']) || empty($_POST['org_role_id'])) {
             throw new Exception("All fields are required");
         }
@@ -23,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             throw new Exception("Invalid email format");
         }
 
+        // Check if user exists
         $stmt = $pdo->prepare("SELECT user_id FROM users WHERE email = ?");
         $stmt->execute([$email]);
         
@@ -30,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             $user = $stmt->fetch();
             $userId = $user['user_id'];
             
+            // Check if already in organization
             $stmt = $pdo->prepare("SELECT org_member_id FROM organisation_members WHERE org_id = ? AND user_id = ?");
             $stmt->execute([$orgId, $userId]);
             
@@ -37,33 +41,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
                 throw new Exception("User already in organization");
             }
             
+            // Add to organization
             $stmt = $pdo->prepare("
                 INSERT INTO organisation_members 
                 (org_id, user_id, org_role_id, joined_at, invited_by) 
                 VALUES (?, ?, ?, NOW(), ?)
             ");
-            $invitedBy = $_SESSION['user_id'] ?? 1;
+            $invitedBy = $_SESSION['user_id'] ?? 1; // Fallback to admin@admin.com (user_id 5)
             $stmt->execute([$orgId, $userId, $roleId, $invitedBy]);
             
             $success = "User added to organization";
-            $stmt = $pdo->prepare("
-            SELECT u.first_name, u.last_name, u.email, om.joined_at, r.role_name, u.user_id 
-            FROM organisation_members om
-            JOIN users u ON om.user_id = u.user_id
-            JOIN roles r ON om.org_role_id = r.role_id
-            WHERE om.org_id = ? 
-            AND u.user_id NOT IN (
-                SELECT user_id FROM organisation_members WHERE org_id <> ?
-            )
-        ");
-        $stmt->execute([$orgId, $orgId]);
-        
-        $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            // Fetch the updated list of members to send back
+$stmt = $pdo->prepare("
+SELECT u.first_name, u.last_name, u.email, om.joined_at, r.role_name, u.user_id 
+FROM organisation_members om
+JOIN users u ON om.user_id = u.user_id
+JOIN roles r ON om.org_role_id = r.role_id
+WHERE om.org_id = ?
+");
+$stmt->execute([$orgId]);
+$members = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode(['members' => $members, 'success' => true]);
-        exit();
+// Return data as JSON
+echo json_encode(['members' => $members, 'success' => true]);
+exit();
 
         } else {
+            // Create new user
             $password = isset($_POST['set_custom_password']) && !empty($_POST['password']) 
                 ? $_POST['password'] 
                 : bin2hex(random_bytes(4));
@@ -76,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             
             $pdo->beginTransaction();
             
+            // Insert user
             $stmt = $pdo->prepare("
                 INSERT INTO users 
                 (system_role_id, email, password_hash, first_name, last_name, created_at, is_active) 
@@ -84,22 +89,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             $stmt->execute([$email, $passwordHash, $firstName, $lastName]);
             $userId = $pdo->lastInsertId();
             
+            // Add to organization
             $stmt = $pdo->prepare("
                 INSERT INTO organisation_members 
                 (org_id, user_id, org_role_id, joined_at, invited_by) 
                 VALUES (?, ?, ?, NOW(), ?)
             ");
-            $invitedBy = $_SESSION['user_id'] ?? 1; 
+            $invitedBy = $_SESSION['user_id'] ?? 1; // Fallback to admin@admin.com (user_id 5)
             $stmt->execute([$orgId, $userId, $roleId, $invitedBy]);
             
             $pdo->commit();
             $success = "New user created and added to organization";
         }
 
+        // Fetch the updated total member count
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM organisation_members WHERE org_id = ?");
         $stmt->execute([$orgId]);
-        $totalMembers = $stmt->fetchColumn(); 
+        $totalMembers = $stmt->fetchColumn(); // Fetch the total number of members
 
+        // Fetch the updated list of members to display in the table
         $stmt = $pdo->prepare("
             SELECT u.first_name, u.last_name, u.email, om.joined_at, r.role_name, u.user_id 
             FROM organisation_members om
@@ -387,4 +395,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
 
     <?php include('include/footer.php'); ?>
 </body>
-</html>
+</html> 
