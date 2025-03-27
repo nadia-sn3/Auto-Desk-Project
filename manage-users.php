@@ -42,7 +42,6 @@ $adminUsers = array_filter($users, function($user) {
 
     <?php include('include/header.php'); ?>
 
-
     <div class="page-container">
         <div class="manage-users-container">
             <div class="manage-users-header">
@@ -74,7 +73,7 @@ $adminUsers = array_filter($users, function($user) {
                             <td class="user-email"><?php echo htmlspecialchars($user['email']); ?></td>
                             <td class="actions">
                                 <a href="edit-user.php?id=<?php echo $user['user_id']; ?>" class="btn-edit">Edit</a>
-                                <?php if ($user['user_id'] != $_SESSION['user_id']): ?>
+                                <?php if ($user['user_id'] != $_SESSION['user_id'] && $user['system_role_id'] != 1): ?>
                                     <a href="#" class="btn-delete" onclick="confirmDelete(event, <?php echo $user['user_id']; ?>)">
                                         Delete
                                     </a>
@@ -138,8 +137,6 @@ $adminUsers = array_filter($users, function($user) {
     <script src="js/search-users.js"></script>
     <script src="js/manage-users.js"></script>
 
-
-
 </body>
 
 <?php
@@ -152,7 +149,5 @@ if (isset($_SESSION['error'])) {
     unset($_SESSION['error']);
 }
 ?>
-
-
 
 </html>
