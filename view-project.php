@@ -1,7 +1,12 @@
 <?php
-include 'backend/php/config.php';
-include 'backend/php/functions.php';
-include 'backend/php/upload.php';
+require_once 'backend/Business_Logic/Function/config.php';
+require_once 'backend/Business_Logic/Function/createBucket.php';
+require_once 'backend/Business_Logic/Function/getAccessToken.php';
+require_once 'backend/Business_Logic/Function/functions.php';
+require_once 'backend/Business_Logic/Function/Download_Functions.php';
+require_once 'backend/Business_Logic/Function/create_project.php';
+require_once 'backend/Business_Logic/Function/upload-projectfile.php';
+require_once 'db/connection.php';
 $urn = isset($_GET['urn']) ? htmlspecialchars($_GET['urn']) : '';
 
 $access_token = getAccessToken($client_id, $client_secret);
@@ -29,6 +34,20 @@ if(isset($_GET['downloadFile']))
     echo $fileData;
     exit;
 }
+
+$project_id = $_GET['project_id'] ?? null;
+if (!$project_id) {
+    die("Project ID missing!");
+}
+
+$stmt = $pdo->prepare("SELECT * FROM Project WHERE project_id = :project_id");
+$stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);
+
+
+$stmt->execute();
+
+$project = $stmt->fetch(PDO::FETCH_ASSOC);
+
 ?>
 
 <!DOCTYPE html>
@@ -51,8 +70,8 @@ if(isset($_GET['downloadFile']))
         <div class="project-container">
             <div class="project-header">
                 <div class="project-title">
-                    <h1>Project Name</h1>
-                    <p class="project-description">A brief description of the project.</p>
+                    <h2>Project: <?php echo htmlspecialchars($project['project_name']); ?></h2>
+                    <p><?php echo htmlspecialchars($project['description']); ?></p>
                 </div>
             </div>
 
@@ -63,6 +82,7 @@ if(isset($_GET['downloadFile']))
                     <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Create a Commit</a></li>
                 </ul>
             </nav>
+
             <div class="file-dropdown-wrapper">
     <div class="file-dropdown">
         <button class="dropdown-header">
@@ -113,24 +133,28 @@ if(isset($_GET['downloadFile']))
     </div>
 </div>
 
-            <div id="uploadModal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h2>Upload Files</h2>
-                    <div class="upload-area" id="dropArea">
-                        <p>Drag & Drop files here</p>
-                        <p>or</p>
-                        <input type="file" id="fileInput" multiple>
-                        <label for="fileInput" class="browse-btn">Browse Files</label>
+        <form method="POST" enctype="multipart/form-data" id="upload-form"> 
+
+        <div id="uploadModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2>Upload Files</h2>
+                        <div class="upload-area" id="dropArea">
+                            <p>Drag & Drop files here</p>
+                            <p>or</p>
+                            <input type="file" id="file-upload" name="file-upload[]" multiple>
+                            <label for="file-upload" class="browse-btn">Browse Files</label>
+                        </div>
+                        <div id="fileList"></div>
+                        <div id="commitMessageContainer" style="display: none;">
+                            <label for="commitMessage">Initial Commit Message:</label>
+                            <input type="text" id="commitMessage" name= "commitMessage" placeholder="Enter commit message" required>
+                        </div>
+                        <button type="submit" class="browse-btn">Upload</button>
                     </div>
-                    <div id="fileList"></div>
-                    <div id="commitMessageContainer" style="display: none;">
-                        <label for="commitMessage">Initial Commit Message:</label>
-                        <input type="text" id="commitMessage" placeholder="Enter commit message" required>
-                    </div>
-                    <button id="confirmUploadBtn" class="browse-btn" style="display: none;">Upload</button>
                 </div>
-            </div>
+                
+        </form> 
 
             <div class="project-model">
                 <?php if (empty($urn)): ?>
@@ -237,7 +261,10 @@ if(isset($_GET['downloadFile']))
                 console.log("URN passed successfully:", urn);
             }
     </script>
-    <script src="backend/js/main.js"></script>
+     <script>  
+      var accessToken = "<?php echo $access_token; ?>";
+    </script>
+    <script src="backend/Business_Logic/js/main.js"></script>
     <script src="js/share.js"></script>
     <script src="js/upload.js"></script>
     <script src="js/issues-dropdown.js"></script>
@@ -292,9 +319,13 @@ if(isset($_GET['downloadFile']))
             function handleFiles(files) {
                 if (files.length > 0) {
                     document.getElementById('uploadModal').style.display = 'block';
-                    document.getElementById('fileInput').files = files;
-                                        const event = new Event('change');
-                    document.getElementById('fileInput').dispatchEvent(event);
+                    document.getElementById('file-upload').files = files;
+
+                    // Show commit message field
+                    document.getElementById('commitMessageContainer').style.display = 'block';
+                    document.querySelector('#upload-form button[type="submit"]').style.display = 'block';
+                    const event = new Event('change');
+                    document.getElementById('file-upload').dispatchEvent(event);
                 }
             }
         });

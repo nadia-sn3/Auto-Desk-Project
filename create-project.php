@@ -12,8 +12,9 @@
     <div class="page-container">
         <div class="create-project-box">
             <h2>Create Project</h2>
-            <form action="backend/php/upload.php" method="POST" enctype="multipart/form-data" id="create-project-form">
-
+            <form action="view-project.php" method="POST" enctype="multipart/form-data" id="create-project-form">
+            <input type="hidden" name="project_id" value="<?= $project_id; ?>" />
+            
             <div class="input-group">
                     <label for="project-name">Project Name</label>
                     <input type="text" id="project-name" name="project-name" placeholder="Enter project name" required>

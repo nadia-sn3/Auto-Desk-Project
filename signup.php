@@ -21,8 +21,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die("Password must be at least 8 characters long.");
     }
 
-    $stmt = $pdo->prepare("SELECT user_id FROM users WHERE email = ?");
-    $stmt->execute([$email]);
+    $stmt = $pdo->prepare("SELECT user_id FROM users WHERE email = :email");
+    $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+    $stmt->execute();
+    
     if ($stmt->rowCount() > 0) {
         die("Email already registered.");
     }
@@ -37,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         $_SESSION['user_id'] = $user_id;
         $_SESSION['email'] = $email;
-        $_SESSION['first_name'] = $firstName;
+        $_SESSION['username'] = $firstName." ".$lastName;
         $_SESSION['system_role_id'] = $default_system_role_id;
 
         header("Location: project-home.php");

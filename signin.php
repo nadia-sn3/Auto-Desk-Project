@@ -8,14 +8,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
+    $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+    $stmt->execute();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user && password_verify($password, $user['password_hash'])) {
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['email'] = $user['email'];
-        $_SESSION['first_name'] = $user['first_name'];
+        $_SESSION['username'] = $user['first_name']." ". $user['last_name'];
         $_SESSION['system_role_id'] = $user['system_role_id'];
 
         $stmt = $pdo->prepare("SELECT om.org_role_id, o.org_id, oroles.role_name 
@@ -37,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $stmt = $pdo->prepare("SELECT pm.project_role_id, p.project_id, proles.role_name 
                               FROM project_members pm
-                              JOIN projects p ON pm.project_id = p.project_id
+                              JOIN project p ON pm.project_id = p.project_id
                               JOIN project_roles proles ON pm.project_role_id = proles.project_role_id
                               WHERE pm.user_id = ?");
         $stmt->execute([$user['user_id']]);

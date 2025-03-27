@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 26, 2025 at 10:55 AM
+-- Generation Time: Mar 27, 2025 at 12:36 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -24,6 +24,21 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `Bucket_File`
+--
+
+CREATE TABLE `Bucket_File` (
+  `bucket_file_id` int(11) NOT NULL,
+  `project_file_id` int(11) NOT NULL,
+  `file_version` int(11) NOT NULL,
+  `object_id` varchar(255) NOT NULL,
+  `object_key` varchar(255) NOT NULL,
+  `first_added_at_version` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `commits`
 --
 
@@ -34,6 +49,17 @@ CREATE TABLE `commits` (
   `committed_by` int(11) NOT NULL,
   `committed_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `parent_commit_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `Commit_File`
+--
+
+CREATE TABLE `Commit_File` (
+  `commit_id` int(11) NOT NULL,
+  `bucket_file_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -154,17 +180,46 @@ CREATE TABLE `password_reset_tokens` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `projects`
+-- Table structure for table `Project`
 --
 
-CREATE TABLE `projects` (
+CREATE TABLE `Project` (
   `project_id` int(11) NOT NULL,
   `org_id` int(11) DEFAULT NULL,
-  `project_name` varchar(200) NOT NULL,
-  `description` text DEFAULT NULL,
+  `project_name` varchar(255) NOT NULL,
+  `description` text NOT NULL,
   `created_by` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `is_private` tinyint(1) NOT NULL DEFAULT 1
+  `latest_version` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `Project_Commit`
+--
+
+CREATE TABLE `Project_Commit` (
+  `commit_id` int(11) NOT NULL,
+  `commit_message` text NOT NULL,
+  `project_id` int(11) NOT NULL,
+  `project_version` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `Project_File`
+--
+
+CREATE TABLE `Project_File` (
+  `project_file_id` int(11) NOT NULL,
+  `project_id` int(11) NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `latest_version` int(11) NOT NULL,
+  `first_added_at_version` int(11) NOT NULL,
+  `file_type` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -248,11 +303,20 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `system_role_id`, `email`, `password_hash`, `first_name`, `last_name`, `created_at`, `last_login`, `is_active`) VALUES
 (13, 1, 'admin@autodesk.com', '$2y$10$RVe.sS0fXXDj08sv.dACu..9WD/gflJkgj2gBSzXkF..rrh4fdgLW', 'admin', 'admin', '2025-03-26 09:37:24', NULL, 1),
-(14, 2, 'user@autodesk.com', '$2y$10$iSEPB3LxPJIuK6hsiCJUTer/SQOrI/gLJq3a2D60Ymxl9iAj9O6A2', 'user', 'user', '2025-03-26 09:39:20', NULL, 1);
+(14, 2, 'user@autodesk.com', '$2y$10$iSEPB3LxPJIuK6hsiCJUTer/SQOrI/gLJq3a2D60Ymxl9iAj9O6A2', 'user', 'user', '2025-03-26 09:39:20', NULL, 1),
+(16, 2, 'test@test.com', '$2y$10$i4zdE//JOIHPJHam.XrhHecOorEg8HczO0QQQ1yz5W1VUVd5/TiMu', 'Testing', 'testing', '2025-03-27 10:50:06', NULL, 1),
+(17, 2, 't@t.com', '$2y$10$NT5/yua/tRNzUmx7TI7/ae7Q7LsSE8bmc323MQjjWN2jSXX5sa7Cm', 'test', 'test', '2025-03-27 11:15:40', NULL, 1);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `Bucket_File`
+--
+ALTER TABLE `Bucket_File`
+  ADD PRIMARY KEY (`bucket_file_id`),
+  ADD KEY `project_file_id` (`project_file_id`);
 
 --
 -- Indexes for table `commits`
@@ -262,6 +326,13 @@ ALTER TABLE `commits`
   ADD KEY `project_id` (`project_id`),
   ADD KEY `committed_by` (`committed_by`),
   ADD KEY `parent_commit_id` (`parent_commit_id`);
+
+--
+-- Indexes for table `Commit_File`
+--
+ALTER TABLE `Commit_File`
+  ADD PRIMARY KEY (`commit_id`,`bucket_file_id`),
+  ADD KEY `bucket_file_id` (`bucket_file_id`);
 
 --
 -- Indexes for table `commit_files`
@@ -319,12 +390,34 @@ ALTER TABLE `password_reset_tokens`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `Project`
+--
+ALTER TABLE `Project`
+  ADD PRIMARY KEY (`project_id`),
+  ADD KEY `created_by` (`created_by`),
+  ADD KEY `fk_project_org` (`org_id`);
+
+--
 -- Indexes for table `projects`
 --
 ALTER TABLE `projects`
   ADD PRIMARY KEY (`project_id`),
   ADD KEY `org_id` (`org_id`),
   ADD KEY `created_by` (`created_by`);
+
+--
+-- Indexes for table `Project_Commit`
+--
+ALTER TABLE `Project_Commit`
+  ADD PRIMARY KEY (`commit_id`),
+  ADD KEY `project_id` (`project_id`);
+
+--
+-- Indexes for table `Project_File`
+--
+ALTER TABLE `Project_File`
+  ADD PRIMARY KEY (`project_file_id`),
+  ADD KEY `project_id` (`project_id`);
 
 --
 -- Indexes for table `project_members`
@@ -359,6 +452,12 @@ ALTER TABLE `users`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `Bucket_File`
+--
+ALTER TABLE `Bucket_File`
+  MODIFY `bucket_file_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `commits`
@@ -409,10 +508,28 @@ ALTER TABLE `password_reset_tokens`
   MODIFY `token_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `Project`
+--
+ALTER TABLE `Project`
+  MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `projects`
 --
 ALTER TABLE `projects`
   MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `Project_Commit`
+--
+ALTER TABLE `Project_Commit`
+  MODIFY `commit_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `Project_File`
+--
+ALTER TABLE `Project_File`
+  MODIFY `project_file_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `project_members`
@@ -436,11 +553,17 @@ ALTER TABLE `system_roles`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `Bucket_File`
+--
+ALTER TABLE `Bucket_File`
+  ADD CONSTRAINT `bucket_file_ibfk_1` FOREIGN KEY (`project_file_id`) REFERENCES `Project_File` (`project_file_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `commits`
@@ -449,6 +572,13 @@ ALTER TABLE `commits`
   ADD CONSTRAINT `commits_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`project_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `commits_ibfk_2` FOREIGN KEY (`committed_by`) REFERENCES `users` (`user_id`),
   ADD CONSTRAINT `commits_ibfk_3` FOREIGN KEY (`parent_commit_id`) REFERENCES `commits` (`commit_id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `Commit_File`
+--
+ALTER TABLE `Commit_File`
+  ADD CONSTRAINT `commit_file_ibfk_1` FOREIGN KEY (`commit_id`) REFERENCES `Project_Commit` (`commit_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `commit_file_ibfk_2` FOREIGN KEY (`bucket_file_id`) REFERENCES `Bucket_File` (`bucket_file_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `commit_files`
@@ -488,11 +618,30 @@ ALTER TABLE `password_reset_tokens`
   ADD CONSTRAINT `password_reset_tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `Project`
+--
+ALTER TABLE `Project`
+  ADD CONSTRAINT `fk_project_org` FOREIGN KEY (`org_id`) REFERENCES `organisations` (`org_id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `project_ibfk_1` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`);
+
+--
 -- Constraints for table `projects`
 --
 ALTER TABLE `projects`
   ADD CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`org_id`) REFERENCES `organisations` (`org_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `projects_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`user_id`);
+
+--
+-- Constraints for table `Project_Commit`
+--
+ALTER TABLE `Project_Commit`
+  ADD CONSTRAINT `project_commit_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `Project` (`project_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `Project_File`
+--
+ALTER TABLE `Project_File`
+  ADD CONSTRAINT `project_file_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `Project` (`project_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `project_members`
