@@ -63,23 +63,6 @@ if(isset($_GET['downloadFile']))
                     <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Create a Commit</a></li>
                 </ul>
             </nav>
-            <!-- <div class="file-dropdown-container">
-                <button class="file-dropdown-toggle">
-                    Project Files
-                    <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </button>
-                <div class="file-dropdown-content">
-                    <ul class="file-list">
-                        <li><a href="#" class="file-item">Project_Model.rvt</a></li>
-                        <li><a href="#" class="file-item">Structural_Plans.dwg</a></li>
-                        <li><a href="#" class="file-item">MEP_Design.ifc</a></li>
-                        <li><a href="#" class="file-item">3D_Visualization.fbx</a></li>
-                        <li><a href="#" class="file-item">Site_Plan.pdf</a></li>
-                    </ul>
-                </div>
-            </div> -->
             <div class="file-dropdown-wrapper">
     <div class="file-dropdown">
         <button class="dropdown-header">
