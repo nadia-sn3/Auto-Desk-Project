@@ -1,9 +1,7 @@
 <?php
 require_once 'backend/Business_Logic/Function/config.php';
 require_once 'db/connection.php';
-if (isset($_GET['success']) && $_GET['success'] == 1) {
-    echo '<div class="success-message">Collaborator added successfully!</div>';
-}
+
 try {
     $project_id = $_GET['project_id'] ?? null;
     if (!$project_id) {

@@ -16,7 +16,8 @@ try {
     $added_by = $_SESSION['user_id'] ?? null;
 
     if (!$project_id || !$role_id || !$added_by) {
-        throw new Exception("Required fields are missing");
+        header('Location: /collaborators.php?project_id=' . $project_id);
+        exit;
     }
 
     if ($username) {
@@ -27,7 +28,8 @@ try {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$user) {
-            throw new Exception("User not found");
+            header('Location: /collaborators.php?project_id=' . $project_id);
+            exit;
         }
         
         $user_id = $user['user_id'];
@@ -39,15 +41,16 @@ try {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$user) {
-            throw new Exception("User not found. Invitation functionality not implemented yet.");
+            header('Location: /collaborators.php?project_id=' . $project_id);
+            exit;
         }
         
         $user_id = $user['user_id'];
     } else {
-        throw new Exception("Either username or email must be provided");
+        header('Location: /collaborators.php?project_id=' . $project_id);
+        exit;
     }
 
-    // Check if user is already a collaborator
     $sql = "SELECT project_member_id FROM project_members 
             WHERE project_id = :project_id AND user_id = :user_id";
     $stmt = $pdo->prepare($sql);
@@ -56,7 +59,8 @@ try {
     $stmt->execute();
     
     if ($stmt->fetch()) {
-        throw new Exception("User is already a collaborator on this project");
+        header('Location: /collaborators.php?project_id=' . $project_id);
+        exit;
     }
 
     $sql = "INSERT INTO project_members 
@@ -69,10 +73,22 @@ try {
     $stmt->bindValue(':added_by', $added_by, PDO::PARAM_INT);
     $stmt->execute();
 
-    header('Location: /collaborators.php?project_id=' . $project_id . '&success=1');
-    exit;
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true]);
+        exit;
+    } else {
+        header('Location: /collaborators.php?project_id=' . $project_id);
+        exit;
+    }
 
 } catch (Exception $e) {
-    header('Location: /collaborators.php?project_id=' . $project_id . '&error=' . urlencode($e->getMessage()));
-    exit;
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        exit;
+    } else {
+        header('Location: /collaborators.php?project_id=' . $project_id);
+        exit;
+    }
 }
