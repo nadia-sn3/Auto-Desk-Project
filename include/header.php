@@ -1,7 +1,19 @@
 <?php 
 session_start();
 require_once 'db/connection.php';
+
+if (isset($_SESSION['user_id']) && (!isset($_SESSION['first_name']) || !isset($_SESSION['is_admin']))) {
+    $stmt = $pdo->prepare("SELECT first_name, system_role_id FROM users WHERE user_id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $user = $stmt->fetch();
+
+    if ($user) {
+        $_SESSION['first_name'] = $user['first_name'];
+        $_SESSION['is_admin'] = ($user['system_role_id'] == 1);
+    }
+}
 ?>
+
 <link rel="stylesheet" href="style/header.css">
 <link rel="stylesheet" href="style/create-modal.css">
 
