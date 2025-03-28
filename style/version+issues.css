@@ -1,0 +1,372 @@
+.container {
+    width: 98%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e1e4e8;
+}
+
+h1 {
+    color: #24292e;
+    font-size: 24px;
+    margin: 0;
+}
+
+.report-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.report-filters .btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    background-color: #f6f8fa;
+    color: #24292e;
+    border: 1px solid #e1e4e8;
+    cursor: pointer;
+}
+
+.report-filters .btn:hover {
+    background-color: #e1e4e8;
+}
+
+.report-filters .btn.active {
+    background-color: #040404;
+    color: white;
+    border-color: #2894d2;
+}
+
+.project-model-timeline-versions {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.timeline-version {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #ddd;
+    padding: 10px;
+    background-color: #ffffff;
+    border-radius: 8px 8px 0 0;
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.version-warning-indicator {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff4f4;
+    border: 1px solid #ffcccc;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.version-no-issues {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0fff4;
+    border: 1px solid #ccffcc;
+    border-radius: 4px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.commit-message {
+    flex: 2;
+    font-size: 0.9rem;
+    color: #24292e;
+    padding: 0 10px;
+}
+
+.commit-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: #6a737d;
+}
+
+.username {
+    font-weight: 500;
+}
+
+.commit-date {
+    font-style: italic;
+}
+
+.rollback-btn, .raise-issue-btn {
+    margin-left: 10px; 
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    flex-shrink: 0;
+}
+
+.rollback-btn:hover, .raise-issue-btn:hover {
+    background-color: #e8e8e8;
+}
+
+.issues-dropdown-content {
+    display: none;
+    width: 100%;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: 15px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    table-layout: fixed;
+}
+
+th, td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e1e4e8;
+    word-wrap: break-word;
+}
+
+th {
+    font-weight: 500;
+    font-size: 13px;
+    color: #24292e;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background-color: #f6f8fa;
+}
+
+td {
+    color: #586069;
+    font-size: 13px;
+    vertical-align: top;
+}
+
+tr:hover {
+    background-color: #f1f8ff;
+}
+
+tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+tr.open {
+    background-color: #fff8e6;
+}
+
+tr.open:hover {
+    background-color: #fff1cc;
+}
+
+tr.in_progress {
+    background-color: #e6f3ff;
+}
+
+tr.in_progress:hover {
+    background-color: #d1e7ff;
+}
+
+tr.resolved {
+    background-color: #f0fff0;
+}
+
+tr.resolved:hover {
+    background-color: #e0ffe0;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status-badge.pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.status-badge.in-progress {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.status-badge.resolved {
+    background-color: #28a745;
+    color: white;
+}
+
+.actions {
+    display: flex;
+    gap: 5px;
+}
+
+.btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    text-decoration: none;
+}
+
+.btn.small {
+    padding: 4px 8px;
+    font-size: 12px;
+    background-color: #007bff;
+    color: white;
+}
+
+.btn.small:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 8px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: black;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.form-group textarea {
+    min-height: 80px;
+}
+
+.submit-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .report-filters {
+        flex-wrap: wrap;
+    }
+    
+    th, td {
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        width: 95%;
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 20px;
+    }
+    
+    .actions {
+        flex-direction: column;
+        gap: 3px;
+    }
+    
+    .btn.small {
+        padding: 3px 6px;
+        font-size: 11px;
+    }
+}

@@ -158,7 +158,6 @@ $project = $stmt->fetch(PDO::FETCH_ASSOC);
                             <p class="or-text">or</p>
                             <input type="file" id="fileInputLarge" multiple style="display: none;">
                             <label for="fileInputLarge" class="browse-btn-large">Select Files</label>
-                            <p class="file-types">Supported formats: .rvt, .dwg, .ifc, .obj, .glb, .fbx</p>
                         </div>
                     </div>
                 <?php else: ?>
