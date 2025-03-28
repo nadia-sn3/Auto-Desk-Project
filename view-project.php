@@ -77,7 +77,7 @@ $project = $stmt->fetch(PDO::FETCH_ASSOC);
 
             <nav class="project-nav-bar">
                 <ul>
-                    <li><a href="collaborators.php" class="nav-link">Collaborators</a></li>
+                <li><a href="collaborators.php?project_id=<?php echo $project_id; ?>" class="nav-link">Collaborators</a></li>                 
                     <li><a href="issues.php" class="nav-link">Issues</a></li>
                     <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Create a Commit</a></li>
                     <li>
