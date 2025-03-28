@@ -46,7 +46,7 @@ $adminUsers = array_filter($users, function($user) {
         <div class="manage-users-container">
             <div class="manage-users-header">
                 <h4>Manage Users</h4>
-                <a href="create-user.php" class="btn-create">Create New User</a>
+                <a href="system-admin-home.php" class="btn-create">Back to Dashboard</a>
             </div>
 
             <div class="user-section admin-section">

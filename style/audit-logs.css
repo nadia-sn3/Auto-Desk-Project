@@ -1,3 +1,45 @@
+.container {
+    width: 98%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e1e4e8;
+}
+
+.header-section h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #24292e;
+}
+
+.btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.btn:hover {
+    background-color: #20252a;
+}
+
 .audit-log-container {
     background: #ffffff;
     border: 1px solid #e1e4e8;
@@ -6,17 +48,12 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     width: 100%;
     margin: 20px 0;
-    padding: 20px;
 }
 
 .audit-log-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     padding: 16px;
     background: #f6f8fa;
     border-bottom: 1px solid #e1e4e8;
-    margin-bottom: 20px;
 }
 
 .audit-log-header h4 {
@@ -31,18 +68,18 @@
     border-collapse: collapse;
 }
 
-thead {
+.audit-log-table thead {
     background-color: #f6f8fa;
 }
 
-th, td {
+.audit-log-table th, 
+.audit-log-table td {
     padding: 12px 16px;
     text-align: left;
     border-bottom: 1px solid #e1e4e8;
-    white-space: nowrap;
 }
 
-th {
+.audit-log-table th {
     font-weight: 500;
     font-size: 13px;
     color: #24292e;
@@ -50,11 +87,9 @@ th {
     letter-spacing: 0.1em;
 }
 
-td {
+.audit-log-table td {
     color: #586069;
     font-size: 13px;
-    white-space: normal;
-    word-wrap: break-word;
 }
 
 .audit-log-row {
@@ -69,16 +104,9 @@ td {
     background-color: #f9f9f9;
 }
 
-.container {
-    width: 95%;
-    max-width: 1200px;
-    margin: 20px auto;
-    padding: 0 15px;
-}
-
 .table-container {
     overflow-x: auto;
-    width: 100%;
+    padding: 20px;
 }
 
 .pagination {
@@ -86,6 +114,7 @@ td {
     justify-content: center;
     margin-top: 20px;
     gap: 5px;
+    padding: 0 20px 20px;
 }
 
 .pagination a {
@@ -106,147 +135,45 @@ td {
     background-color: #f1f8ff;
 }
 
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    align-items: center;
-    justify-content: center;
-}
-
-.modal.active {
-    display: flex;
-}
-
-.modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    width: 400px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    text-align: left;
-    position: relative;
-}
-
-.audit-log-details {
-    font-size: 14px;
-    color: #586069;
-    margin-bottom: 15px;
-}
-
-.audit-log-details p {
-    margin: 5px 0;
-}
-
 @media (max-width: 768px) {
-    .audit-log-container {
-        padding: 15px;
+    .header-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
     }
-
-    .audit-log-header h4 {
-        font-size: 14px;
+    
+    .btn {
+        width: 100%;
+        text-align: center;
     }
-
+    
     .audit-log-table th, 
     .audit-log-table td {
         padding: 8px;
         font-size: 12px;
     }
-
-    .modal-content {
-        width: 90%;
-        padding: 15px;
-    }
-
-    .pagination {
-        flex-wrap: wrap;
-    }
-
-    .pagination a {
-        padding: 6px 12px;
-        font-size: 14px;
-    }
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto; 
-    padding: 20px;
-}
-
-h1 {
-    font-size: 24px;
-    font-weight: bold;
-    color: #24292e;
-    margin-bottom: 20px;
-}
-
-.status-card {
-    background: #ffffff;
-    border: 1px solid #e1e4e8;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-}
-
-.status-card h3 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #24292e;
-    margin-bottom: 10px;
-}
-
-.status-card p {
-    font-size: 14px;
-    color: #586069;
-}
-
-.btn {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 14px;
-    text-align: center;
-    margin-top: 20px;
-    transition: background-color 0.3s ease;
-}
-
-.btn:hover {
-    background-color: #0056b3;
 }
 
 @media (max-width: 480px) {
     .container {
         padding: 10px;
     }
-
-    .status-card {
-        padding: 15px;
+    
+    .audit-log-container {
+        padding: 0;
     }
-
-    .status-card h3 {
-        font-size: 16px;
+    
+    .table-container {
+        padding: 10px;
     }
-
-    .status-card p {
-        font-size: 12px;
+    
+    .pagination {
+        flex-wrap: wrap;
     }
-
-    .btn {
-        padding: 8px 16px;
-        font-size: 12px;
+    
+    .pagination a {
+        padding: 6px 12px;
+        font-size: 14px;
     }
 }
+

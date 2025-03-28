@@ -77,8 +77,10 @@ try {
     <?php include('include/header.php'); ?>
 
     <div class="container">
+    <div class="header-section">
         <h1>Report Management</h1>
-        
+        <a href="system-admin-home.php" class="btn">Back to Dashboard</a>
+    </div>
         <?php if (isset($_SESSION['message'])): ?>
             <div class="alert success"><?= $_SESSION['message'] ?></div>
             <?php unset($_SESSION['message']); ?>

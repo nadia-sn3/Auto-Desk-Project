@@ -23,7 +23,7 @@ $serverStatus = "Server is running normally.";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style/base.css">
-    <link rel="stylesheet" href="style/audit-logs.css">
+    <link rel="stylesheet" href="style/system-status.css">
     <title>System Status</title>
 </head>
 <body>
