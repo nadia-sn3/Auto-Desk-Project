@@ -1,80 +1,228 @@
 .container {
+    width: 98%;
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 20px auto;
     padding: 20px;
+    background: #ffffff;
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #24292e;
+    font-size: 24px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e1e4e8;
 }
 
 .report-filters {
-    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
 .report-filters .btn {
-    margin-right: 10px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.report-filters .btn {
+    background-color: #f6f8fa;
+    color: #24292e;
+    border: 1px solid #e1e4e8;
+}
+
+.report-filters .btn:hover {
+    background-color: #e1e4e8;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    table-layout: fixed;
 }
 
 th, td {
-    padding: 12px 15px;
+    padding: 12px 16px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #e1e4e8;
+    word-wrap: break-word;
 }
 
 th {
-    background-color: #f2f2f2;
-    font-weight: bold;
+    font-weight: 500;
+    font-size: 13px;
+    color: #24292e;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background-color: #f6f8fa;
+}
+
+td {
+    color: #586069;
+    font-size: 13px;
+    vertical-align: top;
 }
 
 tr:hover {
-    background-color: #f5f5f5;
+    background-color: #f1f8ff;
+}
+
+tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+tr.pending {
+    background-color: #fff8e6;
+}
+
+tr.pending:hover {
+    background-color: #fff1cc;
+}
+
+tr.resolved {
+    background-color: #f0fff0;
+}
+
+tr.resolved:hover {
+    background-color: #e0ffe0;
 }
 
 .status-badge {
+    display: inline-block;
     padding: 3px 8px;
-    border-radius: 3px;
-    font-size: 0.8em;
-    font-weight: bold;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
 }
 
 .status-badge.pending {
-    background-color: #ff9800;
-    color: white;
+    background-color: #ffc107;
+    color: #212529;
 }
 
 .status-badge.resolved {
-    background-color: #4caf50;
+    background-color: #28a745;
     color: white;
 }
 
 .actions {
-    white-space: nowrap;
+    display: flex;
+    gap: 5px;
+}
+
+.btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    text-decoration: none;
 }
 
 .btn.small {
-    padding: 5px 10px;
-    font-size: 0.8em;
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.btn:hover {
+    transform: scale(1.05);
 }
 
 .btn.danger {
-    background-color: #f44336;
+    background-color: #d9534f;
+    color: white;
+}
+
+.btn.danger:hover {
+    background-color: #c9302c;
+}
+
+.btn.small {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn.small:hover {
+    background-color: #0056b3;
+}
+
+small {
+    color: #6a737d;
+    font-size: 11px;
+    display: block;
+    margin-top: 3px;
 }
 
 .alert {
-    padding: 15px;
+    padding: 10px 15px;
     margin-bottom: 20px;
     border-radius: 4px;
+    font-size: 14px;
 }
 
 .alert.success {
-    background-color: #dff0d8;
-    color: #3c763d;
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
 }
 
 .alert.error {
-    background-color: #f2dede;
-    color: #a94442;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+.report-filters .btn.active {
+    background-color: #040404;
+    color: white;
+    border-color: #2894d2;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .report-filters {
+        flex-wrap: wrap;
+    }
+    
+    th, td {
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        width: 95%;
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 20px;
+    }
+    
+    .actions {
+        flex-direction: column;
+        gap: 3px;
+    }
+    
+    .btn.small {
+        padding: 3px 6px;
+        font-size: 11px;
+    }
 }

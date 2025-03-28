@@ -36,7 +36,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 )");
             }
             
-            // Insert the report
             $stmt = $pdo->prepare("INSERT INTO reports 
                                   (reporter_id, report_type, target_id, reason, description, status) 
                                   VALUES (?, ?, ?, ?, ?, 'pending')");

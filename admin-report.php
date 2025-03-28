@@ -21,12 +21,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
             $stmt->execute([$report_id]);
             $_SESSION['message'] = "Report #$report_id has been deleted.";
         }
-        header("Location: admin-report.php");
+        header("Location: admin-report.php".(isset($_GET['filter']) ? "?filter=".$_GET['filter'] : ""));
         exit;
     } catch (PDOException $e) {
         $_SESSION['error'] = "Error processing report: " . $e->getMessage();
     }
 }
+
+$filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
 
 try {
     $query = "
@@ -41,15 +43,21 @@ try {
                  WHEN r.reported_type = 'user' THEN reported_user.email
                  WHEN r.reported_type = 'project' THEN NULL
                END AS reported_email,
-               resolved_admin.first_name AS resolved_by_name
+               resolver.first_name AS resolved_by_name
         FROM reports r
         JOIN users reporter ON r.reporter_id = reporter.user_id
         LEFT JOIN users reported_user ON r.reported_type = 'user' AND r.reported_id = reported_user.user_id
         LEFT JOIN Project reported_project ON r.reported_type = 'project' AND r.reported_id = reported_project.project_id
-        LEFT JOIN users resolved_admin ON r.resolved_by = resolved_admin.user_id
+        LEFT JOIN users resolver ON r.resolved_by = resolver.user_id
+        WHERE 
+            (:filter = 'all') OR
+            (:filter = 'pending' AND r.status = 'pending') OR
+            (:filter = 'resolved' AND r.status = 'resolved')
         ORDER BY r.status ASC, r.created_at DESC
     ";
-    $stmt = $pdo->query($query);
+    
+    $stmt = $pdo->prepare($query);
+    $stmt->execute(['filter' => $filter]);
     $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $error = "Error fetching reports: " . $e->getMessage();
@@ -86,9 +94,9 @@ try {
         <?php endif; ?>
 
         <div class="report-filters">
-            <a href="admin-report.php?filter=all" class="btn">All Reports</a>
-            <a href="admin-report.php?filter=pending" class="btn">Pending</a>
-            <a href="admin-report.php?filter=resolved" class="btn">Resolved</a>
+            <a href="admin-report.php?filter=all" class="btn <?= $filter == 'all' ? 'active' : '' ?>">All Reports</a>
+            <a href="admin-report.php?filter=pending" class="btn <?= $filter == 'pending' ? 'active' : '' ?>">Pending</a>
+            <a href="admin-report.php?filter=resolved" class="btn <?= $filter == 'resolved' ? 'active' : '' ?>">Resolved</a>
         </div>
 
         <div class="reports-list">
