@@ -2,10 +2,17 @@
 require_once 'backend/Business_Logic/Function/config.php';
 require_once 'db/connection.php';
 
+session_start();
+
 try {
     $project_id = $_GET['project_id'] ?? null;
     if (!$project_id) {
         die("Project ID missing!");
+    }
+
+    $current_user_id = $_SESSION['user_id'] ?? null;
+    if (!$current_user_id) {
+        die("User not logged in!");
     }
 
     $sql = "SELECT * FROM Project WHERE project_id = :project_id";
@@ -14,7 +21,19 @@ try {
     $stmt->execute();
     $project = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $sql = "SELECT u.user_id, u.first_name, u.last_name, u.email, pr.role_name 
+    $sql = "SELECT pr.role_name, pr.project_role_id 
+            FROM project_members pm
+            JOIN project_roles pr ON pm.project_role_id = pr.project_role_id
+            WHERE pm.project_id = :project_id AND pm.user_id = :user_id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindValue(':project_id', $project_id, PDO::PARAM_INT);
+    $stmt->bindValue(':user_id', $current_user_id, PDO::PARAM_INT);
+    $stmt->execute();
+    $current_user_role = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $is_manager_or_admin = ($current_user_role['project_role_id'] == 1 || $current_user_role['project_role_id'] == 2);
+
+    $sql = "SELECT u.user_id, u.first_name, u.last_name, u.email, pr.role_name, pr.project_role_id 
             FROM project_members pm
             JOIN users u ON pm.user_id = u.user_id
             JOIN project_roles pr ON pm.project_role_id = pr.project_role_id
@@ -53,7 +72,9 @@ try {
             <div class="collaborators-container">
                 <div class="collaborators-container-header">
                     <h4>Collaborators</h4>
-                    <button id="add-collaborator-btn" class="add-collaborator-btn">Add Collaborator</button>
+                    <?php if ($is_manager_or_admin): ?>
+                        <button id="add-collaborator-btn" class="add-collaborator-btn">Add Collaborator</button>
+                    <?php endif; ?>
                 </div>
                 <div class="collaborators-container-table">
                     <table>
@@ -63,7 +84,9 @@ try {
                                 <th>Full Name</th>
                                 <th>Email</th>
                                 <th>Role</th>
-                                <th>Actions</th>
+                                <?php if ($is_manager_or_admin): ?>
+                                    <th>Actions</th>
+                                <?php endif; ?>
                             </tr>
                         </thead>
                         <tbody>
@@ -73,15 +96,24 @@ try {
                                     <td><?php echo htmlspecialchars($collaborator['first_name'] . ' ' . $collaborator['last_name']); ?></td>
                                     <td><?php echo htmlspecialchars($collaborator['email']); ?></td>
                                     <td><?php echo htmlspecialchars($collaborator['role_name']); ?></td>
-                                    <td>
-                                        <button class="action-btn edit-btn">Edit</button>
-                                        <button class="action-btn remove-btn">Remove</button>
-                                    </td>
+                                    <?php if ($is_manager_or_admin): ?>
+                                        <td>
+                                            <button class="action-btn edit-btn">Edit</button>
+                                            <?php 
+                                            $hide_remove = ($collaborator['project_role_id'] == 1) || 
+                                                        ($collaborator['user_id'] == $current_user_id) ||
+                                                        ($collaborator['project_role_id'] == 2 && $current_user_role['project_role_id'] != 1);
+                                            
+                                            if (!$hide_remove): ?>
+                                                <button class="action-btn remove-btn" data-user-id="<?php echo $collaborator['user_id']; ?>">Remove</button>
+                                            <?php endif; ?>
+                                        </td>
+                                    <?php endif; ?>
                                 </tr>
                             <?php endforeach; ?>
                             <?php if (empty($collaborators)): ?>
                             <tr>
-                                <td colspan="5">No collaborators found for this project.</td>
+                                <td colspan="<?php echo $is_manager_or_admin ? 5 : 4; ?>">No collaborators found for this project.</td>
                             </tr>
                             <?php endif; ?>
                         </tbody>
@@ -91,6 +123,7 @@ try {
         </div>
     </div>
     
+    <?php if ($is_manager_or_admin): ?>
     <div id="collaboratorModal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
@@ -116,9 +149,9 @@ try {
             </form>
         </div>
     </div>
+    <?php endif; ?>
 
     <?php include('include/footer.php'); ?>
-
 
     <script src="js/remove-collaborator.js"></script>
     <script src="js/add-collaborator-modal.js"></script>
