@@ -134,6 +134,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
         $error = $e->getMessage();
     }
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_member'])) {
+    try {
+        $currentUserRole = null;
+        foreach ($members as $member) {
+            if ($member['user_id'] == ($_SESSION['user_id'] ?? null)) {
+                $currentUserRole = $member['org_role_id'];
+                break;
+            }
+        }
+
+        if (!$currentUserRole || $currentUserRole > 2) {
+            throw new Exception("Only admins can remove members");
+        }
+
+        $userIdToRemove = (int)$_POST['user_id'];
+        $userToRemoveRole = null;
+        $userToRemoveName = '';
+
+        foreach ($members as $member) {
+            if ($member['user_id'] == $userIdToRemove) {
+                $userToRemoveRole = $member['org_role_id'];
+                $userToRemoveName = $member['first_name'] . ' ' . $member['last_name'];
+                break;
+            }
+        }
+
+        if (!$userToRemoveRole) {
+            throw new Exception("User not found in organization");
+        }
+
+        if ($userToRemoveRole <= 2 && $userIdToRemove != ($_SESSION['user_id'] ?? null)) {
+            throw new Exception("Cannot remove other admins or owner");
+        }
+
+        if ($userToRemoveRole == 1 && $userIdToRemove == ($_SESSION['user_id'] ?? null)) {
+            throw new Exception("Owner cannot remove themselves. Transfer ownership first.");
+        }
+
+        $stmt = $pdo->prepare("DELETE FROM organisation_members WHERE org_id = ? AND user_id = ?");
+        $stmt->execute([$orgId, $userIdToRemove]);
+
+        $stmt = $pdo->prepare("INSERT INTO audit_logs (user_id, action, created_at) VALUES (?, ?, NOW())");
+        $stmt->execute([$_SESSION['user_id'] ?? 1, "Removed user $userToRemoveName from organization"]);
+
+        $success = "User removed successfully";
+        
+        $stmt = $pdo->prepare("
+            SELECT u.user_id, u.first_name, u.last_name, u.email, 
+                   om.joined_at, oroles.role_name, oroles.org_role_id
+            FROM organisation_members om
+            JOIN users u ON om.user_id = u.user_id
+            JOIN organisation_roles oroles ON om.org_role_id = oroles.org_role_id
+            WHERE om.org_id = ?
+            ORDER BY oroles.org_role_id, om.joined_at DESC
+        ");
+        $stmt->execute([$orgId]);
+        $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+    } catch (Exception $e) {
+        $error = $e->getMessage();
+    }
+}
 ?>
 
 
@@ -429,8 +492,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             }
         });
 
+document.querySelectorAll('.remove-member').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const userId = this.getAttribute('data-user-id');
+        if (confirm('Are you sure you want to remove this member from the organization?')) {
+            document.getElementById('removeUserId').value = userId;
+            document.getElementById('removeMemberForm').submit();
+        }
+    });
+});
 
     </script>
+
+<form id="removeMemberForm" method="POST" style="display: none;">
+    <input type="hidden" name="remove_member" value="1">
+    <input type="hidden" name="user_id" id="removeUserId" value="">
+</form>
 
     <?php include('include/footer.php'); ?>
 </body>

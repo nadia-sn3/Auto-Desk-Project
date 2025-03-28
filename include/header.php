@@ -38,14 +38,13 @@ if (isset($_SESSION['user_id']) && (!isset($_SESSION['first_name']) || !isset($_
                     <?php if (!$isAdmin): ?>
                         <li><a href="create-project.php">Create</a></li>
                         <li><a href="project-home.php">Projects</a></li>
-                        <li><a href="org-owner-home.php">Dashboard</a></li> 
 
                     <?php else: ?>
                         <li><a href="system-admin-home.php">Admin Dashboard</a></li>
                     <?php endif; ?>
                     
                     <?php if (isset($_SESSION['current_org_id'])): ?>
-                        <li><a href="org-owner-home.php">Organisation Page</a></li>
+                        <li><a href="org-owner-home.php">Organisation Dashboard</a></li>
                     <?php endif; ?>
                     
                     <?php if ($isAdmin): ?>
