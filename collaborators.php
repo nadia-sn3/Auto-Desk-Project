@@ -33,15 +33,66 @@ try {
 
     $is_manager_or_admin = ($current_user_role['project_role_id'] == 1 || $current_user_role['project_role_id'] == 2);
 
+    $rows_per_page = 10;
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $offset = ($page - 1) * $rows_per_page;
+
+    $role_filter = $_GET['role_filter'] ?? '';
+    $search_term = $_GET['search'] ?? '';
+
     $sql = "SELECT u.user_id, u.first_name, u.last_name, u.email, pr.role_name, pr.project_role_id 
             FROM project_members pm
             JOIN users u ON pm.user_id = u.user_id
             JOIN project_roles pr ON pm.project_role_id = pr.project_role_id
             WHERE pm.project_id = :project_id";
+
+    if (!empty($role_filter)) {
+        $sql .= " AND pr.project_role_id = :role_filter";
+    }
+
+    if (!empty($search_term)) {
+        $sql .= " AND (u.first_name LIKE :search_term OR u.last_name LIKE :search_term OR u.email LIKE :search_term)";
+        $search_term = "%$search_term%";
+    }
+
+    $count_sql = str_replace("SELECT u.user_id, u.first_name, u.last_name, u.email, pr.role_name, pr.project_role_id", 
+                            "SELECT COUNT(*) as total", $sql);
+    $count_stmt = $pdo->prepare($count_sql);
+    $count_stmt->bindValue(':project_id', $project_id, PDO::PARAM_INT);
+    
+    if (!empty($role_filter)) {
+        $count_stmt->bindValue(':role_filter', $role_filter, PDO::PARAM_INT);
+    }
+    
+    if (!empty($search_term)) {
+        $count_stmt->bindValue(':search_term', $search_term, PDO::PARAM_STR);
+    }
+    
+    $count_stmt->execute();
+    $total_rows = $count_stmt->fetch(PDO::FETCH_ASSOC)['total'];
+    $total_pages = ceil($total_rows / $rows_per_page);
+
+    $sql .= " LIMIT :offset, :rows_per_page";
+
     $stmt = $pdo->prepare($sql);
     $stmt->bindValue(':project_id', $project_id, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->bindValue(':rows_per_page', $rows_per_page, PDO::PARAM_INT);
+    
+    if (!empty($role_filter)) {
+        $stmt->bindValue(':role_filter', $role_filter, PDO::PARAM_INT);
+    }
+    
+    if (!empty($search_term)) {
+        $stmt->bindValue(':search_term', $search_term, PDO::PARAM_STR);
+    }
+    
     $stmt->execute();
     $collaborators = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $sql_roles = "SELECT * FROM project_roles";
+    $stmt_roles = $pdo->query($sql_roles);
+    $all_roles = $stmt_roles->fetchAll(PDO::FETCH_ASSOC);
 
     $pdo = null;
 
@@ -72,9 +123,24 @@ try {
             <div class="collaborators-container">
                 <div class="collaborators-container-header">
                     <h4>Collaborators</h4>
-                    <?php if ($is_manager_or_admin): ?>
-                        <button id="add-collaborator-btn" class="add-collaborator-btn">Add Collaborator</button>
-                    <?php endif; ?>
+                    <div class="table-controls">
+                        <form method="GET" class="search-form">
+                            <input type="hidden" name="project_id" value="<?php echo $project_id; ?>">
+                            <input type="text" name="search" placeholder="Search..." value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>">
+                            <button type="submit">Search</button>
+                        </form>
+                        <select id="role-filter" class="role-filter">
+                            <option value="">All Roles</option>
+                            <?php foreach ($all_roles as $role): ?>
+                                <option value="<?php echo $role['project_role_id']; ?>" <?php echo ($role_filter == $role['project_role_id']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($role['role_name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <?php if ($is_manager_or_admin): ?>
+                            <button id="add-collaborator-btn" class="add-collaborator-btn">Add Collaborator</button>
+                        <?php endif; ?>
+                    </div>
                 </div>
                 <div class="collaborators-container-table">
                     <table>
@@ -118,6 +184,19 @@ try {
                             <?php endif; ?>
                         </tbody>
                     </table>
+                    
+                    <!-- Pagination controls -->
+                    <div class="pagination">
+                        <?php if ($page > 1): ?>
+                            <a href="?project_id=<?php echo $project_id; ?>&page=<?php echo $page-1; ?><?php echo !empty($role_filter) ? '&role_filter='.$role_filter : ''; ?><?php echo !empty($search_term) ? '&search='.urlencode($_GET['search']) : ''; ?>">&laquo; Previous</a>
+                        <?php endif; ?>
+                        
+                        <span>Page <?php echo $page; ?> of <?php echo $total_pages; ?></span>
+                        
+                        <?php if ($page < $total_pages): ?>
+                            <a href="?project_id=<?php echo $project_id; ?>&page=<?php echo $page+1; ?><?php echo !empty($role_filter) ? '&role_filter='.$role_filter : ''; ?><?php echo !empty($search_term) ? '&search='.urlencode($_GET['search']) : ''; ?>">Next &raquo;</a>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
@@ -156,5 +235,30 @@ try {
     <script src="js/remove-collaborator.js"></script>
     <script src="js/add-collaborator-modal.js"></script>
     <script src="js/user-search.js"></script>
+    
+    <script>
+
+document.getElementById('role-filter').addEventListener('change', function() {
+            const roleFilter = this.value;
+            const searchTerm = "<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>";
+            
+            let url = `?project_id=<?php echo $project_id; ?>`;
+            if (roleFilter) url += `&role_filter=${roleFilter}`;
+            if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
+            
+            window.location.href = url;
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            const currentPage = <?php echo $page; ?>;
+            const totalPages = <?php echo $total_pages; ?>;
+            
+            if (e.key === 'ArrowLeft' && currentPage > 1) {
+                window.location.href = `?project_id=<?php echo $project_id; ?>&page=${currentPage - 1}<?php echo !empty($role_filter) ? '&role_filter='.$role_filter : ''; ?><?php echo !empty($search_term) ? '&search='.urlencode($_GET['search']) : ''; ?>`;
+            } else if (e.key === 'ArrowRight' && currentPage < totalPages) {
+                window.location.href = `?project_id=<?php echo $project_id; ?>&page=${currentPage + 1}<?php echo !empty($role_filter) ? '&role_filter='.$role_filter : ''; ?><?php echo !empty($search_term) ? '&search='.urlencode($_GET['search']) : ''; ?>`;
+            }
+        });
+    </script>
 </body>
 </html>
