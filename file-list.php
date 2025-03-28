@@ -150,12 +150,12 @@ $access_token = getAccessToken($client_id, $client_secret);
 <?php if (!empty($files)): ?>
     <div class="project-model">
         <div class="project-model-buttons">
-            <button class="btn">Share</button>
+            <!-- <button class="btn">Share</button> -->
             <button class="btn">Download</button>
         </div>
 
         <div class="project-model-data">
-            <h3>Model Details</h3>
+            <h3>Version 1.0 Model Details</h3>
             <ul>
                 <li><strong>File Name:</strong> N/A</li>
                 <li><strong>File Type:</strong> N/A</li>

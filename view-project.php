@@ -168,7 +168,7 @@ $project = $stmt->fetch(PDO::FETCH_ASSOC);
                 <?php endif; ?>
                 
                 <div class="project-model-buttons">
-                    <button class="btn">Share</button>
+                    <!-- <button class="btn">Share</button> -->
                     <button class="btn">Download</button>
                 </div>
                 <div class="project-model-data">
