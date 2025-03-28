@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 28, 2025 at 02:02 AM
+-- Generation Time: Mar 28, 2025 at 02:44 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -348,9 +348,10 @@ CREATE TABLE `project_roles` (
 
 INSERT INTO `project_roles` (`project_role_id`, `role_name`, `permissions`) VALUES
 (1, 'Project Admin', '[\"project.manage\",\"project.members.invite\",\"project.members.remove\"]'),
-(2, 'Project Editor', '[\"project.edit\",\"model.upload\",\"model.update\"]'),
-(3, 'Project Viewer', '[\"project.view\",\"model.view\"]'),
-(4, 'Project Contractor', '[\"limited.access\"]');
+(3, 'Project Editor', '[\"project.edit\",\"model.upload\",\"model.update\"]'),
+(4, 'Project Viewer', '[\"project.view\",\"model.view\"]'),
+(5, 'Project Contractor', '[\"limited.access\"]'),
+(2, 'Project Manager', '[\"project.manage\",\"project.edit\",\"project.view\",\"model.upload\",\"model.update\",\"model.view\",\"project.members.invite\"]');
 
 -- --------------------------------------------------------
 
