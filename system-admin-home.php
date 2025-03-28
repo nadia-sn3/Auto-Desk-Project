@@ -108,7 +108,7 @@ try {
             <a href="audit-logs.php" class="btn">View Audit Logs</a>
 
             <h2>Reports & Analytics</h2>
-            <a href="generate-reports.php" class="btn">Generate Reports</a>
+            <a href="admin-report.php" class="btn">Generate Reports</a>
         </div>
     </div>
 

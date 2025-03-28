@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 27, 2025 at 03:02 PM
+-- Generation Time: Mar 28, 2025 at 01:41 AM
 -- Server version: 10.4.28-MariaDB
--- PHP Version: 8.0.28
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -20,6 +20,29 @@ SET time_zone = "+00:00";
 --
 -- Database: `autodesk`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `audit_logs`
+--
+
+CREATE TABLE `audit_logs` (
+  `audit_log_id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `action` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `project_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `audit_logs`
+--
+
+INSERT INTO `audit_logs` (`audit_log_id`, `user_id`, `action`, `created_at`, `project_id`) VALUES
+(1, 1, 'Test action 1', '2025-03-27 23:55:01', NULL),
+(2, 2, 'Test action 2', '2025-03-27 23:55:01', NULL),
+(3, 7, 'User logged in', '2025-03-28 00:39:41', NULL);
 
 -- --------------------------------------------------------
 
@@ -331,6 +354,33 @@ INSERT INTO `project_roles` (`project_role_id`, `role_name`, `permissions`) VALU
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `reports`
+--
+
+CREATE TABLE `reports` (
+  `report_id` int(11) NOT NULL,
+  `reporter_id` int(11) NOT NULL,
+  `reported_type` enum('user','project') NOT NULL,
+  `reported_id` int(11) NOT NULL,
+  `report_reason` varchar(255) NOT NULL,
+  `report_details` text DEFAULT NULL,
+  `status` enum('pending','resolved') NOT NULL DEFAULT 'pending',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `reports`
+--
+
+INSERT INTO `reports` (`report_id`, `reporter_id`, `reported_type`, `reported_id`, `report_reason`, `report_details`, `status`, `created_at`) VALUES
+(1, 2, 'user', 3, 'Inappropriate content', 'This user posted offensive material in their profile', 'pending', '2025-03-28 09:15:22'),
+(2, 3, 'project', 1, 'Copyright violation', 'This project contains copyrighted material without permission', 'pending', '2025-03-28 10:30:45'),
+(3, 1, 'user', 4, 'Harassment', 'This user sent me abusive messages', 'resolved', '2025-03-27 14:20:33'),
+(4, 4, 'project', 2, 'Spam', 'This project appears to be advertising unrelated products', 'pending', '2025-03-28 11:45:12');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `system_roles`
 --
 
@@ -375,11 +425,20 @@ INSERT INTO `users` (`user_id`, `system_role_id`, `email`, `password_hash`, `fir
 (2, 2, 'su1@gmail.com', '$2y$10$lbB3k2xNY5lU8gQR8UHl5.0saoHebr8.3jthkuOhNTWnhnHBIwh/i', 'sususu', 'susu', '2025-03-27 11:55:15', NULL, NULL),
 (3, 2, 's@gmail.com', '$2y$10$nreCM2W56S3WZQGP31jA2uQe1X9Mg1xtV6.KNADXRZLuLibxIld1O', 'sussu', 'susu', '2025-03-27 12:13:36', NULL, NULL),
 (4, 2, 't@t.com', '$2y$10$g3tRLJmPzaaSNSxv85puaOtQJVZWBD/iZwJzBAez0m/iZ0V.UNNhu', 't', 't', '2025-03-27 12:26:53', NULL, NULL),
-(5, 2, 'admin@admin.com', '$2y$10$fs5eAuGRoiwlLTCYi8dhju5IOe34qispPttBQLgTsDwV1UdwGgitq', 'admin', 'admin', '2025-03-27 12:33:18', NULL, NULL);
+(5, 1, 'admin@admin.com', 'admin123', 'admin', 'admin', '2025-03-27 12:33:18', NULL, NULL),
+(6, 1, 'test@gmail.com', '$2y$10$7qtWz6h4N8G9gfHRS9sSmeHcRn5pdM.IcOE6qJMKEtkTGiBSR1h7K', 'test', 'test', '2025-03-27 23:29:14', NULL, NULL),
+(7, 2, 'm@m.com', '$2y$10$DSOWan4k6/6X63.yiDCEr.IrtgtcnhkH/DwrmmBouNmOYHx3Gxd3O', 'm', 'm', '2025-03-28 00:39:25', NULL, NULL);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `audit_logs`
+--
+ALTER TABLE `audit_logs`
+  ADD PRIMARY KEY (`audit_log_id`),
+  ADD KEY `fk_project_id` (`project_id`);
 
 --
 -- Indexes for table `Bucket_File`
@@ -444,6 +503,14 @@ ALTER TABLE `project_members`
   ADD PRIMARY KEY (`project_member_id`);
 
 --
+-- Indexes for table `reports`
+--
+ALTER TABLE `reports`
+  ADD PRIMARY KEY (`report_id`),
+  ADD KEY `reporter_id` (`reporter_id`),
+  ADD KEY `reported_id` (`reported_id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -452,6 +519,12 @@ ALTER TABLE `users`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `audit_logs`
+--
+ALTER TABLE `audit_logs`
+  MODIFY `audit_log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `Bucket_File`
@@ -502,14 +575,26 @@ ALTER TABLE `project_members`
   MODIFY `project_member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `reports`
+--
+ALTER TABLE `reports`
+  MODIFY `report_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `audit_logs`
+--
+ALTER TABLE `audit_logs`
+  ADD CONSTRAINT `fk_project_id` FOREIGN KEY (`project_id`) REFERENCES `project` (`project_id`);
 
 --
 -- Constraints for table `Bucket_File`
