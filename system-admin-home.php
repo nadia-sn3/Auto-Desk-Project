@@ -100,11 +100,6 @@ try {
         <div class="admin-actions">
             <h2>User Management</h2>
             <a href="manage-users.php" class="btn">Manage Users</a>
-            <a href="approve-users.php" class="btn">Approve User Requests</a>
-
-            <h2>Content Moderation</h2>
-            <a href="review-reports.php" class="btn">Review User Reports</a>
-            <a href="moderate-content.php" class="btn">Moderate Content</a>
 
             <h2>System Maintenance</h2>
             <a href="system-status.php" class="btn">Monitor System Health</a>

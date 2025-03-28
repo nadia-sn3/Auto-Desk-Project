@@ -2,6 +2,11 @@
 require 'db/connection.php'; 
 session_start();
 
+function log_action($pdo, $user_id, $action) {
+    $stmt = $pdo->prepare("INSERT INTO audit_logs (user_id, action) VALUES (?, ?)");
+    $stmt->execute([$user_id, $action]);
+}
+
 $error_message = ''; 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -19,6 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['username'] = $user['first_name']." ". $user['last_name'];
         $_SESSION['system_role_id'] = $user['system_role_id'];
 
+        log_action($pdo, $user['user_id'], "User logged in");
+
         $stmt = $pdo->prepare("SELECT om.org_role_id, o.org_id, oroles.role_name 
                               FROM organisation_members om
                               JOIN organisations o ON om.org_id = o.org_id
@@ -28,9 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $orgMemberships = $stmt->fetchAll();
 
         if (!empty($orgMemberships)) {
-
             $_SESSION['org_memberships'] = $orgMemberships;
-            
             $_SESSION['current_org_id'] = $orgMemberships[0]['org_id'];
             $_SESSION['current_org_role_id'] = $orgMemberships[0]['org_role_id'];
             $_SESSION['current_org_role_name'] = $orgMemberships[0]['role_name'];
@@ -48,7 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['project_memberships'] = $projectMemberships;
         }
 
-
         switch ($user['system_role_id']) {
             case 1:
                 header("Location: system-admin-home.php");
@@ -64,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     } else {
         $error_message = "Invalid email or password."; 
+        log_action($pdo, null, "Failed login attempt for email: $email");
     }
 }
 ?>
