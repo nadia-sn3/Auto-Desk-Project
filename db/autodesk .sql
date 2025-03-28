@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 28, 2025 at 01:41 AM
+-- Generation Time: Mar 28, 2025 at 02:02 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -42,7 +42,8 @@ CREATE TABLE `audit_logs` (
 INSERT INTO `audit_logs` (`audit_log_id`, `user_id`, `action`, `created_at`, `project_id`) VALUES
 (1, 1, 'Test action 1', '2025-03-27 23:55:01', NULL),
 (2, 2, 'Test action 2', '2025-03-27 23:55:01', NULL),
-(3, 7, 'User logged in', '2025-03-28 00:39:41', NULL);
+(3, 7, 'User logged in', '2025-03-28 00:39:41', NULL),
+(4, 6, 'User logged in', '2025-03-28 00:56:44', NULL);
 
 -- --------------------------------------------------------
 
@@ -365,6 +366,8 @@ CREATE TABLE `reports` (
   `report_reason` varchar(255) NOT NULL,
   `report_details` text DEFAULT NULL,
   `status` enum('pending','resolved') NOT NULL DEFAULT 'pending',
+  `resolved_by` int(11) DEFAULT NULL,
+  `resolved_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -372,11 +375,11 @@ CREATE TABLE `reports` (
 -- Dumping data for table `reports`
 --
 
-INSERT INTO `reports` (`report_id`, `reporter_id`, `reported_type`, `reported_id`, `report_reason`, `report_details`, `status`, `created_at`) VALUES
-(1, 2, 'user', 3, 'Inappropriate content', 'This user posted offensive material in their profile', 'pending', '2025-03-28 09:15:22'),
-(2, 3, 'project', 1, 'Copyright violation', 'This project contains copyrighted material without permission', 'pending', '2025-03-28 10:30:45'),
-(3, 1, 'user', 4, 'Harassment', 'This user sent me abusive messages', 'resolved', '2025-03-27 14:20:33'),
-(4, 4, 'project', 2, 'Spam', 'This project appears to be advertising unrelated products', 'pending', '2025-03-28 11:45:12');
+INSERT INTO `reports` (`report_id`, `reporter_id`, `reported_type`, `reported_id`, `report_reason`, `report_details`, `status`, `resolved_by`, `resolved_at`, `created_at`) VALUES
+(1, 2, 'user', 3, 'Inappropriate content', 'This user posted offensive material in their profile', 'pending', NULL, NULL, '2025-03-28 09:15:22'),
+(2, 3, 'project', 1, 'Copyright violation', 'This project contains copyrighted material without permission', 'pending', NULL, NULL, '2025-03-28 10:30:45'),
+(3, 1, 'user', 4, 'Harassment', 'This user sent me abusive messages', 'resolved', NULL, NULL, '2025-03-27 14:20:33'),
+(4, 4, 'project', 2, 'Spam', 'This project appears to be advertising unrelated products', 'pending', NULL, NULL, '2025-03-28 11:45:12');
 
 -- --------------------------------------------------------
 
@@ -508,7 +511,8 @@ ALTER TABLE `project_members`
 ALTER TABLE `reports`
   ADD PRIMARY KEY (`report_id`),
   ADD KEY `reporter_id` (`reporter_id`),
-  ADD KEY `reported_id` (`reported_id`);
+  ADD KEY `reported_id` (`reported_id`),
+  ADD KEY `fk_reports_resolved_by` (`resolved_by`);
 
 --
 -- Indexes for table `users`
@@ -524,7 +528,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_logs`
 --
 ALTER TABLE `audit_logs`
-  MODIFY `audit_log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `audit_log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `Bucket_File`
@@ -620,6 +624,12 @@ ALTER TABLE `Project_Commit`
 --
 ALTER TABLE `Project_File`
   ADD CONSTRAINT `project_file_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `Project` (`project_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `reports`
+--
+ALTER TABLE `reports`
+  ADD CONSTRAINT `fk_reports_resolved_by` FOREIGN KEY (`resolved_by`) REFERENCES `users` (`user_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
