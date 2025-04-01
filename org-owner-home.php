@@ -4,11 +4,27 @@ require_once 'db/connection.php';
 
 $success = '';
 $error = '';
-$orgId = 1;
+if (!isset($_SESSION['current_org_id'])) {
+    header("Location: home.php");
+    exit();
+}
+$orgId = $_SESSION['current_org_id'];
+
 $members = [];
 $totalMembers = 0;
-$orgName = "Your Organisation";
-$orgDescription = "Organisation description";
+try {
+    $stmt = $pdo->prepare("SELECT org_name, description FROM organisations WHERE org_id = ?");
+    $stmt->execute([$orgId]);
+    if ($org = $stmt->fetch()) {
+        $orgName = $org['org_name'];
+        $orgDescription = $org['description'] ?? '';
+    } else {
+        throw new Exception("Organisation not found");
+    }
+} catch (Exception $e) {
+    $error = "Error loading organisation: " . $e->getMessage();
+}
+
 $activeProjects = 0;
 $projects = [];
 
@@ -65,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             $stmt->execute([$orgId, $userId]);
             
             if ($stmt->rowCount() > 0) {
-                throw new Exception("User already in organization");
+                throw new Exception("User already in organisation");
             }
             
             $stmt = $pdo->prepare("
@@ -76,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             $invitedBy = $_SESSION['user_id'] ?? 1;
             $stmt->execute([$orgId, $userId, $roleId, $invitedBy]);
             
-            $success = "User added to organization";
+            $success = "User added to organisation";
         } else {
             $password = isset($_POST['set_custom_password']) && !empty($_POST['password']) 
                 ? $_POST['password'] 
@@ -108,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             $stmt->execute([$orgId, $userId, $roleId, $invitedBy]);
             
             $pdo->commit();
-            $success = "New user created and added to organization";
+            $success = "New user created and added to organisation";
         }
 
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM organisation_members WHERE org_id = ?");
@@ -162,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_member'])) {
         }
 
         if (!$userToRemoveRole) {
-            throw new Exception("User not found in organization");
+            throw new Exception("User not found in organisation");
         }
 
         if ($userToRemoveRole <= 2 && $userIdToRemove != ($_SESSION['user_id'] ?? null)) {
@@ -177,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_member'])) {
         $stmt->execute([$orgId, $userIdToRemove]);
 
         $stmt = $pdo->prepare("INSERT INTO audit_logs (user_id, action, created_at) VALUES (?, ?, NOW())");
-        $stmt->execute([$_SESSION['user_id'] ?? 1, "Removed user $userToRemoveName from organization"]);
+        $stmt->execute([$_SESSION['user_id'] ?? 1, "Removed user $userToRemoveName from organisation"]);
 
         $success = "User removed successfully";
         
@@ -495,7 +511,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_member'])) {
 document.querySelectorAll('.remove-member').forEach(btn => {
     btn.addEventListener('click', function() {
         const userId = this.getAttribute('data-user-id');
-        if (confirm('Are you sure you want to remove this member from the organization?')) {
+        if (confirm('Are you sure you want to remove this member from the organisation?')) {
             document.getElementById('removeUserId').value = userId;
             document.getElementById('removeMemberForm').submit();
         }
