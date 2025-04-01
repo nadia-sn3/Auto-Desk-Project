@@ -13,7 +13,7 @@ if (isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Security headers
+
 header("X-Frame-Options: DENY");
 header("X-Content-Type-Options: nosniff");
 
