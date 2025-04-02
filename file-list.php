@@ -81,7 +81,6 @@ $access_token = getAccessToken($client_id, $client_secret);
                 <nav class="project-nav-bar">
                     <ul>
                     <li><a href="/collaborators.php?project_id=<?php echo $_GET['project_id']; ?>" class="nav-link">Collaborators</a></li>
-                        <li><a href="issues.php" class="nav-link">Issues</a></li>
                         <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Create a Commit</a></li>
                     </ul>
                 </nav>
@@ -578,7 +577,7 @@ $access_token = getAccessToken($client_id, $client_secret);
                                             sortedCommits.forEach((commit, index) => {
                                                 const versionId = `version-${commit.commit_id}`;
                                                 const hasIssues = commit.issues && commit.issues.length > 0;
-                                                const versionNumber = sortedCommits.length - index; // Correct version numbering
+                                                const versionNumber = sortedCommits.length - index; 
                                                 
                                                 const commitElement = document.createElement('div');
                                                 commitElement.classList.add('project-model-timeline-versions');
