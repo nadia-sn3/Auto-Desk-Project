@@ -7,7 +7,7 @@ require_once 'getAccessToken.php';
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $urn = $_GET['urn']; 
+    $urn = $_GET['urn'];  // Get the URN sent from JS
     $accessToken = getAccessToken($client_id, $client_secret);
 
     try {

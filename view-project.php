@@ -1,52 +1,47 @@
 <?php
-require_once 'backend/Business_Logic/Function/config.php';
-require_once 'backend/Business_Logic/Function/createBucket.php';
-require_once 'backend/Business_Logic/Function/getAccessToken.php';
-require_once 'backend/Business_Logic/Function/functions.php';
-require_once 'backend/Business_Logic/Function/Download_Functions.php';
-require_once 'backend/Business_Logic/Function/create_project.php';
-require_once 'backend/Business_Logic/Function/upload-projectfile.php';
-require_once 'db/connection.php';
-$urn = isset($_GET['urn']) ? htmlspecialchars($_GET['urn']) : '';
+    require_once 'backend/Business_Logic/Function/config.php';
+    require_once 'backend/Business_Logic/Function/createBucket.php';
+    require_once 'backend/Business_Logic/Function/getAccessToken.php';
+    require_once 'backend/Business_Logic/Function/functions.php';
+    require_once 'backend/Business_Logic/Function/Download_Functions.php';
+    require_once 'backend/Business_Logic/Function/create_project.php';
+    require_once 'backend/Business_Logic/Function/upload-projectfile.php';
+    require_once 'db/connection.php';
+    $urn = isset($_GET['urn']) ? htmlspecialchars($_GET['urn']) : '';
 
-$access_token = getAccessToken($client_id, $client_secret);
+    $access_token = getAccessToken($client_id, $client_secret);
 
-if(isset($_GET['downloadFile']))
-{
-    include("backend/php/Download_Functions.php");
-    
-    $objectkey =  $_GET['objectKey'];
+    if(isset($_GET['downloadFile']))
+    {
+        include("backend/php/Download_Functions.php");
+        
+        $objectkey =  $_GET['objectKey'];
 
-    $signedUrl = ObtainSignedURL($access_token, $bucket_key, $objectkey);
+        $signedUrl = ObtainSignedURL($access_token, $bucket_key, $objectkey);
 
-    $downloadURL = $signedUrl["url"];
+        $downloadURL = $signedUrl["url"];
 
-    $fileNameSaveAs = $objectkey;
+        $fileNameSaveAs = $objectkey;
 
-    $fileData = DownloadFile($downloadURL, $fileNameSaveAs);
-    
-    header("Cache-Control: public");
-    header("Content-Description: FIle Transfer");
-    header("Content-Disposition: attachment; filename=$objectkey");
-    header("Content-Type: application/zip");
-    header("Content-Transfer-Emcoding: binary");
+        $fileData = DownloadFile($downloadURL, $fileNameSaveAs);
+        
+        header("Cache-Control: public");
+        header("Content-Description: FIle Transfer");
+        header("Content-Disposition: attachment; filename=$objectkey");
+        header("Content-Type: application/zip");
+        header("Content-Transfer-Emcoding: binary");
+        exit;
+    }
 
-    echo $fileData;
-    exit;
-}
+    $project_id = $_GET['project_id'] ?? null;
+    if (!$project_id) {
+        die("Project ID missing!");
+    }
 
-$project_id = $_GET['project_id'] ?? null;
-if (!$project_id) {
-    die("Project ID missing!");
-}
-
-$stmt = $pdo->prepare("SELECT * FROM Project WHERE project_id = :project_id");
-$stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);
-
-
-$stmt->execute();
-
-$project = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt = $pdo->prepare("SELECT * FROM Project WHERE project_id = :project_id");
+    $stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);
+    $stmt->execute();
+    $project = $stmt->fetch(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -77,42 +72,41 @@ $project = $stmt->fetch(PDO::FETCH_ASSOC);
 
             <nav class="project-nav-bar">
                 <ul>
-                <li><a href="collaborators.php?project_id=<?php echo $project_id; ?>" class="nav-link">Collaborators</a></li>                 
+                    <li><a href="collaborators.php?project_id=<?php echo $project_id; ?>" class="nav-link">Collaborators</a></li>    
                     <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Create a Commit</a></li>
                     <li>
-            <?php if ($is_admin): ?>
-                <div class="dropdown">
-                    <a href="javascript:void(0);" class="nav-link dropdown-toggle">Manage Project</a>
-                    <div class="dropdown-content">
-                        <a href="#" id="archiveProject">Archive Project</a>
-                        <a href="#" id="deleteProject">Delete Project</a>
-                    </div>
-                </div>
-            <?php else: ?>
-                <a href="javascript:void(0);" class="nav-link">Manage Project</a>
-            <?php endif; ?>
-        </li>
-                    </ul>
+                        <?php if ($is_admin): ?>
+                            <div class="dropdown">
+                                <a href="javascript:void(0);" class="nav-link dropdown-toggle">Manage Project</a>
+                                <div class="dropdown-content">
+                                    <a href="#" id="archiveProject">Archive Project</a>
+                                    <a href="#" id="deleteProject">Delete Project</a>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <a href="javascript:void(0);" class="nav-link">Manage Project</a>
+                        <?php endif; ?>
+                    </li>    
+                </ul>
             </nav>
-
             <div class="file-dropdown-wrapper">
-    <div class="file-dropdown">
-        <button class="dropdown-header">
-            <span class="dropdown-title">Project Files</span>
-            <svg class="dropdown-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 9l6 6 6-6"/>
-            </svg>
-        </button>
-        <div class="dropdown-menu">
-            <div class="file-search">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"/>
-                    <path d="M21 21l-4.35-4.35"/>
-                </svg>
-                <input type="text" placeholder="Search files..." class="search-input">
-            </div>
-            <ul class="file-list">
-            </ul>
+                <div class="file-dropdown">
+                    <button class="dropdown-header">
+                        <span class="dropdown-title">Project Files</span>
+                        <svg class="dropdown-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                    </button>
+                    <div class="dropdown-menu">
+                        <div class="file-search">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="M21 21l-4.35-4.35"/>
+                            </svg>
+                            <input type="text" placeholder="Search files..." class="search-input">
+                        </div>
+                        <ul class="file-list">
+                        </ul>
         </div>
     </div>
 </div>
@@ -157,6 +151,7 @@ $project = $stmt->fetch(PDO::FETCH_ASSOC);
                             <p class="or-text">or</p>
                             <input type="file" id="fileInputLarge" multiple style="display: none;">
                             <label for="fileInputLarge" class="browse-btn-large">Select Files</label>
+                            <p class="file-types">Supported formats: .rvt, .dwg, .ifc, .obj, .glb, .fbx</p>
                         </div>
                     </div>
                 <?php else: ?>
@@ -168,7 +163,7 @@ $project = $stmt->fetch(PDO::FETCH_ASSOC);
                 <?php endif; ?>
                 
                 <div class="project-model-buttons">
-                    <!-- <button class="btn">Share</button> -->
+                    <button class="btn">Share</button>
                     <button class="btn">Download</button>
                 </div>
                 <div class="project-model-data">
@@ -192,9 +187,7 @@ $project = $stmt->fetch(PDO::FETCH_ASSOC);
                         <button id="filterAfterBtn" class="btn">After</button>
                     </div>
                 </div>
-                <div class="project-model-timeline-versions">
-                    <?php include('version.php'); ?>
-                </div>
+                
             </div>
         </div>
     </div>
@@ -229,7 +222,7 @@ $project = $stmt->fetch(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <script>
+    <!-- <script>
         <?php if ($access_token): ?>
                 var accessToken = "<?php echo htmlspecialchars($access_token, ENT_QUOTES, 'UTF-8'); ?>";
                 console.log('Access Token:', accessToken);
@@ -243,7 +236,7 @@ $project = $stmt->fetch(PDO::FETCH_ASSOC);
             } else {
                 console.log("URN passed successfully:", urn);
             }
-    </script>
+    </script> -->
      <script>  
       var accessToken = "<?php echo $access_token; ?>";
     </script>
@@ -303,7 +296,6 @@ $project = $stmt->fetch(PDO::FETCH_ASSOC);
                 if (files.length > 0) {
                     document.getElementById('uploadModal').style.display = 'block';
                     document.getElementById('file-upload').files = files;
-
                     document.getElementById('commitMessageContainer').style.display = 'block';
                     document.querySelector('#upload-form button[type="submit"]').style.display = 'block';
                     const event = new Event('change');

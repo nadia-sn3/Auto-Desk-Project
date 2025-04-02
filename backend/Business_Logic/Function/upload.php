@@ -1,176 +1,134 @@
 <?php
-require_once("db/connection.php");
-// function createUploadSession($access_token, $bucket_key, $file_name, $total_parts) 
-// {
-//     $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload?minutesExpiration=10&parts=$total_parts";
 
-//     echo "Requesting URL: $url\n"; 
-    
-//     $ch = curl_init();
-//     curl_setopt($ch, CURLOPT_URL, $url);
-//     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-//         "Authorization: Bearer $access_token"
-//     ]);
-    
-//     $response = curl_exec($ch);
-//     $error = curl_error($ch);
-//     curl_close($ch);
-
-//     if ($response === false) {
-//         die('Error: ' . $error);
-//     }
-
-//     $data = json_decode($response, true);
-
-//     if (isset($data['uploadKey']) && isset($data['urls']) && is_array($data['urls']) && !empty($data['urls'])) {
-//         $urls = $data['urls'];
-//         $total_signed_parts = count($urls);
-
-//         echo "Total parts requested: $total_parts\n";
-//         echo "Number of signed URLs provided: $total_signed_parts\n";
-
-//         if ($total_signed_parts != $total_parts) {
-//             die("Error: Number of signed URLs does not match total parts.");
-//         }
-
-//         return $data;
-//     } else {
-//         die("Error: Unable to create upload session or missing signed URLs.");
-//     }
-// }
-    
-function createUploadSession($access_token, $bucket_key, $file_name, $total_parts, $testMode = false)
+function createUploadSession($access_token, $bucket_key, $file_name, $total_parts) 
 {
-    if ($testMode) {
-        return [
-            "uploadKey" => "test-key",
-            "urls" => [
-                "https://mock-url.com/part1",
-                "https://mock-url.com/part2"
-            ]
-        ];
+    $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload?minutesExpiration=10&parts=$total_parts";
+
+    echo "Requesting URL: $url\n"; 
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "Authorization: Bearer $access_token"
+    ]);
+    
+    $response = curl_exec($ch);
+    $error = curl_error($ch);
+    curl_close($ch);
+
+    if ($response === false) {
+        die('Error: ' . $error);
     }
 
-    $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload?minutesExpiration=10&parts=$total_parts";
-    $headers = ["Authorization: Bearer $access_token"];
-    $response = performCurl($url, $headers);
-
+    // echo "<br><br>Raw response: $response\n";
     $data = json_decode($response, true);
-    if (isset($data['uploadKey'], $data['urls']) && count($data['urls']) == $total_parts) {
+
+    if (isset($data['uploadKey']) && isset($data['urls']) && is_array($data['urls']) && !empty($data['urls'])) {
+        $urls = $data['urls'];
+        $total_signed_parts = count($urls);
+
+        echo "Total parts requested: $total_parts\n";
+        echo "Number of signed URLs provided: $total_signed_parts\n";
+
+        if ($total_signed_parts != $total_parts) {
+            die("Error: Number of signed URLs does not match total parts.");
+        }
+
         return $data;
     } else {
-        die("Error creating upload session");
+        die("Error: Unable to create upload session or missing signed URLs.");
     }
 }
-
+    
 
 function uploadFileTobucket($signed_urls, $file_path) {
     
-    $file = fopen($file_path, 'r'); 
-    $part_number = 0;
+    $file = fopen($file_path, 'r'); // Open the file for reading
+    $part_number = 0; // Initialize part number
     $file_size = filesize($file_path);
-    $chunk_size = 1024 * 1024 * 10; 
-    $total_parts = ceil($file_size / $chunk_size); 
+    $chunk_size = 1024 * 1024 * 10; // 10MB per chunk
+    $total_parts = ceil($file_size / $chunk_size); // Calculate total parts
 
+    // Read the file in chunks and upload each chunk
     for ($part_number = 0; $part_number < $total_parts; $part_number++) {
+        // Read the next chunk
         $chunk = fread($file, $chunk_size);
-        $chunk_length = strlen($chunk);
-        $signed_url = $signed_urls[$part_number]; 
+        $chunk_length = strlen($chunk); // Get the length of the chunk
+        $signed_url = $signed_urls[$part_number]; // Get the signed URL for the current part
 
         $headers = [
-            "Content-Type: application/octet-stream",
-            "Content-Length: $chunk_length",
-            "Expect: 100-continue"
+            "Content-Type: application/octet-stream", // MIME type for binary data
+            "Content-Length: $chunk_length", // Set the content length for the chunk
+            "Expect: 100-continue" // Expect the server to acknowledge the request before sending the body
         ];
 
-        $ch = curl_init(); 
+        $ch = curl_init(); // Initialize the cURL session
         curl_setopt_array($ch, [
-            CURLOPT_URL => $signed_url, 
-            CURLOPT_CUSTOMREQUEST => "PUT", 
-            CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_RETURNTRANSFER => true, 
-            CURLOPT_POSTFIELDS => $chunk 
+            CURLOPT_URL => $signed_url, // Set the URL to the signed URL
+            CURLOPT_CUSTOMREQUEST => "PUT", // Use PUT method for uploading
+            CURLOPT_HTTPHEADER => $headers, // Set headers
+            CURLOPT_RETURNTRANSFER => true, // Return the response as a string
+            CURLOPT_POSTFIELDS => $chunk // Send the chunk in the request body
         ]);
 
-        $response = curl_exec($ch);
-        $status_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE); 
+        $response = curl_exec($ch); // Execute the cURL request
+        $status_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE); // Get the HTTP response code
 
+        // Error handling for cURL execution
         if ($response === false) {
             echo 'Curl error:' . curl_error($ch) . '<br>';
-            fclose($file);
-            curl_close($ch); 
+            fclose($file); // Close the file
+            curl_close($ch); // Close the cURL session
             return;
         }
 
+        // Check if the upload was successful (status code 200 means success)
         if ($status_code != 200) {
             echo "Error uploading chunk $part_number. Status code: $status_code\n";
-            curl_close($ch); 
+            curl_close($ch); // Close the cURL session
             return;
         }
 
-        curl_close($ch); 
+        curl_close($ch); // Close the cURL session after successful upload
         echo "Chunk $part_number uploaded successfully\n";
     }
 
-    fclose($file); 
+    fclose($file); // Close the file after the upload is complete
     echo "File uploaded successfully in $total_parts chunks.\n";
 
 }
 
-// function completeUpload($access_token, $bucket_key, $file_name, $upload_key) {
-//     $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload";
-    
-//     $data = json_encode([
-//         "uploadKey" => $upload_key
-//     ]);
-
-//     $ch = curl_init();
-//     curl_setopt($ch, CURLOPT_URL, $url);
-//     curl_setopt($ch, CURLOPT_POST, true);
-//     curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-//     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-//         "Authorization: Bearer $access_token",
-//         "Content-Type: application/json"
-//     ]);
-
-//     $response = curl_exec($ch);
-//     $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-//     curl_close($ch);
-
-//     if ($http_status == 200) {
-//         echo "Upload completed successfully.\n";
-//         return json_decode($response, true);
-//     } else {
-//         die("Error completing upload: HTTP Status $http_status\n Response: $response");
-//     }
-// }
-function completeUpload($access_token, $bucket_key, $file_name, $upload_key, $testMode = false)
-{
-    if ($testMode) {
-        return [
-            "status" => "success",
-            "message" => "Mocked upload complete"
-        ];
-    }
-
+//set_time_limit(int $seconds):bool
+function completeUpload($access_token, $bucket_key, $file_name, $upload_key) {
     $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload";
-    $data = json_encode(["uploadKey" => $upload_key]);
-    $headers = [
+    
+    $data = json_encode([
+        "uploadKey" => $upload_key
+    ]);
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
         "Authorization: Bearer $access_token",
         "Content-Type: application/json"
-    ];
+    ]);
 
-    $response = performPostCurl($url, $headers, $data);
-    $http_status = 200; 
+    $response = curl_exec($ch);
+    $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
 
     if ($http_status == 200) {
+        echo "Upload completed successfully.\n";
         return json_decode($response, true);
     } else {
-        die("Error completing upload");
+        die("Error completing upload: HTTP Status $http_status\n Response: $response");
     }
 }
+
 
 function CheckIfFileExist($fileName, $projectId)
 {
@@ -189,7 +147,12 @@ function AdjustFileVersion($fileName, $projectId, $adjustmentValue = 1)
 {
     global $pdo;
     
-    $sql = "UPDATE Project_File SET latest_version = latest_version + :adjustmentValue WHERE file_name = :file_name AND project_id = :project_id";
+    $sql = 
+    "UPDATE Project_File 
+    SET latest_version = latest_version + :adjustmentValue 
+    WHERE file_name = :file_name 
+    AND project_id = :project_id";
+    
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':adjustmentValue', $adjustmentValue, PDO::PARAM_INT);
     $stmt->bindParam(':file_name', $fileName, PDO::PARAM_STR);
@@ -217,7 +180,7 @@ function InsertBucketFile($fileName, $projectId, $objectId, $objectKey, $entryPo
 {
     global $pdo;
     
-    $sql = "SELECT project_file_id, latest_version FROM Project_File WHERE file_name = :file_name AND project_id = :project_id";
+    $sql = "SELECT project_file_id, MAX(latest_version) as latest_version FROM Project_File WHERE file_name = :file_name AND project_id = :project_id";
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':project_id', $projectId, PDO::PARAM_INT);
     $stmt->bindParam(':file_name', $fileName, PDO::PARAM_STR);
@@ -225,20 +188,40 @@ function InsertBucketFile($fileName, $projectId, $objectId, $objectKey, $entryPo
     
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$result) {
-        return;
+        return; // No matching record found
     }
     
-    $sql = "INSERT INTO Bucket_File(project_file_id, file_version, object_id, object_key, first_added_at_version) VALUES (:project_file_id, :file_version, :object_id, :object_key, :first_added_at_version)";
+    // $sql = "INSERT INTO Bucket_File(project_file_id, file_version, object_id, object_key, first_added_at_version) VALUES (:project_file_id, :file_version, :object_id, :object_key, :first_added_at_version)";
+    // $stmt = $pdo->prepare($sql);
+    // $stmt->bindParam(':project_file_id', $result['project_file_id'], PDO::PARAM_INT);
+    // $stmt->bindParam(':file_version', $result['latest_version'], PDO::PARAM_INT);
+    // $stmt->bindParam(':object_id', $objectId, PDO::PARAM_STR);
+    // $stmt->bindParam(':object_key', $objectKey, PDO::PARAM_STR);
+    // $stmt->bindParam(':first_added_at_version', $entryPoint, PDO::PARAM_INT);
+    // $stmt->execute();  
+    
+    $sql = "INSERT INTO Bucket_File(project_file_id, file_version, object_id, object_key, first_added_at_version) 
+            VALUES (:project_file_id, :file_version, :object_id, :object_key, :first_added_at_version)";
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':project_file_id', $result['project_file_id'], PDO::PARAM_INT);
     $stmt->bindParam(':file_version', $result['latest_version'], PDO::PARAM_INT);
     $stmt->bindParam(':object_id', $objectId, PDO::PARAM_STR);
     $stmt->bindParam(':object_key', $objectKey, PDO::PARAM_STR);
     $stmt->bindParam(':first_added_at_version', $entryPoint, PDO::PARAM_INT);
-    $stmt->execute();   
+    $stmt->execute(); 
+
 }
 
-
-
+function EncodeObjectKey($objectKey) {
+    $encoded="";
+    for ($i = 0; $i < strlen($objectKey); $i++) {
+        if ($objectKey[$i] >= '0' && $objectKey[$i] <= '9') {
+            $encoded .= chr((ord($objectKey[$i])-ord('0')) + ord('a'));
+        } else {
+            $encoded .= $objectKey[$i]; // Keep non-numeric characters as is
+        }
+    }
+    return $encoded;
+}
 
 ?>
