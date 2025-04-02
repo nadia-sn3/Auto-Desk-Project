@@ -570,9 +570,15 @@ $access_token = getAccessToken($client_id, $client_secret);
                                         commitDetails.innerHTML = '';
                                         
                                         if (Array.isArray(data) && data.length > 0) {
-                                            data.forEach((commit, index) => {
+                                            // Sort commits by date (newest first)
+                                            const sortedCommits = [...data].sort((a, b) => 
+                                                new Date(b.commit_date) - new Date(a.commit_date)
+                                            );
+                                            
+                                            sortedCommits.forEach((commit, index) => {
                                                 const versionId = `version-${commit.commit_id}`;
                                                 const hasIssues = commit.issues && commit.issues.length > 0;
+                                                const versionNumber = sortedCommits.length - index; // Correct version numbering
                                                 
                                                 const commitElement = document.createElement('div');
                                                 commitElement.classList.add('project-model-timeline-versions');
@@ -595,7 +601,7 @@ $access_token = getAccessToken($client_id, $client_secret);
                                                         <span class="commit-message">${commit.commit_message}</span>
                                                         <span class="commit-info">
                                                             <span class="username">${commit.username || 'Unknown'}</span>
-                                                            <span class="commit-date">V.${data.length - index}</span>
+                                                            <span class="commit-date">V.${versionNumber}</span>
                                                             <span class="commit-date">${new Date(commit.commit_date).toLocaleDateString()}</span>
                                                         </span>
                                                         <button class="rollback-btn" onclick="showRollbackModal(${commit.commit_id}, ${project_id})">Rollback</button>
