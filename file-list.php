@@ -59,6 +59,7 @@ $access_token = getAccessToken($client_id, $client_secret);
         <link rel="stylesheet" href="style/base.css">
         <link rel="stylesheet" href="style/viewproject.css">
         <link rel="stylesheet" href="style/upload-button.css">
+        <link rel="stylesheet" href="style/version+issues.css">
         <link href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.css" rel="stylesheet">
         <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
         <script>
@@ -156,10 +157,11 @@ $access_token = getAccessToken($client_id, $client_secret);
                     <div class="project-model-timeline">
                         <div class="project-model-timeline-header">
                             <h3>Model Timeline</h3>
-                            <div class="filter-container">
-                                <input type="date" id="filterDate" name="filterDate">
-                                <button id="filterBeforeBtn" class="btn">Before</button>
-                                <button id="filterAfterBtn" class="btn">After</button>
+                            <div class="report-filters">
+                                <button class="btn active" data-status="all">All Issues</button>
+                                <button class="btn" data-status="open">Open</button>
+                                <button class="btn" data-status="in_progress">In Progress</button>
+                                <button class="btn" data-status="resolved">Resolved</button>
                             </div>
                         </div>
 
@@ -177,12 +179,28 @@ $access_token = getAccessToken($client_id, $client_secret);
                             </div>
                         </div>
 
-                        <div class="issues-dropdown" style="display:none;">
-                            <button class="issues-dropdown-btn">View Raised Issues</button>
-                            <div class="issues-dropdown-content"></div>
+                        <div class="versions-list" id="commitDetails">
+                            <!-- Commits will be dynamically inserted here -->
                         </div>
+                    </div>
+                </div>
 
-                        <div id="commitDetails"></div>
+                <div id="issueModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2>Raise New Issue</h2>
+                        <form id="issueForm">
+                            <input type="hidden" id="versionId">
+                            <div class="form-group">
+                                <label for="issueFile">File:</label>
+                                <input type="text" id="issueFile" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="issueDescription">Issue Description:</label>
+                                <textarea id="issueDescription" required></textarea>
+                            </div>
+                            <button type="submit" class="submit-btn">Submit Issue</button>
+                        </form>
                     </div>
                 </div>
                     <?php else: ?>
@@ -242,7 +260,10 @@ $access_token = getAccessToken($client_id, $client_secret);
                     <script src="backend/Business_Logic/js/main.js"></script>
                     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
                     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-                    <!-- <script src="js/share.js"></script> -->
+
+
+                    <!-- <script src="js/share.js"></script> NEEDS IMPLEMENTING -->
+                     
                     <script>
                         document.getElementById('menuBtn').addEventListener('click', function() {
                                 const sidebar = document.getElementById('sidebar');
@@ -358,83 +379,275 @@ $access_token = getAccessToken($client_id, $client_secret);
                     </script>
 
                     <script>
-                        const project_id = <?php echo json_encode($project_id); ?>;  
-                        window.onload = function() {
+                        document.addEventListener('DOMContentLoaded', function() {
+                            // Initialize the project ID
+                            const project_id = <?php echo json_encode($project_id); ?>;;
+                            
+                            // Show commits when page loads
                             if (project_id) {
-                                showCommitMessages(project_id); 
+                                showCommitMessages(project_id);
                             } else {
                                 console.error('Project ID is missing');
                             }
-                        }
-                    </script>
 
-                    <script>
-                        function showCommitMessages(project_id) {
-                            fetch(`/Auto-desk-project/backend/Business_Logic/Function/Get_All_Commits.php?project_id=${project_id}`)
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.error) {
-                                        alert(data.error);
+                            // Toggle issues dropdown
+                            document.addEventListener('click', function(e) {
+                                if (e.target.classList.contains('version-warning-indicator')) {
+                                    e.stopPropagation();
+                                    const dropdownId = e.target.getAttribute('data-issues');
+                                    const dropdown = document.getElementById(dropdownId);
+                                    
+                                    // Close all other dropdowns
+                                    document.querySelectorAll('.issues-dropdown-content').forEach(d => {
+                                        if (d.id !== dropdownId) d.style.display = 'none';
+                                    });
+                                    
+                                    // Toggle current dropdown
+                                    if (dropdown.style.display === 'block') {
+                                        dropdown.style.display = 'none';
+                                    } else {
+                                        dropdown.style.display = 'block';
+                                    }
+                                } else {
+                                    document.querySelectorAll('.issues-dropdown-content').forEach(d => {
+                                        d.style.display = 'none';
+                                    });
+                                }
+                            });
+                            
+                            // Filter buttons
+                            document.querySelectorAll('.report-filters .btn').forEach(btn => {
+                                btn.addEventListener('click', function() {
+                                    const status = this.getAttribute('data-status');
+                                    
+                                    document.querySelectorAll('.report-filters .btn').forEach(b => {
+                                        b.classList.remove('active');
+                                    });
+                                    this.classList.add('active');
+                                    
+                                    document.querySelectorAll('.issues-dropdown-content tr').forEach(row => {
+                                        if (status === 'all') {
+                                            row.style.display = '';
+                                        } else if (row.classList.contains(status)) {
+                                            row.style.display = '';
+                                        } else {
+                                            row.style.display = 'none';
+                                        }
+                                    });
+                                });
+                            });
+                            
+                            // Issue status change buttons
+                            document.addEventListener('click', function(e) {
+                                if (e.target.classList.contains('change-status')) {
+                                    const issueId = e.target.getAttribute('data-issue');
+                                    const newStatus = e.target.getAttribute('data-status');
+                                    
+                                    console.log(`Changing issue ${issueId} to status ${newStatus}`);
+                                    
+                                    const row = e.target.closest('tr');
+                                    row.className = newStatus;
+                                    
+                                    const badge = row.querySelector('.status-badge');
+                                    badge.className = 'status-badge';
+                                    badge.textContent = newStatus.replace('_', ' ');
+                                    
+                                    if (newStatus === 'open') {
+                                        badge.classList.add('pending');
+                                    } else if (newStatus === 'in_progress') {
+                                        badge.classList.add('in-progress');
+                                    } else if (newStatus === 'resolved') {
+                                        badge.classList.add('resolved');
+                                    }
+                                    
+                                    if (newStatus === 'open') {
+                                        e.target.textContent = 'Mark In Progress';
+                                        e.target.setAttribute('data-status', 'in_progress');
+                                    } else if (newStatus === 'in_progress') {
+                                        e.target.textContent = 'Mark Resolved';
+                                        e.target.setAttribute('data-status', 'resolved');
+                                    } else if (newStatus === 'resolved') {
+                                        e.target.textContent = 'Reopen';
+                                        e.target.setAttribute('data-status', 'open');
+                                    }
+                                }
+                            });
+                            
+                            // Modal handling
+                            const issueModal = document.getElementById("issueModal");
+                            const raiseIssueBtns = document.querySelectorAll(".raise-issue-btn");
+                            const closeBtns = document.querySelectorAll(".close");
+                            const issueForm = document.getElementById("issueForm");
+                            const versionIdInput = document.getElementById("versionId");
+                            
+                            document.addEventListener('click', function(e) {
+                                if (e.target.classList.contains('raise-issue-btn')) {
+                                    e.stopPropagation();
+                                    versionIdInput.value = e.target.getAttribute('data-version');
+                                    issueModal.style.display = "block";
+                                }
+                                
+                                if (e.target.classList.contains('close')) {
+                                    issueModal.style.display = "none";
+                                }
+                                
+                                if (e.target === issueModal) {
+                                    issueModal.style.display = "none";
+                                }
+                            });
+                            
+                            issueForm.addEventListener("submit", function(e) {
+                                e.preventDefault();
+                                const versionId = versionIdInput.value;
+                                const file = document.getElementById("issueFile").value;
+                                const description = document.getElementById("issueDescription").value;
+                                
+                                console.log(`New issue for version ${versionId}: ${file} - ${description}`);
+                                
+                                alert("Issue submitted successfully!");
+                                issueModal.style.display = "none";
+                                issueForm.reset();
+                            });
+                            
+                            // Rollback functionality
+                            window.showRollbackModal = function(commit_id, project_id) {
+                                const rollbackModal = document.getElementById("rollbackModal");
+                                const rollbackForm = document.getElementById("rollbackForm");
+                                
+                                rollbackModal.style.display = "block";
+                                
+                                rollbackForm.onsubmit = function(e) {
+                                    e.preventDefault();
+                                    const comment = document.getElementById("rollbackComment").value;
+                                    
+                                    if (!commit_id || !project_id) {
+                                        console.error('Invalid commit_id or project_id');
+                                        alert('Invalid commit or project ID.');
                                         return;
                                     }
+                                    
+                                    const url = `/Backend/Auto-desk-project/backend/Business_Logic/Function/Rollback.php?commit_id=${commit_id}&project_id=${project_id}`;
+                                    console.log("Rollback URL:", url);
 
-                                    const commitDetails = document.getElementById('commitDetails');
-                                    commitDetails.innerHTML = '';  
-                                    if (Array.isArray(data) && data.length > 0) {
-                                        data.forEach(commit => {
-                                        const commitElement = document.createElement('div');
-                                        commitElement.classList.add('timeline-version');
-                                        commitElement.innerHTML = `
-                                            <span class="commit-message">Changes to models: ${commit.commit_message}</span>
-                                            <span class="commit-info">
-                                                <span class="commit-date">${new Date(commit.commit_date).toLocaleDateString()}</span>
-                                            </span>
-                                            <button class="rollback-btn" onclick="showRollbackModal(${commit.commit_id}, ${project_id})">Rollback</button>
-                                        `;
-                                        commitDetails.appendChild(commitElement);
-                                    });
-                                    } else {
-                                        commitDetails.innerHTML = '<p>No commits found for this project.</p>';
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error fetching commits:', error);
-                                    alert('An error occurred while fetching commits.');
-                                });
-                                }
+                                    fetch(url)
+                                        .then(response => {
+                                            console.log('Network response:', response);
+                                            if (!response.ok) {
+                                                alert('Network response was not ok');
+                                                return;
+                                            }
+                                            return response.json();  
+                                        })
+                                        .then(data => {  
+                                            console.log('Parsed Data:', data);
 
-                        function showRollbackModal(commit_id, project_id) {
-                        if (!commit_id || !project_id) {
-                            console.error('Invalid commit_id or project_id');
-                            alert('Invalid commit or project ID.');
-                            return;
-                        }
-                        const url = `/Backend/Auto-desk-project/backend/Business_Logic/Function/Rollback.php?commit_id=${commit_id}&project_id=${project_id}`;
-                        console.log("Rollback URL:", url);
+                                            if (data.status === 'success') {
+                                                alert('Rollback successful!');
+                                                rollbackModal.style.display = "none";
+                                                showCommitMessages(project_id); // Refresh the commit list
+                                            } else {
+                                                alert('Rollback failed: ' + (data.error || 'Unknown error.'));
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.error('Error:', error);
+                                            alert('An error occurred while rolling back the commit.');
+                                        });
+                                };
+                            }
+                            
+                            // Function to show commit messages with the new UI I made
+                            function showCommitMessages(project_id) {
+                                fetch(`/Auto-desk-project/backend/Business_Logic/Function/Get_All_Commits.php?project_id=${project_id}`)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.error) {
+                                            alert(data.error);
+                                            return;
+                                        }
 
-                        fetch(url)
-                            .then(response => {
-                                console.log('Network response:', response);
-                                if (!response.ok) {
-                                    alert('Network response was not ok');
-                                    return;
-                                }
-                                return response.json();  
-                            })
-                            .then(data => {  
-                                console.log('Parsed Data:', data);
-
-                                if (data.status === 'success') {
-                                    alert('Rollback successful!');
-                                } else {
-                                    alert('Rollback failed: ' + (data.error || 'Unknown error.'));
-                                }
-                            })
+                                        const commitDetails = document.getElementById('commitDetails');
+                                        commitDetails.innerHTML = '';
+                                        
+                                        if (Array.isArray(data) && data.length > 0) {
+                                            data.forEach((commit, index) => {
+                                                const versionId = `version-${commit.commit_id}`;
+                                                const hasIssues = commit.issues && commit.issues.length > 0;
+                                                
+                                                const commitElement = document.createElement('div');
+                                                commitElement.classList.add('project-model-timeline-versions');
+                                                
+                                                commitElement.innerHTML = `
+                                                    <div class="timeline-version">
+                                                        ${hasIssues ? 
+                                                            `<div class="version-warning-indicator" data-issues="${versionId}">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ff6b6b" width="18px" height="18px">
+                                                                    <path d="M12 2L1 21h22L12 2zm0 3.5L18.5 19h-13L12 5.5z"/>
+                                                                    <path d="M12 16c.8 0 1.5-.7 1.5-1.5S12.8 13 12 13s-1.5.7-1.5 1.5.7 1.5 1.5 1.5zm-1-5h2v-4h-2v4z"/>
+                                                                </svg>
+                                                            </div>` : 
+                                                            `<div class="version-no-issues">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#4CAF50" width="18px" height="18px">
+                                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                                                </svg>
+                                                            </div>`
+                                                        }
+                                                        <span class="commit-message">${commit.commit_message}</span>
+                                                        <span class="commit-info">
+                                                            <span class="username">${commit.username || 'Unknown'}</span>
+                                                            <span class="commit-date">V.${data.length - index}</span>
+                                                            <span class="commit-date">${new Date(commit.commit_date).toLocaleDateString()}</span>
+                                                        </span>
+                                                        <button class="rollback-btn" onclick="showRollbackModal(${commit.commit_id}, ${project_id})">Rollback</button>
+                                                        <button class="raise-issue-btn" data-version="v${commit.commit_id}">Raise Issue</button>
+                                                    </div>
+                                                    
+                                                    ${hasIssues ? `
+                                                    <div class="issues-dropdown-content" id="${versionId}">
+                                                        <table>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>File</th>
+                                                                    <th>Description</th>
+                                                                    <th>Status</th>
+                                                                    <th>Raised By</th>
+                                                                    <th>Date</th>
+                                                                    <th>Actions</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                ${commit.issues.map(issue => `
+                                                                <tr class="${issue.status}">
+                                                                    <td>${issue.file}</td>
+                                                                    <td>${issue.description}</td>
+                                                                    <td><span class="status-badge ${issue.status}">${issue.status.replace('_', ' ')}</span></td>
+                                                                    <td>${issue.raised_by}</td>
+                                                                    <td>${new Date(issue.date).toLocaleDateString()}</td>
+                                                                    <td class="actions">
+                                                                        <button class="btn small change-status" data-issue="i${issue.id}" data-status="${issue.status === 'open' ? 'in_progress' : issue.status === 'in_progress' ? 'resolved' : 'open'}">
+                                                                            ${issue.status === 'open' ? 'Mark In Progress' : issue.status === 'in_progress' ? 'Mark Resolved' : 'Reopen'}
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                                `).join('')}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    ` : ''}
+                                                `;
+                                                
+                                                commitDetails.appendChild(commitElement);
+                                            });
+                                        } else {
+                                            commitDetails.innerHTML = '<p>No commits found for this project.</p>';
+                                        }
+                                    })
                                     .catch(error => {
-                                        console.error('Error:', error);
-                                        alert('An error occurred while rolling back the commit.');
-                            })
-                        }
+                                        console.error('Error fetching commits:', error);
+                                        alert('An error occurred while fetching commits.');
+                                    });
+                            }
+                        });
                     </script>
                     <script src="js/issues-dropdown.js"></script>
                     <script src="js/file-list-dropdown.js"></script>
