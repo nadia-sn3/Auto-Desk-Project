@@ -192,7 +192,7 @@ function GetAllProjectFiles2($projectId)
     $committedFileList = $stmt->fetchAll(PDO::FETCH_ASSOC);
     if (empty($committedFileList)) return [];
     
-    $sql = 'SELECT pf.project_file_id, pf.file_name, bf.object_id FROM Bucket_File bf JOIN Project_File pf ON pf.project_file_id = bf.project_file_id WHERE bf.bucket_file_id = :bucket_file_id';
+    $sql = 'SELECT pf.project_file_id, pf.file_name, bf.object_id, bf.object_key FROM Bucket_File bf JOIN Project_File pf ON pf.project_file_id = bf.project_file_id WHERE bf.bucket_file_id = :bucket_file_id';
     $stmt = $pdo->prepare($sql);
     $bucketFileList = [];
     
@@ -207,7 +207,6 @@ function GetAllProjectFiles2($projectId)
     
     return $bucketFileList;
 }
-
 
 
 

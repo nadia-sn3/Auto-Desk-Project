@@ -39,9 +39,9 @@ function DeleteObject($accessToken, $bucketKey, $objectKey)
     // echo 'Response Code: '.$http_code;
     // echo '<br> <br>';
     // echo 'Response received: ';
-    // echo '<br> <br>';
-    // var_dump($response);
-    // echo '<br> <br>';
+     echo '<br> <br>';
+     var_dump($response);
+    echo '<br> <br>';
 }
 
 function DeleteTableData($tableName)

@@ -4,9 +4,9 @@ include("config.php");
 include("getAccessToken.php");
 //include("Download_Functions.php");
 
-function ObtainSignedURL($accessToken, $bucketKey, $objectKey)
+function ObtainSignedURL($accessToken, $bucket_key, $fileNameSaveAs)
 {
-    $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucketKey/objects/$objectKey/signeds3download";
+    $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$fileNameSaveAs/signeds3download";
 
     $headers = [
         "Authorization: Bearer $accessToken"
@@ -97,17 +97,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $accessToken = getAccessToken($client_id, $client_secret);
 
     $objectkey = $_GET['objectKey'];
-
+    $fileNameSaveAs = $_GET['fileName'];
     echo "<br> <br>";
     echo "ho";   
     echo "<br> <br>";
 
-    $signedUrl = ObtainSignedURL($accessToken, $bucket_key, $objectkey);
+    $signedUrl = ObtainSignedURL($accessToken, $bucket_key, $fileNameSaveAs);
 
 
     $downloadURL = $signedUrl["url"];
 
-    $fileNameSaveAs = $_GET['fileName'];
+   
 
     $path_to_save = "..\\..\\Business_Logic\\Uploaded_Process\\uploads";
 

@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $entryPoint = GetProjectVersion($project_id) + 1;
     
     $access_token = getAccessToken($client_id, $client_secret);
-    
+        
 
     $URL_LifeTime = 10; 
     $chunk_size = 10 * 1024 * 1024; 

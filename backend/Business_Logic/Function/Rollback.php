@@ -103,7 +103,11 @@ function DeleteExcessiveFiles($projectId, $accessToken, $bucketKey)
         while ($row = $stmt_4->fetch(PDO::FETCH_ASSOC)) {
             $projectFileId = $row['project_file_id'];
             $stmt_5->bindParam(':project_file_id', $projectFileId, PDO::PARAM_INT);
-            $result_5[] = $stmt_5->execute()->fetch(PDO::FETCH_ASSOC);
+            if ($stmt_5->execute()) {
+                $result_5[] = $stmt_5->fetch(PDO::FETCH_ASSOC);
+            } else {
+                error_log("Error executing query for project_file_id: $projectFileId");
+            }
         }
 
         $sql_6 = 'UPDATE Project_File SET latest_version = :latest_version WHERE project_file_id = :project_file_id';

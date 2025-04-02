@@ -8,6 +8,7 @@ var options = {
 };
 
 Autodesk.Viewing.Initializer(options, () => {
+    // Check if the viewer is already initialized
     if (!viewer) {
         viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById("forgeViewer"));
         viewer.start();
@@ -84,6 +85,8 @@ Autodesk.Viewing.Initializer(options, () => {
 
                 console.log('Image saved and accessible at:', filePath);
             } 
+
+            
             // Check for PDF, DOCX, or DOC files
             else if (fileType === 'pdf' || fileType === 'docx' || fileType === 'doc') {
                 const forgeViewer = document.getElementById('forgeViewer');
@@ -160,7 +163,7 @@ Autodesk.Viewing.Initializer(options, () => {
     
     // Fetch the .docx file
     fetch(docxPath)
-        .then(response => response.arrayBuffer())  // Fetch the file as an array buffer
+        .then(response => response.arrayBuffer())  // Fetch the file as an array
         .then(arrayBuffer => {
             console.log('Word document loaded');
 
@@ -338,7 +341,7 @@ async function checkTranslationStatus(urn) {
             // Check if the progress is complete
             if (result.progress === 'complete') {
                 console.log('Translation completed successfully.');
-                // Now that translation is complete, load the model
+               
                 loadModel(urn); // Call loadModel with the urn
             } else {
                 console.log('Translation is still in progress...');
@@ -392,3 +395,4 @@ function onDocumentLoadFailure(errorCode) {
             break;
     }
 }
+

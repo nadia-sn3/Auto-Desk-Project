@@ -212,16 +212,16 @@ function InsertBucketFile($fileName, $projectId, $objectId, $objectKey, $entryPo
 
 }
 
-function EncodeObjectKey($objectKey) {
-    $encoded="";
-    for ($i = 0; $i < strlen($objectKey); $i++) {
-        if ($objectKey[$i] >= '0' && $objectKey[$i] <= '9') {
-            $encoded .= chr((ord($objectKey[$i])-ord('0')) + ord('a'));
-        } else {
-            $encoded .= $objectKey[$i]; // Keep non-numeric characters as is
-        }
-    }
-    return $encoded;
-}
+// function EncodeObjectKey($objectKey) {
+//     $encoded="";
+//     for ($i = 0; $i < strlen($objectKey); $i++) {
+//         if ($objectKey[$i] >= '0' && $objectKey[$i] <= '9') {
+//             $encoded .= chr((ord($objectKey[$i])-ord('0')) + ord('a'));
+//         } else {
+//             $encoded .= $objectKey[$i]; // Keep non-numeric characters as is
+//         }
+//     }
+//     return $encoded;
+// }
 
 ?>

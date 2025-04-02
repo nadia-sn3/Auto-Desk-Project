@@ -21,6 +21,14 @@ try {
         $project = $stmt->fetch(PDO::FETCH_ASSOC);
         $files = GetAllProjectFiles2($project_id);
         $pdo = null;
+
+         // Check if object key is present
+    $object_key = $_GET['object_key'] ?? null;
+
+    // Output the list of files for debugging
+    echo "<pre>";
+    print_r($files);
+    echo "</pre>";
     } catch (Exception $e) {
         echo "Error: " . $e->getMessage();
     }
@@ -108,7 +116,7 @@ $access_token = getAccessToken($client_id, $client_secret);
                                         data-file-name="<?= urlencode($file['file_name']) ?>" 
                                         data-file-type="<?= pathinfo($file['file_name'], PATHINFO_EXTENSION) ?>" 
                                         data-urn="<?= htmlspecialchars($file['object_id']) ?>" 
-                                        data-object-key="<?= isset($file['object_key']) ? htmlspecialchars($file['object_key']) : '' ?>" onclick="showFileDetails(event)">
+                                        data-object-key="<?= htmlspecialchars($file['object_key']) ?>" onclick="showFileDetails(event)">
                                         
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
