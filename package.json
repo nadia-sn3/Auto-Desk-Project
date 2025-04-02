@@ -1,0 +1,27 @@
+{
+  "name": "auto-desk-project",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nadia-sn3/Auto-Desk-Project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nadia-sn3/Auto-Desk-Project/issues"
+  },
+  "homepage": "https://github.com/nadia-sn3/Auto-Desk-Project#readme",
+  "description": "",
+  "devDependencies": {
+    "@playwright/test": "^1.51.1",
+    "playwright": "^1.51.1"
+  }
+}

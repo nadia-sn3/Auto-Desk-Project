@@ -1,45 +1,69 @@
 <?php
 require_once("db/connection.php");
-function createUploadSession($access_token, $bucket_key, $file_name, $total_parts) 
+// function createUploadSession($access_token, $bucket_key, $file_name, $total_parts) 
+// {
+//     $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload?minutesExpiration=10&parts=$total_parts";
+
+//     echo "Requesting URL: $url\n"; 
+    
+//     $ch = curl_init();
+//     curl_setopt($ch, CURLOPT_URL, $url);
+//     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+//     curl_setopt($ch, CURLOPT_HTTPHEADER, [
+//         "Authorization: Bearer $access_token"
+//     ]);
+    
+//     $response = curl_exec($ch);
+//     $error = curl_error($ch);
+//     curl_close($ch);
+
+//     if ($response === false) {
+//         die('Error: ' . $error);
+//     }
+
+//     $data = json_decode($response, true);
+
+//     if (isset($data['uploadKey']) && isset($data['urls']) && is_array($data['urls']) && !empty($data['urls'])) {
+//         $urls = $data['urls'];
+//         $total_signed_parts = count($urls);
+
+//         echo "Total parts requested: $total_parts\n";
+//         echo "Number of signed URLs provided: $total_signed_parts\n";
+
+//         if ($total_signed_parts != $total_parts) {
+//             die("Error: Number of signed URLs does not match total parts.");
+//         }
+
+//         return $data;
+//     } else {
+//         die("Error: Unable to create upload session or missing signed URLs.");
+//     }
+// }
+    
+function createUploadSession($access_token, $bucket_key, $file_name, $total_parts, $testMode = false)
 {
-    $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload?minutesExpiration=10&parts=$total_parts";
-
-    echo "Requesting URL: $url\n"; 
-    
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        "Authorization: Bearer $access_token"
-    ]);
-    
-    $response = curl_exec($ch);
-    $error = curl_error($ch);
-    curl_close($ch);
-
-    if ($response === false) {
-        die('Error: ' . $error);
+    if ($testMode) {
+        return [
+            "uploadKey" => "test-key",
+            "urls" => [
+                "https://mock-url.com/part1",
+                "https://mock-url.com/part2"
+            ]
+        ];
     }
+
+    $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload?minutesExpiration=10&parts=$total_parts";
+    $headers = ["Authorization: Bearer $access_token"];
+    $response = performCurl($url, $headers);
 
     $data = json_decode($response, true);
-
-    if (isset($data['uploadKey']) && isset($data['urls']) && is_array($data['urls']) && !empty($data['urls'])) {
-        $urls = $data['urls'];
-        $total_signed_parts = count($urls);
-
-        echo "Total parts requested: $total_parts\n";
-        echo "Number of signed URLs provided: $total_signed_parts\n";
-
-        if ($total_signed_parts != $total_parts) {
-            die("Error: Number of signed URLs does not match total parts.");
-        }
-
+    if (isset($data['uploadKey'], $data['urls']) && count($data['urls']) == $total_parts) {
         return $data;
     } else {
-        die("Error: Unable to create upload session or missing signed URLs.");
+        die("Error creating upload session");
     }
 }
-    
+
 
 function uploadFileTobucket($signed_urls, $file_path) {
     
@@ -94,35 +118,59 @@ function uploadFileTobucket($signed_urls, $file_path) {
 
 }
 
-function completeUpload($access_token, $bucket_key, $file_name, $upload_key) {
-    $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload";
+// function completeUpload($access_token, $bucket_key, $file_name, $upload_key) {
+//     $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload";
     
-    $data = json_encode([
-        "uploadKey" => $upload_key
-    ]);
+//     $data = json_encode([
+//         "uploadKey" => $upload_key
+//     ]);
 
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+//     $ch = curl_init();
+//     curl_setopt($ch, CURLOPT_URL, $url);
+//     curl_setopt($ch, CURLOPT_POST, true);
+//     curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+//     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+//     curl_setopt($ch, CURLOPT_HTTPHEADER, [
+//         "Authorization: Bearer $access_token",
+//         "Content-Type: application/json"
+//     ]);
+
+//     $response = curl_exec($ch);
+//     $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+//     curl_close($ch);
+
+//     if ($http_status == 200) {
+//         echo "Upload completed successfully.\n";
+//         return json_decode($response, true);
+//     } else {
+//         die("Error completing upload: HTTP Status $http_status\n Response: $response");
+//     }
+// }
+function completeUpload($access_token, $bucket_key, $file_name, $upload_key, $testMode = false)
+{
+    if ($testMode) {
+        return [
+            "status" => "success",
+            "message" => "Mocked upload complete"
+        ];
+    }
+
+    $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload";
+    $data = json_encode(["uploadKey" => $upload_key]);
+    $headers = [
         "Authorization: Bearer $access_token",
         "Content-Type: application/json"
-    ]);
+    ];
 
-    $response = curl_exec($ch);
-    $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+    $response = performPostCurl($url, $headers, $data);
+    $http_status = 200; 
 
     if ($http_status == 200) {
-        echo "Upload completed successfully.\n";
         return json_decode($response, true);
     } else {
-        die("Error completing upload: HTTP Status $http_status\n Response: $response");
+        die("Error completing upload");
     }
 }
-
 
 function CheckIfFileExist($fileName, $projectId)
 {
