@@ -1,10 +1,15 @@
 <?php
 
+
+// Function to URL-safe Base64 encode and remove padding (RFC 6920)
 function base64UrlEncodeUnpadded($data) {
+    // Base64 encode the data
     $base64 = base64_encode($data);
     
+    // Replace characters to make it URL-safe
     $urlSafeBase64 = strtr($base64, '+/', '-_');
 
+    // Remove the padding (=)
     return rtrim($urlSafeBase64, '=');
 }
 
@@ -12,12 +17,12 @@ function base64UrlEncodeUnpadded($data) {
 // function StartTranslationJob($access_token, $urn)
 // {
 //     $url = "https://developer.api.autodesk.com/modelderivative/v2/designdata/job";
-
+//
 //     $header = [
 //         "Authorization: Bearer $access_token",
 //         "Content-Type: application/json"
 //     ];
-    
+//  
 //     $data = json_encode([
 //         "input" => [
 //             "urn" => $urn
@@ -34,13 +39,13 @@ function base64UrlEncodeUnpadded($data) {
 //             ]
 //         ]
 //     ]);
-
+//
 //     echo '<br> <br>';
 //     print_r($data);
 //     echo '<br> <br>';    
-
+//
 //     $ch = curl_init();
-
+//
 //     curl_setopt_array($ch, [
 //         CURLOPT_URL => $url,
 //         CURLOPT_CUSTOMREQUEST => "POST",
@@ -48,12 +53,12 @@ function base64UrlEncodeUnpadded($data) {
 //         CURLOPT_RETURNTRANSFER => true,
 //         CURLOPT_HTTPHEADER => $header
 //     ]);
-
+//
 //     $response = curl_exec($ch);
 //     $status_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-
+//
 //     curl_close($ch);
-
+//
 //     if($response == false)
 //     {
 //         echo 'Curl error:' . curl_error($ch) . '<br>' ;
@@ -62,9 +67,7 @@ function base64UrlEncodeUnpadded($data) {
 //         echo '<br> <br>';
 //         exit;
 //     }
-    
- 
-    
+// 
 //     if($status_code != 200 && $status_code != 201)
 //     {
 //         echo 'Autodesk error: <br>' 
@@ -75,7 +78,7 @@ function base64UrlEncodeUnpadded($data) {
 //         echo '<br> <br>';
 //         exit;
 //     }
-
+//
 //     return $response;
 // }
 
@@ -123,6 +126,60 @@ function StartTranslationJob($access_token, $urn)
         echo json_encode(['error' => 'Curl error: ' . curl_error($ch), 'status_code' => $status_code]);
         exit;
     }
+    
+    $responseData = json_decode($response, true);
+    curl_close($ch);
+
+    if ($status_code !== 200 && $status_code !== 201) {
+        echo json_encode(['error' => 'Autodesk error', 'status_code' => $status_code, 'response' => $responseData]);
+        exit;
+    }
+
+    // Decode the response JSON to check if there are additional details
+    
+    // Return the response in JSON format (no extra output)
+    return $response;
+}
+
+function StartTranslationJob_Thumbnail($access_token, $urn)
+{
+    $url = "https://developer.api.autodesk.com/modelderivative/v2/designdata/job";
+    
+    $header = [
+        "Authorization: Bearer $access_token",
+        "Content-Type: application/json"
+    ];
+    
+    $data = json_encode([
+        "input" => [
+            "urn" => $urn
+        ],
+        "output" => [
+            "formats" => [
+                [
+                    "type" => "thumbnail"
+                ]
+            ]
+        ]
+    ]);
+
+    $ch = curl_init();
+
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $url,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_POSTFIELDS => $data,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => $header
+    ]);
+
+    $response = curl_exec($ch);
+    $status_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+
+    if ($response === false) {
+        echo json_encode(['error' => 'Curl error: ' . curl_error($ch), 'status_code' => $status_code]);
+        exit;
+    }
 
     curl_close($ch);
 
@@ -131,13 +188,12 @@ function StartTranslationJob($access_token, $urn)
         exit;
     }
 
+    // Decode the response JSON to check if there are additional details
     $responseData = json_decode($response, true);
     
-    echo json_encode($responseData);
-    exit;
+    // Return the response in JSON format (no extra output)
+    return $responseData;
 }
-
-
 
 
 function CheckJobStatus($accessToken, $urn)
@@ -186,6 +242,7 @@ function CheckJobStatus($accessToken, $urn)
 
     return $response;
 }
+
 
 
 

@@ -1,9 +1,10 @@
 <?php
 if (isset($_GET['file'])) {
     $file = $_GET['file'];
-    $file_path = 'backend/Uploaded_Process/uploads/' . $file;
+    $file_path = '..\\..\\Business_Logic\\Uploaded_Process\\uploads\\' . $file;
 
     if (file_exists($file_path)) {
+        // Set headers to force download
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename="' . basename($file_path) . '"');
@@ -11,6 +12,7 @@ if (isset($_GET['file'])) {
         header('Cache-Control: must-revalidate');
         header('Pragma: public');
         header('Content-Length: ' . filesize($file_path));
+
         readfile($file_path);
         exit;
     } else {
