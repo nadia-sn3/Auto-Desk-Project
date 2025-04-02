@@ -9,52 +9,40 @@ if (!$user_id) {
     exit;
 }
 
-
 $filter_type = $_GET['filter'] ?? 'creation-date';
 $search_query = $_GET['search'] ?? '';
 
-$created_query = "SELECT * FROM Project WHERE created_by = :user_id";
-$member_query = "SELECT p.* FROM Project p JOIN project_members pm ON p.project_id = pm.project_id WHERE pm.user_id = :user_id AND p.created_by != :user_id";
+$query = "SELECT DISTINCT p.* FROM Project p 
+          LEFT JOIN project_members pm ON p.project_id = pm.project_id 
+          WHERE p.created_by = :user_id OR pm.user_id = :user_id";
 
 if (!empty($search_query)) {
     $search_term = "%$search_query%";
-    $created_query .= " AND (project_name LIKE :search OR description LIKE :search)";
-    $member_query .= " AND (p.project_name LIKE :search OR p.description LIKE :search)";
+    $query .= " AND (p.project_name LIKE :search OR p.description LIKE :search)";
 }
 
 switch ($filter_type) {
     case 'last-modified':
-        $order_by = "ORDER BY project_id DESC"; 
+        $order_by = "ORDER BY p.project_id DESC"; 
         break;
     case 'alphabetical':
-        $order_by = "ORDER BY project_name ASC";
+        $order_by = "ORDER BY p.project_name ASC";
         break;
     case 'creation-date':
     default:
-        $order_by = "ORDER BY project_id DESC";
+        $order_by = "ORDER BY p.project_id DESC";
         break;
 }
 
-$created_query .= " $order_by";
-$member_query .= " $order_by";
+$query .= " $order_by";
 
-$stmt = $pdo->prepare($created_query);
+$stmt = $pdo->prepare($query);
 $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 if (!empty($search_query)) {
     $stmt->bindParam(':search', $search_term, PDO::PARAM_STR);
 }
 $stmt->execute();
-$created_projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$stmt = $pdo->prepare($member_query);
-$stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-if (!empty($search_query)) {
-    $stmt->bindParam(':search', $search_term, PDO::PARAM_STR);
-}
-$stmt->execute();
-$member_projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$projects = array_merge($created_projects, $member_projects);
+$projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
