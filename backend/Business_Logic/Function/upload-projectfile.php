@@ -46,32 +46,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $newlyAddFiles[] = $fileFullName;
                 InsertProjectFile($fileFullName, $fileType, $project_id, $entryPoint);
-                $latestVersion = 1; // New file
+                $latestVersion = 1; 
             }
 
-             $objectKey = $fileFullName;
+            $objectKeyForUpload = $fileFullName;
+
+            $objectKeyForVersionControl = $project_id . '_' . $fileName . '_V' . $latestVersion;
 
             $file_size = filesize($fileTmpName);
             $total_parts = ceil($file_size / $chunk_size);
 
-            $signedURL = createUploadSession($access_token, $bucket_key, $objectKey, $total_parts);
+            $signedURL = createUploadSession($access_token, $bucket_key, $objectKeyForUpload, $total_parts);
             $uploadKey = $signedURL["uploadKey"];
             $signedURLs = $signedURL["urls"];
 
             uploadFileToBucket($signedURLs, $fileTmpName, $chunk_size);
 
-            $finalizeResult = completeUpload($access_token, $bucket_key, $objectKey, $uploadKey);
+            
+            $finalizeResult = completeUpload($access_token, $bucket_key, $objectKeyForUpload, $uploadKey);
 
             if (isset($finalizeResult['objectId'])) {
                 $objectId = $finalizeResult['objectId'];
                 $objectKey = $finalizeResult['objectKey'];
                 $urn_source_file = base64UrlEncodeUnpadded($objectId);
-
-                InsertBucketFile($fileFullName, $project_id, $urn_source_file, $objectKey, $entryPoint);
+                InsertBucketFile($fileFullName, $project_id, $urn_source_file, $objectKeyForVersionControl, $entryPoint);
             } else {
                 echo "Error: URN not found for $fileFullName.\n";
             }
+            require_once("Generate_Thumbnail.php");
+            
         }
+
 
         $projectFileList_1 = GetAllProjectFiles($project_id);
 

@@ -370,7 +370,7 @@ $access_token = getAccessToken($client_id, $client_secret);
 
                     <script>
                         function showCommitMessages(project_id) {
-                            fetch(`/Backend/Auto-desk-project/backend/Business_Logic/Function/Get_All_Commits.php?project_id=${project_id}`)
+                            fetch(`/Auto-desk-project/backend/Business_Logic/Function/Get_All_Commits.php?project_id=${project_id}`)
                                 .then(response => response.json())
                                 .then(data => {
                                     if (data.error) {

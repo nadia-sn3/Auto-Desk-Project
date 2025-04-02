@@ -8,7 +8,6 @@ var options = {
 };
 
 Autodesk.Viewing.Initializer(options, () => {
-    // Check if the viewer is already initialized
     if (!viewer) {
         viewer = new Autodesk.Viewing.GuiViewer3D(document.getElementById("forgeViewer"));
         viewer.start();
@@ -70,7 +69,7 @@ Autodesk.Viewing.Initializer(options, () => {
                 forgeViewer.style.visibility = 'hidden';
                 forgeViewer.style.opacity = '0';
                 // Assuming the file is already saved in the server's uploads directory, extract its path
-                const filePath = 'http://localhost/Backend/Auto-Desk-Project/backend/Business_Logic/Uploaded_Process/uploads/' + fileName;  // Adjust path accordingly
+                const filePath = 'http://localhost/Auto-Desk-Project/backend/Business_Logic/Uploaded_Process/uploads/' + fileName;  // Adjust path accordingly
 
                 // Create an image element
                 const imageElement = document.createElement('img');
@@ -94,7 +93,7 @@ Autodesk.Viewing.Initializer(options, () => {
                 imageContainer.classList.add('show');
                 forgeViewer.style.visibility = 'hidden';
                 forgeViewer.style.opacity = '0';
-                const fileDownloadPath = `http://localhost/Backend/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${encodeURIComponent(decodeURIComponent(fileName))}`;
+                const fileDownloadPath = `http://localhost/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${encodeURIComponent(decodeURIComponent(fileName))}`;
 
                 // Create a download button
                 imageContainer.innerHTML = '';  // Clear previous content
@@ -114,7 +113,7 @@ Autodesk.Viewing.Initializer(options, () => {
 
                 // PDF rendering logic
                 if (fileType === 'pdf') {
-                    const pdfPath = `http://localhost/Backend/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${fileName}`;
+                    const pdfPath = `http://localhost/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${fileName}`;
                     const loadingTask = pdfjsLib.getDocument(pdfPath);
 
                     loadingTask.promise.then(function(pdf) {
@@ -157,7 +156,7 @@ Autodesk.Viewing.Initializer(options, () => {
                 // DOCX or DOC file rendering logic
                 else if (fileType === 'docx' || fileType === 'doc') {
                     // Construct the path to the .docx file served by your PHP backend
-    const docxPath = `http://localhost/Backend/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${encodeURIComponent(decodeURIComponent(fileName))}`;
+    const docxPath = `http://localhost/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${encodeURIComponent(decodeURIComponent(fileName))}`;
     
     // Fetch the .docx file
     fetch(docxPath)
@@ -188,7 +187,7 @@ Autodesk.Viewing.Initializer(options, () => {
             }
                 
             }else if (fileType === 'video' || fileType === 'mp4' || fileType === 'webm' || fileType === 'ogg') {
-                const videoPath = `http://localhost/Backend/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${encodeURIComponent(decodeURIComponent(fileName))}`;
+                const videoPath = `http://localhost/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${encodeURIComponent(decodeURIComponent(fileName))}`;
             
                 // Clear previous content
                 imageContainer.innerHTML = '';
@@ -231,7 +230,7 @@ Autodesk.Viewing.Initializer(options, () => {
 async function tempDownloadFile(object_key, file_name) 
 {
     try {
-        const response = await fetch(`http://localhost/Backend/Auto-Desk-Project/backend/Business_Logic/Function/temp_download.php?objectKey=${object_key}&fileName=${file_name}`, {
+        const response = await fetch(`http://localhost/Auto-Desk-Project/backend/Business_Logic/Function/temp_download.php?objectKey=${object_key}&fileName=${file_name}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -285,7 +284,7 @@ async function tempDownloadFile(object_key, file_name)
 async function startTranslation(urn) {
     try {
         // Construct the full URL with query parameters
-        const url = `http://localhost/Backend/Auto-Desk-Project/backend/Business_Logic/Function/start_translation.php?urn=${encodeURIComponent(urn)}`;
+        const url = `http://localhost/Auto-Desk-Project/backend/Business_Logic/Function/start_translation.php?urn=${encodeURIComponent(urn)}`;
         
         const response = await fetch(url, {
             method: 'GET',
@@ -321,7 +320,7 @@ async function startTranslation(urn) {
 
 async function checkTranslationStatus(urn) {
     try {
-        const response = await fetch(`http://localhost/Backend/Auto-Desk-Project/backend/Business_Logic/Function/check_job_status.php?urn=${urn}`, {
+        const response = await fetch(`http://localhost/Auto-Desk-Project/backend/Business_Logic/Function/check_job_status.php?urn=${urn}`, {
             method: 'GET',
         });
 
@@ -393,4 +392,3 @@ function onDocumentLoadFailure(errorCode) {
             break;
     }
 }
-
