@@ -6,82 +6,117 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: signin.php");
     exit();
 }
-
 $userId = $_SESSION['user_id'];
-$orgId = $_SESSION['current_org_id'] ?? null;
 
-if ($orgId) {
-    $stmt = $pdo->prepare("SELECT om.org_role_id, oroles.role_name 
-                          FROM organisation_members om
-                          JOIN organisation_roles oroles ON om.org_role_id = oroles.org_role_id
-                          WHERE om.org_id = ? AND om.user_id = ?");
-    $stmt->execute([$orgId, $userId]);
-    $orgMembership = $stmt->fetch();
-
-    if (!$orgMembership) {
-        header("Location: project-home.php");
-        exit();
-    }
-
-    $_SESSION['current_org_role_id'] = $orgMembership['org_role_id'];
-    $_SESSION['current_org_role_name'] = $orgMembership['role_name'];
-} else {
-    header("Location: project-home.php");
-    exit();
+$successMessage = '';
+if (isset($_GET['new']) && $_GET['new'] == 1) {
+    $successMessage = "Congratulations! Your organisation has been created successfully.";
 }
 
-$orgName = "My Organisation"; 
-$orgDescription = "";
 $stmt = $pdo->prepare("SELECT org_name, description FROM organisations WHERE org_id = ?");
-$stmt->execute([$orgId]);
-if ($stmt->rowCount() > 0) {
-    $org = $stmt->fetch();
-    $orgName = htmlspecialchars($org['org_name']);
-    $orgDescription = htmlspecialchars($org['description']);
+$stmt->execute([$_SESSION['current_org_id']]);
+$org = $stmt->fetch();
+$orgName = $org['org_name'];
+$orgDescription = $org['description'];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
+    try {
+        if (empty($_POST['first_name']) || empty($_POST['last_name']) || empty($_POST['email']) || empty($_POST['org_role_id'])) {
+            throw new Exception("All fields are required");
+        }
+
+        $firstName = trim($_POST['first_name']);
+        $lastName = trim($_POST['last_name']);
+        $email = trim($_POST['email']);
+        $roleId = (int)$_POST['org_role_id'];
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new Exception("Invalid email format");
+        }
+
+        $stmt = $pdo->prepare("SELECT user_id FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        
+        if ($stmt->rowCount() > 0) {
+            $user = $stmt->fetch();
+            $userId = $user['user_id'];
+            
+            $stmt = $pdo->prepare("SELECT org_member_id FROM organisation_members WHERE org_id = ? AND user_id = ?");
+            $stmt->execute([$orgId, $userId]);
+            
+            if ($stmt->rowCount() > 0) {
+                throw new Exception("User already in organization");
+            }
+            
+            $stmt = $pdo->prepare("
+                INSERT INTO organisation_members 
+                (org_id, user_id, org_role_id, joined_at, invited_by) 
+                VALUES (?, ?, ?, NOW(), ?)
+            ");
+            $invitedBy = $_SESSION['user_id'] ?? 1;
+            $stmt->execute([$orgId, $userId, $roleId, $invitedBy]);
+            
+            $success = "User added to organization";
+        } else {
+            $password = isset($_POST['set_custom_password']) && !empty($_POST['password']) 
+                ? $_POST['password'] 
+                : bin2hex(random_bytes(4));
+            
+            if (strlen($password) < 8) {
+                throw new Exception("Password must be 8+ characters");
+            }
+            
+            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+            
+            $pdo->beginTransaction();
+            
+
+            $stmt = $pdo->prepare("
+                INSERT INTO users 
+                (system_role_id, email, password_hash, first_name, last_name, created_at, is_active) 
+                VALUES (2, ?, ?, ?, ?, NOW(), 1)
+            ");
+            $stmt->execute([$email, $passwordHash, $firstName, $lastName]);
+            $userId = $pdo->lastInsertId();
+            
+            $stmt = $pdo->prepare("
+                INSERT INTO organisation_members 
+                (org_id, user_id, org_role_id, joined_at, invited_by) 
+                VALUES (?, ?, ?, NOW(), ?)
+            ");
+            $invitedBy = $_SESSION['user_id'] ?? 1;
+            $stmt->execute([$orgId, $userId, $roleId, $invitedBy]);
+            
+            $pdo->commit();
+            $success = "New user created and added to organization";
+        }
+
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM organisation_members WHERE org_id = ?");
+        $stmt->execute([$orgId]);
+        $totalMembers = $stmt->fetchColumn();
+
+        $stmt = $pdo->prepare("
+            SELECT u.user_id, u.first_name, u.last_name, u.email, 
+                   om.joined_at, oroles.role_name, oroles.org_role_id
+            FROM organisation_members om
+            JOIN users u ON om.user_id = u.user_id
+            JOIN organisation_roles oroles ON om.org_role_id = oroles.org_role_id
+            WHERE om.org_id = ?
+            ORDER BY oroles.org_role_id, om.joined_at DESC
+        ");
+        $stmt->execute([$orgId]);
+        $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+    } catch (Exception $e) {
+        if (isset($pdo) && $pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        $error = $e->getMessage();
+    }
 }
-
-$totalMembers = 0;
-$activeProjects = 0;
-
-$stmt = $pdo->prepare("SELECT COUNT(*) as count FROM organisation_members WHERE org_id = ?");
-$stmt->execute([$orgId]);
-$result = $stmt->fetch();
-$totalMembers = $result['count'];
-
-$stmt = $pdo->prepare("SELECT COUNT(*) as count FROM projects WHERE org_id = ?");
-$stmt->execute([$orgId]);
-$result = $stmt->fetch();
-$activeProjects = $result['count'];
-
-$stmt = $pdo->prepare("
-    SELECT u.user_id, u.first_name, u.last_name, u.email, oroles.role_name, om.joined_at 
-    FROM organisation_members om
-    JOIN users u ON om.user_id = u.user_id
-    JOIN organisation_roles oroles ON om.org_role_id = oroles.org_role_id
-    WHERE om.org_id = ?
-    ORDER BY om.org_role_id, u.last_name, u.first_name
-    LIMIT 5
-");
-$stmt->execute([$orgId]);
-$members = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$stmt = $pdo->prepare("
-    SELECT p.project_id, p.project_name, p.description, p.created_at, 
-           COUNT(pm.user_id) as member_count
-    FROM projects p
-    LEFT JOIN project_members pm ON p.project_id = pm.project_id
-    WHERE p.org_id = ?
-    GROUP BY p.project_id
-    ORDER BY p.created_at DESC
-    LIMIT 3
-");
-$stmt->execute([$orgId]);
-$projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$stmt = $pdo->prepare("SELECT * FROM organisation_roles ORDER BY org_role_id");
-$stmt->execute();
-$orgRoles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -113,7 +148,7 @@ $orgRoles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <ul>
                 <?php if ($_SESSION['current_org_role_id'] <= 2): ?>
                     <li><a href="#invite-member" class="open-modal">Invite Member</a></li>
-                <?php endif; ?>
+                    <?php endif; ?>
                 <li><a href="create-project.php">Create Project</a></li>
                 <?php if ($_SESSION['current_org_role_id'] == 1): ?>
                     <li><a href="manage-roles.php">Manage Roles</a></li>
@@ -241,6 +276,120 @@ $orgRoles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </section>
         </main>
     </div>
+
+    <div id="addMemberModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Member</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <?php if (!empty($success)): ?>
+                    <div class="alert alert-success"><?= $success ?></div>
+                <?php elseif (!empty($error)): ?>
+                    <div class="alert alert-error"><?= $error ?></div>
+                <?php endif; ?>
+                
+                <form id="addMemberForm" method="POST" action="">
+                    <input type="hidden" name="add_member" value="1">
+                    
+                    <div class="form-group">
+                        <label for="first_name">First Name *</label>
+                        <input type="text" id="first_name" name="first_name" required 
+                               value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="last_name">Last Name *</label>
+                        <input type="text" id="last_name" name="last_name" required
+                               value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required
+                               value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                        <small class="form-hint">The member will use this to log in</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="org_role_id">Role *</label>
+                        <select id="org_role_id" name="org_role_id" required>
+                            <option value="1" disabled>Organisation Owner</option>
+                            <option value="2">Organisation Admin</option>
+                            <option value="3" selected>Organisation Member</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="set_custom_password" name="set_custom_password" 
+                                   <?= isset($_POST['set_custom_password']) ? 'checked' : '' ?>>
+                            Set custom password (optional)
+                        </label>
+                        <small class="form-hint">If unchecked, a random password will be generated</small>
+                    </div>
+                    
+                    <div class="form-group password-field" style="display: <?= isset($_POST['set_custom_password']) ? 'block' : 'none' ?>">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" 
+                               placeholder="At least 8 characters" 
+                               minlength="8"
+                               value="<?= htmlspecialchars($_POST['password'] ?? '') ?>">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary close-modal">Cancel</button>
+                        <button type="submit" class="btn-primary">Add Member</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+                document.getElementById('filterButton').addEventListener('click', function() {
+            const searchTerm = document.getElementById('memberSearch').value.toLowerCase();
+            const roleFilter = document.getElementById('roleFilter').value;
+            const rows = document.querySelectorAll('#membersTable tbody tr');
+            
+            rows.forEach(row => {
+                const name = row.cells[0].textContent.toLowerCase();
+                const email = row.cells[1].textContent.toLowerCase();
+                const role = row.cells[2].textContent.toLowerCase();
+                const roleId = row.getAttribute('data-role-id');
+                
+                const matchesSearch = name.includes(searchTerm) || email.includes(searchTerm);
+                const matchesRole = roleFilter === 'all' || roleId === roleFilter;
+                
+                row.style.display = (matchesSearch && matchesRole) ? '' : 'none';
+            });
+        });
+
+
+        document.querySelectorAll('.open-modal').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('addMemberModal').style.display = 'block';
+            });
+        });
+
+        document.querySelector('.close-modal').addEventListener('click', () => {
+            document.getElementById('addMemberModal').style.display = 'none';
+        });
+
+        document.getElementById('set_custom_password').addEventListener('change', function() {
+            const passwordField = document.querySelector('.password-field');
+            passwordField.style.display = this.checked ? 'block' : 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === document.getElementById('addMemberModal')) {
+                document.getElementById('addMemberModal').style.display = 'none';
+            }
+        });
+
+
+    </script>
 
     <?php include('include/footer.php'); ?>
 </body>

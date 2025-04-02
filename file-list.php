@@ -30,7 +30,6 @@ try {
     echo "Error: " . $e->getMessage();
 }
 
-
 function getPreviewIcon($fileName) {
     $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
     switch (strtolower($fileExtension)) {
@@ -74,8 +73,6 @@ $access_token = getAccessToken($client_id, $client_secret);
 <body>
 <?php include('include/header.php'); ?>
 
-
-
 <div class="page-container">
         <div class="project-container">
             <div class="project-header">
@@ -87,8 +84,7 @@ $access_token = getAccessToken($client_id, $client_secret);
 
             <nav class="project-nav-bar">
                 <ul>
-                    <li><a href="collaborators.php" class="nav-link">Collaborators</a></li>
-                    <li><a href="issues.php" class="nav-link">Issues</a></li>
+                <li><a href="collaborators.php?project_id=<?php echo $project_id; ?>" class="nav-link">Collaborators</a></li>                  
                     <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Create a Commit</a></li>
                 </ul>
             </nav>
@@ -154,12 +150,12 @@ $access_token = getAccessToken($client_id, $client_secret);
 <?php if (!empty($files)): ?>
     <div class="project-model">
         <div class="project-model-buttons">
-            <button class="btn">Share</button>
+            <!-- <button class="btn">Share</button> -->
             <button class="btn">Download</button>
         </div>
 
         <div class="project-model-data">
-            <h3>Model Details</h3>
+            <h3>Version 1.0 Model Details</h3>
             <ul>
                 <li><strong>File Name:</strong> N/A</li>
                 <li><strong>File Type:</strong> N/A</li>
@@ -263,8 +259,6 @@ $access_token = getAccessToken($client_id, $client_secret);
 
 </script>
 
-
-
 <script>
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -324,9 +318,6 @@ $access_token = getAccessToken($client_id, $client_secret);
             }
         });
     </script>
-
-
-
 
 <script src="js/issues-dropdown.js"></script>
     <script src="js/file-list-dropdown.js"></script>

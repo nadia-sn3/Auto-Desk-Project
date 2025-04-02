@@ -1,0 +1,156 @@
+.page-container {
+    width: 100%;
+    background-position: center;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    padding-top: 20px;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.manage-users-container {
+    background: #ffffff;
+    border: 1px solid #e1e4e8;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    width: 98%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.manage-users-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: #f6f8fa;
+    border-bottom: 1px solid #e1e4e8;
+    margin-bottom: 20px;
+}
+
+.btn-back {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.btn-back:hover {
+    background-color: #5a6268;
+}
+
+.edit-user-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.edit-user-form label {
+    font-weight: 800;
+    color: #24292e;
+    margin-bottom: 5px;
+}
+
+.edit-user-form input,
+.edit-user-form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.edit-user-form input:focus,
+.edit-user-form select:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.btn-save {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-save:hover {
+    background-color: #218838;
+}
+
+.reset-password-container {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e1e4e8;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.reset-password-container h3 {
+    color: #24292e;
+    margin-top: 0;
+}
+
+.reset-password-container p {
+    color: #586069;
+    margin-bottom: 15px;
+}
+
+.btn-reset-password {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.btn-reset-password:hover {
+    background-color: #c82333;
+}
+
+@media (max-width: 768px) {
+    .manage-users-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .btn-back {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .edit-user-form {
+        padding: 10px;
+    }
+    
+    .reset-password-container {
+        padding: 15px;
+    }
+}

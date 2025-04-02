@@ -77,10 +77,22 @@ $project = $stmt->fetch(PDO::FETCH_ASSOC);
 
             <nav class="project-nav-bar">
                 <ul>
-                    <li><a href="collaborators.php" class="nav-link">Collaborators</a></li>
-                    <li><a href="issues.php" class="nav-link">Issues</a></li>
+                <li><a href="collaborators.php?project_id=<?php echo $project_id; ?>" class="nav-link">Collaborators</a></li>                 
                     <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Create a Commit</a></li>
-                </ul>
+                    <li>
+            <?php if ($is_admin): ?>
+                <div class="dropdown">
+                    <a href="javascript:void(0);" class="nav-link dropdown-toggle">Manage Project</a>
+                    <div class="dropdown-content">
+                        <a href="#" id="archiveProject">Archive Project</a>
+                        <a href="#" id="deleteProject">Delete Project</a>
+                    </div>
+                </div>
+            <?php else: ?>
+                <a href="javascript:void(0);" class="nav-link">Manage Project</a>
+            <?php endif; ?>
+        </li>
+                    </ul>
             </nav>
 
             <div class="file-dropdown-wrapper">
@@ -100,34 +112,6 @@ $project = $stmt->fetch(PDO::FETCH_ASSOC);
                 <input type="text" placeholder="Search files..." class="search-input">
             </div>
             <ul class="file-list">
-                <li class="file-item">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <span>Main_Model.rvt</span>
-                </li>
-                <li class="file-item active">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <span>Structural_Design.dwg</span>
-                </li>
-                <li class="file-item">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <span>MEP_Systems.ifc</span>
-                </li>
-                <li class="file-item">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <span>Render_View.fbx</span>
-                </li>
             </ul>
         </div>
     </div>
@@ -173,7 +157,6 @@ $project = $stmt->fetch(PDO::FETCH_ASSOC);
                             <p class="or-text">or</p>
                             <input type="file" id="fileInputLarge" multiple style="display: none;">
                             <label for="fileInputLarge" class="browse-btn-large">Select Files</label>
-                            <p class="file-types">Supported formats: .rvt, .dwg, .ifc, .obj, .glb, .fbx</p>
                         </div>
                     </div>
                 <?php else: ?>
@@ -185,7 +168,7 @@ $project = $stmt->fetch(PDO::FETCH_ASSOC);
                 <?php endif; ?>
                 
                 <div class="project-model-buttons">
-                    <button class="btn">Share</button>
+                    <!-- <button class="btn">Share</button> -->
                     <button class="btn">Download</button>
                 </div>
                 <div class="project-model-data">
@@ -321,7 +304,6 @@ $project = $stmt->fetch(PDO::FETCH_ASSOC);
                     document.getElementById('uploadModal').style.display = 'block';
                     document.getElementById('file-upload').files = files;
 
-                    // Show commit message field
                     document.getElementById('commitMessageContainer').style.display = 'block';
                     document.querySelector('#upload-form button[type="submit"]').style.display = 'block';
                     const event = new Event('change');

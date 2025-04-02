@@ -54,12 +54,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
 
             $pdo->commit();
-            
+
             $_SESSION['current_org_id'] = $orgId;
-            $_SESSION['org_role'] = 2;
+            $_SESSION['current_org_role_id'] = 1; 
+            $_SESSION['current_org_role_name'] = 'Organisation Owner';
             
-            header("Location: org-owner-home.php?new=1");
+            header("Location: org-dashboard.php?new=1");
             exit();
+
         } catch (Exception $e) {
             $pdo->rollBack();
             $error = "Error creating organisation: " . $e->getMessage();

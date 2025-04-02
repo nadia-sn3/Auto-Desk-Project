@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Mar 27, 2025 at 01:32 PM
+-- Generation Time: Mar 28, 2025 at 02:44 AM
 -- Server version: 10.4.28-MariaDB
--- PHP Version: 8.0.28
+-- PHP Version: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -20,6 +20,30 @@ SET time_zone = "+00:00";
 --
 -- Database: `autodesk`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `audit_logs`
+--
+
+CREATE TABLE `audit_logs` (
+  `audit_log_id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `action` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `project_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `audit_logs`
+--
+
+INSERT INTO `audit_logs` (`audit_log_id`, `user_id`, `action`, `created_at`, `project_id`) VALUES
+(1, 1, 'Test action 1', '2025-03-27 23:55:01', NULL),
+(2, 2, 'Test action 2', '2025-03-27 23:55:01', NULL),
+(3, 7, 'User logged in', '2025-03-28 00:39:41', NULL),
+(4, 6, 'User logged in', '2025-03-28 00:56:44', NULL);
 
 -- --------------------------------------------------------
 
@@ -47,7 +71,11 @@ INSERT INTO `Bucket_File` (`bucket_file_id`, `project_file_id`, `file_version`, 
 (4, 2, 3, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 4),
 (5, 2, 4, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 5),
 (6, 2, 5, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 6),
-(7, 3, 1, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 2);
+(7, 3, 1, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 2),
+(8, 4, 1, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 2),
+(9, 4, 2, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 3),
+(10, 5, 1, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 2),
+(11, 6, 1, 'dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6bXlidWNrZXRfMjAyNS9vbmUub2Jq', 'one.obj', 2);
 
 -- --------------------------------------------------------
 
@@ -71,7 +99,11 @@ INSERT INTO `Commit_File` (`commit_id`, `bucket_file_id`) VALUES
 (4, 1),
 (5, 1),
 (6, 1),
-(7, 7);
+(7, 7),
+(8, 8),
+(9, 1),
+(10, 10),
+(12, 11);
 
 -- --------------------------------------------------------
 
@@ -123,6 +155,13 @@ CREATE TABLE `organisations` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `organisations`
+--
+
+INSERT INTO `organisations` (`org_id`, `org_name`, `description`, `created_at`, `updated_at`) VALUES
+(1, 'kjhgf', ',keh', '2025-03-27 13:19:36', '2025-03-27 13:19:36');
+
 -- --------------------------------------------------------
 
 --
@@ -137,6 +176,13 @@ CREATE TABLE `organisation_members` (
   `joined_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `invited_by` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `organisation_members`
+--
+
+INSERT INTO `organisation_members` (`org_member_id`, `org_id`, `user_id`, `org_role_id`, `joined_at`, `invited_by`) VALUES
+(1, 1, 5, 1, '2025-03-27 13:19:36', 5);
 
 -- --------------------------------------------------------
 
@@ -195,7 +241,14 @@ CREATE TABLE `Project` (
 INSERT INTO `Project` (`project_id`, `project_name`, `description`, `created_by`, `latest_version`) VALUES
 (1, 'susu', 'susu', 1, 2),
 (2, 'susu', 'susu', 1, 6),
-(3, 'susu', 'susu', 1, 2);
+(3, 'susu', 'susu', 1, 2),
+(4, 'test', 'test', 1, 1),
+(5, 't', 't', 5, 1),
+(6, 'fseuyg', 'hefsgygyuqw', 5, 3),
+(7, 'hya7t', 'ytwd', 5, 2),
+(8, 'esrfdgt', 'werfdg', 5, 1),
+(9, 'wergty', 'wefrtgyh', 5, 1),
+(11, 'test', 'test', 5, 2);
 
 -- --------------------------------------------------------
 
@@ -221,7 +274,12 @@ INSERT INTO `Project_Commit` (`commit_id`, `commit_message`, `project_id`, `proj
 (4, 'jk', 2, 4),
 (5, 'gu', 2, 5),
 (6, 'gu', 2, 6),
-(7, 'enhufaj', 3, 2);
+(7, 'enhufaj', 3, 2),
+(8, 'liuytres', 6, 2),
+(9, 'liuyjthg', 6, 3),
+(10, 'dwansiud', 7, 2),
+(11, 'Initial project creation', 11, 1),
+(12, 'efhsdyx', 11, 2);
 
 -- --------------------------------------------------------
 
@@ -245,7 +303,10 @@ CREATE TABLE `Project_File` (
 INSERT INTO `Project_File` (`project_file_id`, `project_id`, `file_name`, `latest_version`, `first_added_at_version`, `file_type`) VALUES
 (1, 1, 'one.obj', 1, 2, 'obj'),
 (2, 2, 'one.obj', 5, 2, 'obj'),
-(3, 3, 'one.obj', 1, 2, 'obj');
+(3, 3, 'one.obj', 1, 2, 'obj'),
+(4, 6, 'one.obj', 2, 2, 'obj'),
+(5, 7, 'one.obj', 1, 2, 'obj'),
+(6, 11, 'one.obj', 1, 2, 'obj');
 
 -- --------------------------------------------------------
 
@@ -261,6 +322,13 @@ CREATE TABLE `project_members` (
   `added_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `added_by` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `project_members`
+--
+
+INSERT INTO `project_members` (`project_member_id`, `project_id`, `user_id`, `project_role_id`, `added_at`, `added_by`) VALUES
+(1, 11, 5, 1, '2025-03-27 13:47:08', 5);
 
 -- --------------------------------------------------------
 
@@ -280,9 +348,39 @@ CREATE TABLE `project_roles` (
 
 INSERT INTO `project_roles` (`project_role_id`, `role_name`, `permissions`) VALUES
 (1, 'Project Admin', '[\"project.manage\",\"project.members.invite\",\"project.members.remove\"]'),
-(2, 'Project Editor', '[\"project.edit\",\"model.upload\",\"model.update\"]'),
-(3, 'Project Viewer', '[\"project.view\",\"model.view\"]'),
-(4, 'Project Contractor', '[\"limited.access\"]');
+(3, 'Project Editor', '[\"project.edit\",\"model.upload\",\"model.update\"]'),
+(4, 'Project Viewer', '[\"project.view\",\"model.view\"]'),
+(5, 'Project Contractor', '[\"limited.access\"]'),
+(2, 'Project Manager', '[\"project.manage\",\"project.edit\",\"project.view\",\"model.upload\",\"model.update\",\"model.view\",\"project.members.invite\"]');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reports`
+--
+
+CREATE TABLE `reports` (
+  `report_id` int(11) NOT NULL,
+  `reporter_id` int(11) NOT NULL,
+  `reported_type` enum('user','project') NOT NULL,
+  `reported_id` int(11) NOT NULL,
+  `report_reason` varchar(255) NOT NULL,
+  `report_details` text DEFAULT NULL,
+  `status` enum('pending','resolved') NOT NULL DEFAULT 'pending',
+  `resolved_by` int(11) DEFAULT NULL,
+  `resolved_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `reports`
+--
+
+INSERT INTO `reports` (`report_id`, `reporter_id`, `reported_type`, `reported_id`, `report_reason`, `report_details`, `status`, `resolved_by`, `resolved_at`, `created_at`) VALUES
+(1, 2, 'user', 3, 'Inappropriate content', 'This user posted offensive material in their profile', 'pending', NULL, NULL, '2025-03-28 09:15:22'),
+(2, 3, 'project', 1, 'Copyright violation', 'This project contains copyrighted material without permission', 'pending', NULL, NULL, '2025-03-28 10:30:45'),
+(3, 1, 'user', 4, 'Harassment', 'This user sent me abusive messages', 'resolved', NULL, NULL, '2025-03-27 14:20:33'),
+(4, 4, 'project', 2, 'Spam', 'This project appears to be advertising unrelated products', 'pending', NULL, NULL, '2025-03-28 11:45:12');
 
 -- --------------------------------------------------------
 
@@ -330,11 +428,21 @@ INSERT INTO `users` (`user_id`, `system_role_id`, `email`, `password_hash`, `fir
 (1, 2, 'su@gmail.com', '$2y$10$OxAIfun39pby6PBZ2/AlHe.pSoyl8UvBsonheeMUdGczNvySLRl4.', 'susu', 'susu', '2025-03-27 11:52:41', NULL, NULL),
 (2, 2, 'su1@gmail.com', '$2y$10$lbB3k2xNY5lU8gQR8UHl5.0saoHebr8.3jthkuOhNTWnhnHBIwh/i', 'sususu', 'susu', '2025-03-27 11:55:15', NULL, NULL),
 (3, 2, 's@gmail.com', '$2y$10$nreCM2W56S3WZQGP31jA2uQe1X9Mg1xtV6.KNADXRZLuLibxIld1O', 'sussu', 'susu', '2025-03-27 12:13:36', NULL, NULL),
-(4, 2, 't@t.com', '$2y$10$g3tRLJmPzaaSNSxv85puaOtQJVZWBD/iZwJzBAez0m/iZ0V.UNNhu', 't', 't', '2025-03-27 12:26:53', NULL, NULL);
+(4, 2, 't@t.com', '$2y$10$g3tRLJmPzaaSNSxv85puaOtQJVZWBD/iZwJzBAez0m/iZ0V.UNNhu', 't', 't', '2025-03-27 12:26:53', NULL, NULL),
+(5, 1, 'admin@admin.com', 'admin123', 'admin', 'admin', '2025-03-27 12:33:18', NULL, NULL),
+(6, 1, 'test@gmail.com', '$2y$10$7qtWz6h4N8G9gfHRS9sSmeHcRn5pdM.IcOE6qJMKEtkTGiBSR1h7K', 'test', 'test', '2025-03-27 23:29:14', NULL, NULL),
+(7, 2, 'm@m.com', '$2y$10$DSOWan4k6/6X63.yiDCEr.IrtgtcnhkH/DwrmmBouNmOYHx3Gxd3O', 'm', 'm', '2025-03-28 00:39:25', NULL, NULL);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `audit_logs`
+--
+ALTER TABLE `audit_logs`
+  ADD PRIMARY KEY (`audit_log_id`),
+  ADD KEY `fk_project_id` (`project_id`);
 
 --
 -- Indexes for table `Bucket_File`
@@ -349,6 +457,28 @@ ALTER TABLE `Bucket_File`
 ALTER TABLE `Commit_File`
   ADD PRIMARY KEY (`commit_id`,`bucket_file_id`),
   ADD KEY `bucket_file_id` (`bucket_file_id`);
+
+--
+-- Indexes for table `invitations`
+--
+ALTER TABLE `invitations`
+  ADD PRIMARY KEY (`invitation_id`),
+  ADD KEY `org_id` (`org_id`);
+
+--
+-- Indexes for table `organisations`
+--
+ALTER TABLE `organisations`
+  ADD PRIMARY KEY (`org_id`);
+
+--
+-- Indexes for table `organisation_members`
+--
+ALTER TABLE `organisation_members`
+  ADD PRIMARY KEY (`org_member_id`),
+  ADD KEY `org_id` (`org_id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `org_role_id` (`org_role_id`);
 
 --
 -- Indexes for table `Project`
@@ -371,6 +501,21 @@ ALTER TABLE `Project_File`
   ADD KEY `project_id` (`project_id`);
 
 --
+-- Indexes for table `project_members`
+--
+ALTER TABLE `project_members`
+  ADD PRIMARY KEY (`project_member_id`);
+
+--
+-- Indexes for table `reports`
+--
+ALTER TABLE `reports`
+  ADD PRIMARY KEY (`report_id`),
+  ADD KEY `reporter_id` (`reporter_id`),
+  ADD KEY `reported_id` (`reported_id`),
+  ADD KEY `fk_reports_resolved_by` (`resolved_by`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -381,38 +526,80 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `audit_logs`
+--
+ALTER TABLE `audit_logs`
+  MODIFY `audit_log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `Bucket_File`
 --
 ALTER TABLE `Bucket_File`
-  MODIFY `bucket_file_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `bucket_file_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `invitations`
+--
+ALTER TABLE `invitations`
+  MODIFY `invitation_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `organisations`
+--
+ALTER TABLE `organisations`
+  MODIFY `org_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `organisation_members`
+--
+ALTER TABLE `organisation_members`
+  MODIFY `org_member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `Project`
 --
 ALTER TABLE `Project`
-  MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `Project_Commit`
 --
 ALTER TABLE `Project_Commit`
-  MODIFY `commit_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `commit_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `Project_File`
 --
 ALTER TABLE `Project_File`
-  MODIFY `project_file_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `project_file_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `project_members`
+--
+ALTER TABLE `project_members`
+  MODIFY `project_member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `reports`
+--
+ALTER TABLE `reports`
+  MODIFY `report_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `audit_logs`
+--
+ALTER TABLE `audit_logs`
+  ADD CONSTRAINT `fk_project_id` FOREIGN KEY (`project_id`) REFERENCES `project` (`project_id`);
 
 --
 -- Constraints for table `Bucket_File`
@@ -438,6 +625,12 @@ ALTER TABLE `Project_Commit`
 --
 ALTER TABLE `Project_File`
   ADD CONSTRAINT `project_file_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `Project` (`project_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `reports`
+--
+ALTER TABLE `reports`
+  ADD CONSTRAINT `fk_reports_resolved_by` FOREIGN KEY (`resolved_by`) REFERENCES `users` (`user_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

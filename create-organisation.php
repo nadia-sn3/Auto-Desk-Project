@@ -61,12 +61,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error)) {
 
             $pdo->commit();
             
-            $_SESSION['current_org_id'] = $orgId;
-            $_SESSION['current_org_role_id'] = 1;
-            $_SESSION['current_org_role_name'] = 'Organisation Owner';
-            
-            header("Location: org-dashboard.php?new=1");
-            exit();
+$_SESSION['current_org_id'] = $orgId;
+$_SESSION['current_org_role_id'] = 1; 
+$_SESSION['current_org_role_name'] = 'Organisation Owner';
+
+header("Location: org-dashboard.php?new=1");
+exit();
+
         } catch (Exception $e) {
             $pdo->rollBack();
             $error = "Error creating organisation: " . $e->getMessage();
@@ -100,6 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error)) {
                     <div class="form-actions">
                         <a href="org-owner-home.php" class="btn primary">Return to Dashboard</a>
                     </div>
+
                 <?php endif; ?>
             <?php else: ?>
             
@@ -122,26 +124,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && empty($error)) {
                     </div>
                 </div>
                 
-                <div class="form-section">
-                    <h2>Invite Team Members</h2>
-                    <p class="hint">Add colleagues by email (comma separated)</p>
-                    
-                    <div class="form-group">
-                        <label for="invite_emails">Email Addresses</label>
-                        <textarea id="invite_emails" name="invite_emails" 
-                                 placeholder="team@example.com, member@example.com"
-                                 rows="2"></textarea>
-                    </div>
-                    
-                    <div class="role-info">
-                        <strong>Note:</strong> Invited members will join as <strong>Organisation Admins</strong> 
-                        and can be promoted to Owners later.
-                    </div>
+
                 </div>
                 
                 <div class="form-actions">
                     <button type="submit" class="btn primary">Create Organisation</button>
-                    <a href="dashboard.php" class="btn secondary">Cancel</a>
+                    <a href="home.php" class="btn secondary">Cancel</a>
                 </div>
             </form>
             <?php endif; ?>

@@ -1,68 +1,66 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
     const usernameInput = document.getElementById('collaborator-username');
-    const emailInput = document.getElementById('collaborator-email');
     const usernameSuggestions = document.getElementById('username-suggestions');
+    const emailInput = document.getElementById('collaborator-email');
     const emailSuggestions = document.getElementById('email-suggestions');
 
-    function fetchSuggestions(searchTerm, type) {
-        return fetch(`fetch_users.php?term=${searchTerm}`)
+    // Search users by username
+    usernameInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        if (query.length < 2) {
+            usernameSuggestions.innerHTML = '';
+            return;
+        }
+
+        fetch(`/backend/search_users.php?query=${encodeURIComponent(query)}`)
             .then(response => response.json())
             .then(users => {
-                return users.filter(user => user[type].toLowerCase().includes(searchTerm.toLowerCase()));
+                usernameSuggestions.innerHTML = '';
+                users.forEach(user => {
+                    const div = document.createElement('div');
+                    div.textContent = `${user.first_name} ${user.last_name} (${user.email})`;
+                    div.addEventListener('click', function() {
+                        usernameInput.value = user.email;
+                        usernameSuggestions.innerHTML = '';
+                    });
+                    usernameSuggestions.appendChild(div);
+                });
             })
-            .catch(error => {
-                console.error('Error fetching suggestions:', error);
-                return [];
-            });
-    }
-
-    function displaySuggestions(suggestions, container) {
-        container.innerHTML = '';
-        suggestions.forEach(suggestion => {
-            const div = document.createElement('div');
-            div.textContent = suggestion.username || suggestion.email;
-            div.addEventListener('click', () => {
-                if (suggestion.username) {
-                    usernameInput.value = suggestion.username;
-                } else {
-                    emailInput.value = suggestion.email;
-                }
-                container.style.display = 'none';
-            });
-            container.appendChild(div);
-        });
-        container.style.display = suggestions.length ? 'block' : 'none';
-    }
-
-    usernameInput.addEventListener('input', function () {
-        const input = usernameInput.value.trim();
-        if (input.length > 0) {
-            fetchSuggestions(input, 'username').then(suggestions => {
-                displaySuggestions(suggestions, usernameSuggestions);
-            });
-        } else {
-            usernameSuggestions.style.display = 'none';
-        }
+            .catch(error => console.error('Error:', error));
     });
 
-    emailInput.addEventListener('input', function () {
-        const input = emailInput.value.trim();
-        if (input.length > 0) {
-            fetchSuggestions(input, 'email').then(suggestions => {
-                displaySuggestions(suggestions, emailSuggestions);
-            });
-        } else {
-            emailSuggestions.style.display = 'none';
+    // Search users by email
+    emailInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        if (query.length < 2) {
+            emailSuggestions.innerHTML = '';
+            return;
         }
+
+        fetch(`/backend/search_users.php?query=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(users => {
+                emailSuggestions.innerHTML = '';
+                users.forEach(user => {
+                    const div = document.createElement('div');
+                    div.textContent = `${user.first_name} ${user.last_name} (${user.email})`;
+                    div.addEventListener('click', function() {
+                        emailInput.value = user.email;
+                        emailSuggestions.innerHTML = '';
+                    });
+                    emailSuggestions.appendChild(div);
+                });
+            })
+            .catch(error => console.error('Error:', error));
     });
 
-    // Hide suggestions when clicking outside
-    document.addEventListener('click', function (event) {
-        if (!usernameInput.contains(event.target)) {
-            usernameSuggestions.style.display = 'none';
+    // Close suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (e.target !== usernameInput) {
+            usernameSuggestions.innerHTML = '';
         }
-        if (!emailInput.contains(event.target)) {
-            emailSuggestions.style.display = 'none';
+        if (e.target !== emailInput) {
+            emailSuggestions.innerHTML = '';
         }
     });
 });

@@ -2,38 +2,65 @@
 session_start();
 require 'db/connection.php';
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: signin.php");
-    exit();
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    $stmt = $pdo->prepare("SELECT user_id, first_name, password, system_role_id FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
+
+    if ($user && password_verify($password, $user['password'])) {
+        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['first_name'] = $user['first_name'];
+        $_SESSION['is_admin'] = ($user['system_role_id'] == 1);
+
+        if ($_SESSION['is_admin']) {
+            header("Location: system-admin-home.php");
+            exit;
+        } else {
+            header("Location: home.php"); 
+            exit;
+        }
+    } else {
+        $_SESSION['login_error'] = "Invalid email or password.";
+        header("Location: signin.php");
+        exit;
+    }
 }
 
-// Check if user is a system admin
-$stmt = $pdo->prepare("SELECT system_role_id FROM users WHERE user_id = ?");
-$stmt->execute([$_SESSION['user_id']]);
-$user = $stmt->fetch();
-
-if (!$user || $user['system_role_id'] != 1) {
-    // User is not a system admin
-    header("Location: unauthorized.php"); // Redirect to unauthorized page or home
-    exit();
+try {
+    $stmt = $pdo->query("SELECT COUNT(*) FROM organisations");
+    $orgCount = $stmt->fetchColumn();
+} catch (PDOException $e) {
+    echo "Error fetching organisations: " . $e->getMessage();
 }
 
-// Get statistics for dashboard
-$stmt = $pdo->prepare("SELECT COUNT(*) as org_count FROM organisations");
-$stmt->execute();
-$orgCount = $stmt->fetchColumn();
+try {
+    $stmt = $pdo->query("SELECT COUNT(*) FROM users");
+    $userCount = $stmt->fetchColumn();
+} catch (PDOException $e) {
+    echo "Error fetching users: " . $e->getMessage();
+}
+try {
+    $stmt = $pdo->query("SELECT COUNT(*) FROM project");
+    $projectCount = $stmt->fetchColumn();
+} catch (PDOException $e) {
+    echo "Error fetching projects: " . $e->getMessage();
+}
+try {
+    $stmt = $pdo->query("SHOW TABLES LIKE 'reports'");
+    $tableExists = $stmt->rowCount() > 0;
 
-$stmt = $pdo->prepare("SELECT COUNT(*) as user_count FROM users");
-$stmt->execute();
-$userCount = $stmt->fetchColumn();
-
-$stmt = $pdo->prepare("SELECT COUNT(*) as project_count FROM projects");
-$stmt->execute();
-$projectCount = $stmt->fetchColumn();
-
-// Get count of pending reports if you have such a feature
-$reportedIssues = 0; // Initialize with 0 or fetch from your reports table
+    if ($tableExists) {
+        $stmt = $pdo->query("SELECT COUNT(*) FROM reports WHERE status = 'pending'");
+        $reportedIssues = $stmt->fetchColumn();
+    } else {
+        $reportedIssues = 0; 
+    }
+} catch (PDOException $e) {
+    $reportedIssues = 0; 
+}
 ?>
 
 <!DOCTYPE html>
@@ -54,30 +81,25 @@ $reportedIssues = 0; // Initialize with 0 or fetch from your reports table
         <div class="dashboard-stats">
             <div class="stat-card">
                 <h3>Total Organisations</h3>
-                <p><?php echo $orgCount; ?></p>
+                <p><?php echo htmlspecialchars($orgCount); ?></p>
             </div>
             <div class="stat-card">
                 <h3>Total Users</h3>
-                <p><?php echo $userCount; ?></p>
+                <p><?php echo htmlspecialchars($userCount); ?></p>
             </div>
             <div class="stat-card">
                 <h3>Total Projects</h3>
-                <p><?php echo $projectCount; ?></p>
+                <p><?php echo htmlspecialchars($projectCount); ?></p>
             </div>
             <div class="stat-card">
                 <h3>Pending Reports</h3>
-                <p><?php echo $reportedIssues; ?></p>
+                <p><?php echo htmlspecialchars($reportedIssues); ?></p>
             </div>
         </div>
 
         <div class="admin-actions">
             <h2>User Management</h2>
             <a href="manage-users.php" class="btn">Manage Users</a>
-            <a href="approve-users.php" class="btn">Approve User Requests</a>
-
-            <h2>Content Moderation</h2>
-            <a href="review-reports.php" class="btn">Review User Reports</a>
-            <a href="moderate-content.php" class="btn">Moderate Content</a>
 
             <h2>System Maintenance</h2>
             <a href="system-status.php" class="btn">Monitor System Health</a>
@@ -86,7 +108,7 @@ $reportedIssues = 0; // Initialize with 0 or fetch from your reports table
             <a href="audit-logs.php" class="btn">View Audit Logs</a>
 
             <h2>Reports & Analytics</h2>
-            <a href="generate-reports.php" class="btn">Generate Reports</a>
+            <a href="admin-report.php" class="btn">Generate Reports</a>
         </div>
     </div>
 

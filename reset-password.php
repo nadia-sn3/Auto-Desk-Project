@@ -1,60 +1,66 @@
 <?php
 require 'db/connection.php';
+session_start();
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'vendor/autoload.php';
+
+$error_message = '';
+$success_message = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $token = $_POST['token'];
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm_password'];
+    $email = trim($_POST['email']);
     
-    if (empty($token) || empty($password) || empty($confirm_password)) {
-        $error = "All fields are required.";
-    } elseif ($password !== $confirm_password) {
-        $error = "Passwords do not match.";
-    } elseif (strlen($password) < 8) {
-        $error = "Password must be at least 8 characters long.";
+    if (empty($email)) {
+        $error_message = 'Please enter your email.';
     } else {
-        $stmt = $pdo->prepare("SELECT * FROM password_reset_tokens 
-                              WHERE token = ? AND used = 0 AND expires_at > NOW()");
-        $stmt->execute([$token]);
-        $tokenData = $stmt->fetch();
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
         
-        if ($tokenData) {
-            $passwordHash = password_hash($password, PASSWORD_BCRYPT);
+        if ($user) {
+            $token = bin2hex(random_bytes(32));
+            $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
+            
+            $stmt = $pdo->prepare("
+                INSERT INTO password_resets (email, token, expires_at) 
+                VALUES (?, ?, ?) 
+                ON DUPLICATE KEY UPDATE token = VALUES(token), expires_at = VALUES(expires_at)
+            ");
+            $stmt->execute([$email, $token, $expires]);
+            
+            $mail = new PHPMailer(true);
             
             try {
-                $pdo->beginTransaction();
+                $mail->isSMTP();
+                $mail->Host       = 'smtp.office365.com';
+                $mail->SMTPAuth   = true;
+                $mail->Username   = 'khanzmisbah@gmail.com';
+                $mail->Password   = 'gwuerxwjnuedakje';
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port       = 587;
                 
-                $stmt = $pdo->prepare("UPDATE users SET password_hash = ? WHERE user_id = ?");
-                $stmt->execute([$passwordHash, $tokenData['user_id']]);
+                $mail->setFrom('khanzmisbah@gmail.com', 'Password Reset');
+                $mail->addAddress($email);
                 
-                $stmt = $pdo->prepare("UPDATE password_reset_tokens SET used = 1 WHERE token_id = ?");
-                $stmt->execute([$tokenData['token_id']]);
+                $reset_link = "https://yourdomain.com/reset-password.php?token=$token";
+                $mail->isHTML(true);
+                $mail->Subject = 'Password Reset Request';
+                $mail->Body    = "Click the link to reset your password: <a href='$reset_link'>$reset_link</a><br><br>This link expires in 1 hour.";
+                $mail->AltBody = "Click the link to reset your password: $reset_link\n\nThis link expires in 1 hour.";
                 
-                $pdo->commit();
-                
-                $success = "Password updated successfully. You can now <a href='signin.php'>sign in</a>.";
+                $mail->send();
+                $success_message = 'Password reset link has been sent to your email.';
             } catch (Exception $e) {
-                $pdo->rollBack();
-                $error = "Failed to update password. Please try again.";
+                $error_message = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                error_log("Mailer Error: " . $mail->ErrorInfo);
             }
         } else {
-            $error = "Invalid or expired token. Please request a new password reset link.";
+            $error_message = 'If that email exists in our system, a reset link has been sent.';
         }
     }
-} elseif (isset($_GET['token'])) {
-    $token = $_GET['token'];
-    
-    $stmt = $pdo->prepare("SELECT * FROM password_reset_tokens 
-                          WHERE token = ? AND used = 0 AND expires_at > NOW()");
-    $stmt->execute([$token]);
-    $tokenData = $stmt->fetch();
-    
-    if (!$tokenData) {
-        $error = "Invalid or expired token. Please request a new password reset link.";
-    }
-} else {
-    header("Location: forgot-password.php");
-    exit();
 }
 ?>
 
@@ -64,36 +70,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style/base.css">
-    <link rel="stylesheet" href="style/signup.css">
-    <title>Reset Password | Autodesk</title>
+    <link rel="stylesheet" href="style/signin.css">
+    <title>Forgot Password</title>
 </head>
 <body>
     <?php include('include/header.php'); ?>
     
     <div class="page-container">
-        <div class="signup-container">
-            <div class="signup-box">
-                <h2>Reset Password</h2>
+        <div class="signin-container">
+            <div class="signin-box">
+                <h2>Forgot Password</h2>
                 
-                <?php if (isset($error)): ?>
-                    <div class="alert alert-error"><?php echo $error; ?></div>
-                <?php elseif (isset($success)): ?>
-                    <div class="alert alert-success"><?php echo $success; ?></div>
-                <?php else: ?>
-                    <form action="reset-password.php" method="POST" id="reset-form">
-                        <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
-                        
-                        <div class="input-group">
-                            <label for="password">New Password</label>
-                            <input type="password" id="password" name="password" placeholder="Enter new password" minlength="8" required>
-                        </div>
-                        <div class="input-group">
-                            <label for="confirm_password">Confirm New Password</label>
-                            <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm new password" required>
-                        </div>
-                        <button type="submit" class="signup-btn">Reset Password</button>
-                    </form>
+                <?php if (!empty($error_message)): ?>
+                    <div class="error-message">
+                        <p><?php echo htmlspecialchars($error_message); ?></p>
+                    </div>
                 <?php endif; ?>
+                
+                <?php if (!empty($success_message)): ?>
+                    <div class="success-message">
+                        <p><?php echo htmlspecialchars($success_message); ?></p>
+                    </div>
+                <?php endif; ?>
+                
+                <form action="forgot-password.php" method="POST">
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <button type="submit" class="signin-btn">Send Reset Link</button>
+                </form>
+                
+                <div class="signup-link">
+                    <p>Remember your password? <a href="signin.php">Sign in here</a></p>
+                </div>
             </div>
         </div>
     </div>
