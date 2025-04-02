@@ -15,14 +15,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $pdo->beginTransaction();
             
-            $stmt = $pdo->prepare("INSERT INTO Project (project_name, description, created_by, latest_version) 
-                                  VALUES (:project_name, :description, :created_by, :latest_version)");
+            $org_id = null;
+            $org_stmt = $pdo->prepare("SELECT org_id FROM organisation_members WHERE user_id = :user_id LIMIT 1");
+            $org_stmt->execute([':user_id' => $created_by]);
+            $org_result = $org_stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($org_result) {
+                $org_id = $org_result['org_id'];
+            }
+            
+            $stmt = $pdo->prepare("INSERT INTO Project (project_name, description, created_by, latest_version, org_id) 
+                                  VALUES (:project_name, :description, :created_by, :latest_version, :org_id)");
             
             $stmt->execute([
                 ':project_name' => $project_name,
                 ':description' => $description,
                 ':created_by' => $created_by,
-                ':latest_version' => $latest_version
+                ':latest_version' => $latest_version,
+                ':org_id' => $org_id
             ]);
             
             $project_id = $pdo->lastInsertId();
