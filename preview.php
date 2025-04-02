@@ -6,7 +6,7 @@
         $projectId = $project['project_id'];
         $projectName = $project['project_name'];
         $projectDescription = $project['description'];
-        $thumbnailPath = !empty($project['thumbnail_path']) ? $project['thumbnail_path'] : "default-thumbnail.png"; // Use default if empty
+        $thumbnailPath = !empty($project['thumbnail_path']) ? $project['thumbnail_path'] : "default-thumbnail.png"; 
 
         $hasFiles = false;
         $fileCheckQuery = "SELECT COUNT(*) as file_count FROM Project_File WHERE project_id = ?";
