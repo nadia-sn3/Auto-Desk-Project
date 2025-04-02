@@ -12,7 +12,9 @@ if (!$user_id) {
 $filter_type = $_GET['filter'] ?? 'creation-date';
 $search_query = $_GET['search'] ?? '';
 
-$query = "SELECT DISTINCT p.* FROM Project p 
+$query = "SELECT DISTINCT p.*, 
+          (SELECT COUNT(*) FROM Project_File pf WHERE pf.project_id = p.project_id) as file_count 
+          FROM Project p 
           LEFT JOIN project_members pm ON p.project_id = pm.project_id 
           WHERE p.created_by = :user_id OR pm.user_id = :user_id";
 
@@ -95,12 +97,19 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <p>No projects found matching your criteria.</p>
                 <?php else: ?>
                     <?php foreach ($projects as $project): ?>
-                        <?php 
-                            $project_name = $project['project_name'];
-                            $description = $project['description'];
-                            $project_id = $project['project_id'];
-                            include('preview.php'); 
-                        ?>
+                        <div class="model-preview-card">
+                            <div class="model-preview-thumbnail">
+                                <img src="<?= !empty($project['thumbnail_path']) ? htmlspecialchars($project['thumbnail_path']) : 'default-thumbnail.png' ?>" alt="Model Thumbnail">
+                            </div>
+                            <div class="model-preview-info">
+                                <h3><?= htmlspecialchars($project['project_name']) ?></h3>
+                                <p><?= htmlspecialchars($project['description']) ?></p>
+                                <div class="model-preview-actions">
+                                    <a href="<?= $project['file_count'] > 0 ? 'file-list.php?project_id='.$project['project_id'] : 'view-project.php?project_id='.$project['project_id'] ?>" class="btn-view">View</a>
+                                    <a href="#" class="btn-download">Download</a>
+                                </div>
+                            </div>
+                        </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
