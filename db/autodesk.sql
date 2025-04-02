@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Apr 02, 2025 at 02:22 PM
+-- Generation Time: Apr 03, 2025 at 12:47 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -40,31 +40,6 @@ CREATE TABLE `audit_logs` (
 --
 
 INSERT INTO `audit_logs` (`audit_log_id`, `user_id`, `action`, `created_at`, `project_id`) VALUES
-(1, 1, 'Test action 1', '2025-03-27 23:55:01', NULL),
-(2, 2, 'Test action 2', '2025-03-27 23:55:01', NULL),
-(3, 7, 'User logged in', '2025-03-28 00:39:41', NULL),
-(4, 6, 'User logged in', '2025-03-28 00:56:44', NULL),
-(5, NULL, 'Failed login attempt for email: admin@admin.com', '2025-03-28 04:36:24', NULL),
-(6, 8, 'User logged in', '2025-03-28 04:37:29', NULL),
-(7, 9, 'User logged in', '2025-03-28 04:44:51', NULL),
-(8, 9, 'User logged in', '2025-03-28 04:53:35', NULL),
-(9, 9, 'User logged in', '2025-03-28 04:58:57', NULL),
-(10, 10, 'User logged in', '2025-03-28 05:00:57', NULL),
-(11, 9, 'User logged in', '2025-03-28 05:01:32', NULL),
-(12, 8, 'User logged in', '2025-03-28 05:18:15', NULL),
-(13, 8, 'User logged in', '2025-03-28 05:18:21', NULL),
-(14, 8, 'User logged in', '2025-03-28 05:18:44', NULL),
-(15, 9, 'User logged in', '2025-03-28 05:24:28', NULL),
-(16, NULL, 'Failed login attempt for email: test@test.com', '2025-03-28 05:53:13', NULL),
-(17, 9, 'User logged in', '2025-03-28 05:53:22', NULL),
-(18, 9, 'Removed user org member from organization', '2025-03-28 06:01:19', NULL),
-(19, NULL, 'Failed login attempt for email: test2@test.com', '2025-03-28 09:12:47', NULL),
-(20, 9, 'User logged in', '2025-03-28 09:12:54', NULL),
-(21, NULL, 'Failed login attempt for email: test2@test.com', '2025-03-28 09:13:09', NULL),
-(22, 10, 'User logged in', '2025-03-28 09:13:18', NULL),
-(23, NULL, 'Failed login attempt for email: test2@test.com', '2025-03-28 09:16:08', NULL),
-(24, NULL, 'Failed login attempt for email: test2@test.com', '2025-03-28 09:16:11', NULL),
-(25, 9, 'User logged in', '2025-03-28 09:16:16', NULL),
 (26, 11, 'User logged in', '2025-03-28 09:17:10', NULL),
 (27, 11, 'User logged in', '2025-03-28 09:19:45', NULL),
 (28, 8, 'User logged in', '2025-03-28 09:31:51', NULL),
@@ -76,15 +51,19 @@ INSERT INTO `audit_logs` (`audit_log_id`, `user_id`, `action`, `created_at`, `pr
 (34, 14, 'User logged in', '2025-04-01 22:03:32', NULL),
 (35, 14, 'User logged in', '2025-04-01 23:05:36', NULL),
 (36, 14, 'User logged in', '2025-04-01 23:26:05', NULL),
-(37, 14, 'User logged in', '2025-04-02 12:12:10', NULL);
+(37, 14, 'User logged in', '2025-04-02 12:12:10', NULL),
+(38, 10, 'User logged in', '2025-04-02 17:29:01', NULL),
+(39, NULL, 'Failed login attempt', '2025-04-02 17:30:09', NULL),
+(40, NULL, 'Failed login attempt', '2025-04-02 21:25:42', NULL),
+(41, 18, 'User logged in', '2025-04-02 21:25:50', NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Bucket_File`
+-- Table structure for table `bucket_file`
 --
 
-CREATE TABLE `Bucket_File` (
+CREATE TABLE `bucket_file` (
   `bucket_file_id` int(11) NOT NULL,
   `project_file_id` int(11) NOT NULL,
   `file_version` int(11) NOT NULL,
@@ -96,10 +75,10 @@ CREATE TABLE `Bucket_File` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Commit_File`
+-- Table structure for table `commit_file`
 --
 
-CREATE TABLE `Commit_File` (
+CREATE TABLE `commit_file` (
   `commit_id` int(11) NOT NULL,
   `bucket_file_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -120,6 +99,39 @@ CREATE TABLE `invitations` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `expires_at` timestamp NOT NULL DEFAULT (current_timestamp() + interval 7 day),
   `status` enum('pending','accepted','expired') NOT NULL DEFAULT 'pending'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `issues`
+--
+
+CREATE TABLE `issues` (
+  `issue_id` int(11) NOT NULL,
+  `project_id` int(11) NOT NULL,
+  `commit_id` int(11) NOT NULL,
+  `file_id` int(11) DEFAULT NULL,
+  `reporter_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `status` enum('open','in_progress','resolved') NOT NULL DEFAULT 'open',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `issue_comments`
+--
+
+CREATE TABLE `issue_comments` (
+  `comment_id` int(11) NOT NULL,
+  `issue_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `comment` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -154,13 +166,6 @@ CREATE TABLE `organisations` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `organisations`
---
-
-INSERT INTO `organisations` (`org_id`, `org_name`, `description`, `created_at`, `updated_at`) VALUES
-(4, 'Test', '', '2025-03-28 10:40:52', '2025-03-28 10:40:52');
-
 -- --------------------------------------------------------
 
 --
@@ -175,14 +180,6 @@ CREATE TABLE `organisation_members` (
   `joined_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `invited_by` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `organisation_members`
---
-
-INSERT INTO `organisation_members` (`org_member_id`, `org_id`, `user_id`, `org_role_id`, `joined_at`, `invited_by`) VALUES
-(6, 4, 14, 1, '2025-03-28 10:40:52', 14),
-(7, 1, 15, 3, '2025-03-28 10:41:25', 14);
 
 -- --------------------------------------------------------
 
@@ -223,38 +220,40 @@ CREATE TABLE `password_reset_tokens` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Project`
+-- Table structure for table `project`
 --
 
-CREATE TABLE `Project` (
+CREATE TABLE `project` (
   `project_id` int(11) NOT NULL,
   `project_name` varchar(255) NOT NULL,
   `description` text NOT NULL,
   `created_by` int(11) NOT NULL,
   `latest_version` int(11) NOT NULL,
-  `org_id` int(11) DEFAULT NULL
+  `org_id` int(11) DEFAULT NULL,
+  `thumbnail_path` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Project_Commit`
+-- Table structure for table `project_commit`
 --
 
-CREATE TABLE `Project_Commit` (
+CREATE TABLE `project_commit` (
   `commit_id` int(11) NOT NULL,
   `commit_message` text NOT NULL,
   `project_id` int(11) NOT NULL,
-  `project_version` int(11) NOT NULL
+  `project_version` int(11) NOT NULL,
+  `commit_date` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Project_File`
+-- Table structure for table `project_file`
 --
 
-CREATE TABLE `Project_File` (
+CREATE TABLE `project_file` (
   `project_file_id` int(11) NOT NULL,
   `project_id` int(11) NOT NULL,
   `file_name` varchar(255) NOT NULL,
@@ -283,18 +282,14 @@ CREATE TABLE `project_members` (
 --
 
 INSERT INTO `project_members` (`project_member_id`, `project_id`, `user_id`, `project_role_id`, `added_at`, `added_by`) VALUES
-(1, 11, 5, 1, '2025-03-27 13:47:08', 5),
-(2, 12, 9, 1, '2025-03-28 04:40:22', 9),
-(3, 12, 10, 3, '2025-03-28 04:45:05', 9),
-(4, 12, 11, 4, '2025-03-28 04:53:46', 9),
-(5, 13, 9, 1, '2025-03-28 05:01:39', 9),
-(6, 14, 9, 1, '2025-03-28 05:24:45', 9),
-(7, 15, 10, 1, '2025-03-28 09:13:26', 10),
-(8, 15, 11, 3, '2025-03-28 09:14:50', 10),
-(9, 16, 11, 1, '2025-03-28 09:22:38', 11),
-(10, 17, 10, 1, '2025-03-28 09:57:55', 10),
-(11, 18, 10, 1, '2025-03-28 09:58:46', 10),
-(12, 19, 14, 1, '2025-03-28 10:41:53', 14);
+(27, 32, 18, 1, '2025-04-02 17:52:56', 18),
+(28, 33, 18, 1, '2025-04-02 17:55:21', 18),
+(29, 34, 18, 1, '2025-04-02 17:57:01', 18),
+(30, 35, 18, 1, '2025-04-02 20:24:19', 18),
+(31, 36, 18, 1, '2025-04-02 20:40:27', 18),
+(32, 37, 18, 1, '2025-04-02 21:14:33', 18),
+(33, 38, 18, 1, '2025-04-02 21:25:56', 18),
+(34, 39, 18, 1, '2025-04-02 21:45:03', 18);
 
 -- --------------------------------------------------------
 
@@ -391,16 +386,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`user_id`, `system_role_id`, `email`, `password_hash`, `first_name`, `last_name`, `created_at`, `last_login`, `is_active`) VALUES
-(1, 2, 'su@gmail.com', '$2y$10$OxAIfun39pby6PBZ2/AlHe.pSoyl8UvBsonheeMUdGczNvySLRl4.', 'susu', 'susu', '2025-03-27 11:52:41', NULL, NULL),
-(3, 2, 's@gmail.com', '$2y$10$nreCM2W56S3WZQGP31jA2uQe1X9Mg1xtV6.KNADXRZLuLibxIld1O', 'sussu', 'susu', '2025-03-27 12:13:36', NULL, NULL),
-(4, 2, 't@t.com', '$2y$10$g3tRLJmPzaaSNSxv85puaOtQJVZWBD/iZwJzBAez0m/iZ0V.UNNhu', 't', 't', '2025-03-27 12:26:53', NULL, NULL),
-(7, 2, 'm@m.com', '$2y$10$DSOWan4k6/6X63.yiDCEr.IrtgtcnhkH/DwrmmBouNmOYHx3Gxd3O', 'm', 'm', '2025-03-28 00:39:25', NULL, NULL),
-(8, 1, 'admin@admin.com', '$2y$10$1fxcfuF.u.q8Q7tXBk6Gs.Tna0ptbeYerCl8CBvZAfX95fKOfAp9y', 'admin', 'admin', '2025-03-28 04:37:02', NULL, NULL),
-(10, 2, 'test2@test.com', '$2y$10$IA0MFA.dd3LJh.KxHjPn7.t7ICTfz2Eq8gUpcrYerPdE.dHLwPdPG', 'test2', 'test2', '2025-03-28 04:44:34', NULL, NULL),
-(11, 2, 'test3@test.com', '$2y$10$XO0o8kH1/su3cj5d40pjCO2U/wQ3nGmSB6omWot3E/DaAR1CdJ/Y6', 'test3', 'test3', '2025-03-28 04:53:11', NULL, NULL),
-(14, 2, 'test@test.com', '$2y$10$TShdpvztk5JajL0JNy9Ep.yggzBq9CLfkmen2sK9zUC7ZOYAg/0Z6', 'test', 'test', '2025-03-28 10:40:33', NULL, NULL),
-(15, 2, 'staffacc@test.com', '$2y$10$Ip9kYfLZM/1t8mcjaFreS.xQ.QONtH2lIyGyzr2fCwuAhhrS2GJgW', 'Staff', 'Acc', '2025-03-28 10:41:25', NULL, 1),
-(16, 2, 'ns@gmail.com', '$2y$10$9jxd77nzbgbiOnWGQu6EBeOO2nznRuYWmwQ7plVVgccj0A7Ug6aDu', 'nadia', 'sajjad', '2025-04-02 12:13:47', NULL, NULL);
+(1, 1, 'admin@admin.com', '$2y$10$1fxcfuF.u.q8Q7tXBk6Gs.Tna0ptbeYerCl8CBvZAfX95fKOfAp9y', 'admin', 'admin', '2025-03-28 04:37:02', NULL, NULL),
+(18, 2, 'test@test.com', '$2y$10$UBqgSTBxfG7.oqQvW2q75uGBKeWfQZrmlmIH/QWvyRuTseywhWh.2', 'Test', 'test', '2025-04-02 17:30:29', NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -414,16 +401,16 @@ ALTER TABLE `audit_logs`
   ADD KEY `fk_project_id` (`project_id`);
 
 --
--- Indexes for table `Bucket_File`
+-- Indexes for table `bucket_file`
 --
-ALTER TABLE `Bucket_File`
+ALTER TABLE `bucket_file`
   ADD PRIMARY KEY (`bucket_file_id`),
   ADD KEY `project_file_id` (`project_file_id`);
 
 --
--- Indexes for table `Commit_File`
+-- Indexes for table `commit_file`
 --
-ALTER TABLE `Commit_File`
+ALTER TABLE `commit_file`
   ADD PRIMARY KEY (`commit_id`,`bucket_file_id`),
   ADD KEY `bucket_file_id` (`bucket_file_id`);
 
@@ -433,6 +420,24 @@ ALTER TABLE `Commit_File`
 ALTER TABLE `invitations`
   ADD PRIMARY KEY (`invitation_id`),
   ADD KEY `org_id` (`org_id`);
+
+--
+-- Indexes for table `issues`
+--
+ALTER TABLE `issues`
+  ADD PRIMARY KEY (`issue_id`),
+  ADD KEY `project_id` (`project_id`),
+  ADD KEY `commit_id` (`commit_id`),
+  ADD KEY `file_id` (`file_id`),
+  ADD KEY `reporter_id` (`reporter_id`);
+
+--
+-- Indexes for table `issue_comments`
+--
+ALTER TABLE `issue_comments`
+  ADD PRIMARY KEY (`comment_id`),
+  ADD KEY `issue_id` (`issue_id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `organisations`
@@ -450,23 +455,23 @@ ALTER TABLE `organisation_members`
   ADD KEY `org_role_id` (`org_role_id`);
 
 --
--- Indexes for table `Project`
+-- Indexes for table `project`
 --
-ALTER TABLE `Project`
+ALTER TABLE `project`
   ADD PRIMARY KEY (`project_id`),
   ADD KEY `fk_project_org` (`org_id`);
 
 --
--- Indexes for table `Project_Commit`
+-- Indexes for table `project_commit`
 --
-ALTER TABLE `Project_Commit`
+ALTER TABLE `project_commit`
   ADD PRIMARY KEY (`commit_id`),
   ADD KEY `project_id` (`project_id`);
 
 --
--- Indexes for table `Project_File`
+-- Indexes for table `project_file`
 --
-ALTER TABLE `Project_File`
+ALTER TABLE `project_file`
   ADD PRIMARY KEY (`project_file_id`),
   ADD KEY `project_id` (`project_id`);
 
@@ -499,13 +504,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `audit_logs`
 --
 ALTER TABLE `audit_logs`
-  MODIFY `audit_log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `audit_log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
--- AUTO_INCREMENT for table `Bucket_File`
+-- AUTO_INCREMENT for table `bucket_file`
 --
-ALTER TABLE `Bucket_File`
-  MODIFY `bucket_file_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+ALTER TABLE `bucket_file`
+  MODIFY `bucket_file_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `invitations`
@@ -514,40 +519,52 @@ ALTER TABLE `invitations`
   MODIFY `invitation_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `issues`
+--
+ALTER TABLE `issues`
+  MODIFY `issue_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `issue_comments`
+--
+ALTER TABLE `issue_comments`
+  MODIFY `comment_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `organisations`
 --
 ALTER TABLE `organisations`
-  MODIFY `org_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `org_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `organisation_members`
 --
 ALTER TABLE `organisation_members`
-  MODIFY `org_member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `org_member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT for table `Project`
+-- AUTO_INCREMENT for table `project`
 --
-ALTER TABLE `Project`
-  MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+ALTER TABLE `project`
+  MODIFY `project_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
--- AUTO_INCREMENT for table `Project_Commit`
+-- AUTO_INCREMENT for table `project_commit`
 --
-ALTER TABLE `Project_Commit`
-  MODIFY `commit_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+ALTER TABLE `project_commit`
+  MODIFY `commit_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
 
 --
--- AUTO_INCREMENT for table `Project_File`
+-- AUTO_INCREMENT for table `project_file`
 --
-ALTER TABLE `Project_File`
-  MODIFY `project_file_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+ALTER TABLE `project_file`
+  MODIFY `project_file_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `project_members`
 --
 ALTER TABLE `project_members`
-  MODIFY `project_member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `project_member_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT for table `reports`
@@ -559,7 +576,7 @@ ALTER TABLE `reports`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- Constraints for dumped tables
@@ -572,35 +589,35 @@ ALTER TABLE `audit_logs`
   ADD CONSTRAINT `fk_project_id` FOREIGN KEY (`project_id`) REFERENCES `project` (`project_id`);
 
 --
--- Constraints for table `Bucket_File`
+-- Constraints for table `bucket_file`
 --
-ALTER TABLE `Bucket_File`
-  ADD CONSTRAINT `bucket_file_ibfk_1` FOREIGN KEY (`project_file_id`) REFERENCES `Project_File` (`project_file_id`) ON DELETE CASCADE;
+ALTER TABLE `bucket_file`
+  ADD CONSTRAINT `bucket_file_ibfk_1` FOREIGN KEY (`project_file_id`) REFERENCES `project_file` (`project_file_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `Commit_File`
+-- Constraints for table `commit_file`
 --
-ALTER TABLE `Commit_File`
-  ADD CONSTRAINT `commit_file_ibfk_1` FOREIGN KEY (`commit_id`) REFERENCES `Project_Commit` (`commit_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `commit_file_ibfk_2` FOREIGN KEY (`bucket_file_id`) REFERENCES `Bucket_File` (`bucket_file_id`) ON DELETE CASCADE;
+ALTER TABLE `commit_file`
+  ADD CONSTRAINT `commit_file_ibfk_1` FOREIGN KEY (`commit_id`) REFERENCES `project_commit` (`commit_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `commit_file_ibfk_2` FOREIGN KEY (`bucket_file_id`) REFERENCES `bucket_file` (`bucket_file_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `Project`
+-- Constraints for table `project`
 --
-ALTER TABLE `Project`
+ALTER TABLE `project`
   ADD CONSTRAINT `fk_project_org` FOREIGN KEY (`org_id`) REFERENCES `organisations` (`org_id`);
 
 --
--- Constraints for table `Project_Commit`
+-- Constraints for table `project_commit`
 --
-ALTER TABLE `Project_Commit`
-  ADD CONSTRAINT `project_commit_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `Project` (`project_id`) ON DELETE CASCADE;
+ALTER TABLE `project_commit`
+  ADD CONSTRAINT `project_commit_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `project` (`project_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `Project_File`
+-- Constraints for table `project_file`
 --
-ALTER TABLE `Project_File`
-  ADD CONSTRAINT `project_file_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `Project` (`project_id`) ON DELETE CASCADE;
+ALTER TABLE `project_file`
+  ADD CONSTRAINT `project_file_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `project` (`project_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `reports`
