@@ -80,7 +80,7 @@ $access_token = getAccessToken($client_id, $client_secret);
 
                 <nav class="project-nav-bar">
                     <ul>
-                    <li><a href="/collaborators.php?project_id=<?php echo $_GET['project_id']; ?>" class="nav-link">Collaborators</a></li>
+                    <li><a href="collaborators.php?project_id=<?php echo $_GET['project_id']; ?>" class="nav-link">Collaborators</a></li>
                         <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Create a Commit</a></li>
                     </ul>
                 </nav>
@@ -108,7 +108,7 @@ $access_token = getAccessToken($client_id, $client_secret);
                                         data-file-name="<?= urlencode($file['file_name']) ?>" 
                                         data-file-type="<?= pathinfo($file['file_name'], PATHINFO_EXTENSION) ?>" 
                                         data-urn="<?= htmlspecialchars($file['object_id']) ?>" 
-                                        data-object-key="<?= htmlspecialchars($file['object_key']) ?>" onclick="showFileDetails(event)">
+                                        data-object-key="<?= isset($file['object_key']) ? htmlspecialchars($file['object_key']) : '' ?>" onclick="showFileDetails(event)">
                                         
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -525,7 +525,7 @@ $access_token = getAccessToken($client_id, $client_secret);
                                         return;
                                     }
                                     
-                                    const url = `/Backend/Auto-desk-project/backend/Business_Logic/Function/Rollback.php?commit_id=${commit_id}&project_id=${project_id}`;
+                                    const url = `/Auto-desk-project/backend/Business_Logic/Function/Rollback.php?commit_id=${commit_id}&project_id=${project_id}`;
                                     console.log("Rollback URL:", url);
 
                                     fetch(url)
