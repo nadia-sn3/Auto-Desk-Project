@@ -69,13 +69,6 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <li><a href="view-project.php?project_id=<?= $project['project_id'] ?>"><?= htmlspecialchars($project['project_name']) ?></a></li>
                 <?php endforeach; ?>
             </ul>
-
-            <h3><a href="asset-library.php">Asset Library</a></h3>
-            <ul>
-                <li><a href="view-asset-model.php">Asset 1</a></li>
-                <li><a href="view-asset-model.php">Asset 2</a></li>
-                <li><a href="view-asset-model.php">Asset 3</a></li>
-            </ul>
         </aside>
 
         <main class="main-content">
@@ -106,7 +99,6 @@ $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <p><?= htmlspecialchars($project['description']) ?></p>
                                 <div class="model-preview-actions">
                                     <a href="<?= $project['file_count'] > 0 ? 'file-list.php?project_id='.$project['project_id'] : 'view-project.php?project_id='.$project['project_id'] ?>" class="btn-view">View</a>
-                                    <a href="#" class="btn-download">Download</a>
                                 </div>
                             </div>
                         </div>

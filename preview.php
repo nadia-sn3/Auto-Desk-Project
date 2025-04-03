@@ -30,7 +30,6 @@
                 <p><?php echo htmlspecialchars($projectDescription); ?></p>
                 <div class="model-preview-actions">
                     <a href="<?php echo $viewLink; ?>" class="btn-view">View</a>
-                    <a href="#" class="btn-download">Download</a>
                 </div>
             </div>
         </div>
