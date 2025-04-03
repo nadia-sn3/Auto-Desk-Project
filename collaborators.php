@@ -221,7 +221,6 @@ try {
                         <option value="2">Project Manager</option>
                         <option value="3">Editor</option>
                         <option value="4">Viewer</option>
-                        <option value="5">Contractor</option>
                     </select>
                 </div>
                 <button type="submit" class="submit-btn">Invite</button>
