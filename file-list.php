@@ -95,7 +95,7 @@ $access_token = getAccessToken($client_id, $client_secret);
                         <?php else: ?>
                             <a href="javascript:void(0);" class="nav-link">Manage Project</a>
                         <?php endif; ?>
-                    </li>    
+                    </li>
                 </ul>
                 </nav>
                 <div class="file-dropdown-wrapper">
@@ -144,10 +144,12 @@ $access_token = getAccessToken($client_id, $client_secret);
                 </div>
 
                 <div class="viewer-container">
+
                     <div id="forgeViewer"></div>
                     <div id="viewables_dropdown" style="display: none;">
                         <select id="viewables"></select>
                     </div>   
+                    
                     <div id="imageContainer"></div>     
                 </div>    
 

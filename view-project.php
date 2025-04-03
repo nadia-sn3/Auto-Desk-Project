@@ -14,11 +14,44 @@
     if (!$project_id) {
         die("Project ID missing!");
     }
+    
+    // Get current user ID from session
+    session_start();
+    $user_id = $_SESSION['user_id'] ?? null;
+    
+    // Get project details
     $stmt = $pdo->prepare("SELECT * FROM Project WHERE project_id = :project_id");
     $stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);
     $stmt->execute();
     $project = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    // Get user's role in this project
+    $user_role = null;
+    $is_admin = false;
+    $is_manager = false;
+    $is_editor = false;
+    $is_viewer = false;
+    
+    if ($user_id) {
+        $stmt = $pdo->prepare("SELECT pr.role_name, pr.permissions 
+                              FROM project_members pm
+                              JOIN project_roles pr ON pm.project_role_id = pr.project_role_id
+                              WHERE pm.project_id = :project_id AND pm.user_id = :user_id");
+        $stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);
+        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $role = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($role) {
+            $user_role = $role['role_name'];
+            $permissions = json_decode($role['permissions'], true);
+            
+            $is_admin = $user_role === 'Project Admin';
+            $is_manager = $user_role === 'Project Manager';
+            $is_editor = $user_role === 'Project Editor';
+            $is_viewer = $user_role === 'Project Viewer';
+        }
+    }
 ?>
 
 <!DOCTYPE html>
@@ -49,20 +82,25 @@
                 <nav class="project-nav-bar">
                 <ul>
                     <li><a href="collaborators.php?project_id=<?php echo $project_id; ?>" class="nav-link">Collaborators</a></li>    
-                    <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Create a Commit</a></li>
-                    <li>
-                        <?php if ($is_admin): ?>
+                    <?php if ($is_admin || $is_manager || $is_editor): ?>
+                        <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Create a Commit</a></li>
+                    <?php endif; ?>
+                    <?php if ($is_admin || $is_manager): ?>
+                        <li>
                             <div class="dropdown">
                                 <a href="javascript:void(0);" class="nav-link dropdown-toggle">Manage Project</a>
                                 <div class="dropdown-content">
-                                    <a href="#" id="archiveProject">Archive Project</a>
-                                    <a href="#" id="deleteProject">Delete Project</a>
+                                    <?php if ($is_admin): ?>
+                                        <a href="#" id="archiveProject">Archive Project</a>
+                                        <a href="#" id="deleteProject">Delete Project</a>
+                                    <?php endif; ?>
+                                    <?php if ($is_admin || $is_manager): ?>
+                                        <a href="#" id="editProject">Edit Project</a>
+                                    <?php endif; ?>
                                 </div>
                             </div>
-                        <?php else: ?>
-                            <a href="javascript:void(0);" class="nav-link">Manage Project</a>
-                        <?php endif; ?>
-                    </li>    
+                        </li>
+                    <?php endif; ?>    
                 </ul>
             </nav>
             <div class="file-dropdown-wrapper">
@@ -87,51 +125,63 @@
             </div>
         </div>
 
+        <?php if ($is_admin || $is_manager || $is_editor): ?>
         <form method="POST" enctype="multipart/form-data" id="upload-form"> 
-
-        <div id="uploadModal" class="modal">
-                    <div class="modal-content">
-                        <span class="close">&times;</span>
-                        <h2>Upload Files</h2>
-                        <div class="upload-area" id="dropArea">
-                            <p>Drag & Drop files here</p>
-                            <p>or</p>
-                            <input type="file" id="file-upload" name="file-upload[]" multiple>
-                            <label for="file-upload" class="browse-btn">Browse Files</label>
-                        </div>
-                        <div id="fileList"></div>
-                        <div id="commitMessageContainer" style="display: none;">
-                            <label for="commitMessage">Initial Commit Message:</label>
-                            <input type="text" id="commitMessage" name= "commitMessage" placeholder="Enter commit message" required>
-                        </div>
-                        <button type="submit" class="browse-btn">Upload</button>
+            <div id="uploadModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Upload Files</h2>
+                    <div class="upload-area" id="dropArea">
+                        <p>Drag & Drop files here</p>
+                        <p>or</p>
+                        <input type="file" id="file-upload" name="file-upload[]" multiple>
+                        <label for="file-upload" class="browse-btn">Browse Files</label>
                     </div>
+                    <div id="fileList"></div>
+                    <div id="commitMessageContainer" style="display: none;">
+                        <label for="commitMessage">Initial Commit Message:</label>
+                        <input type="text" id="commitMessage" name= "commitMessage" placeholder="Enter commit message" required>
+                    </div>
+                    <button type="submit" class="browse-btn">Upload</button>
                 </div>
-                
+            </div>
         </form> 
+        <?php endif; ?>
 
             <div class="project-model">
                 <?php if (empty($urn)): ?>
+                    <?php if ($is_admin || $is_manager || $is_editor): ?>
+                        <div class="empty-viewer-upload">
+                            <div class="upload-area-large" id="dropAreaLarge">
+                                <div class="upload-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                </div>
+                                <h3>Upload Your First Model</h3>
+                                <p>Drag & drop your 3D model files here</p>
+                                <p class="or-text">or</p>
+                                <input type="file" id="fileInputLarge" multiple style="display: none;">
+                                <label for="fileInputLarge" class="browse-btn-large">Select Files</label>
+                                <p class="file-types">Supported formats: .rvt, .dwg, .ifc, .obj, .glb, .fbx</p>
+                            </div>
+                        </div>
+                    <?php else: ?>
 
                     <div class="empty-viewer-upload">
                         <div class="upload-area-large" id="dropAreaLarge">
-                            <div class="upload-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="17 8 12 3 7 8"></polyline>
-                                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                                </svg>
+                            <div class="empty-viewer-message">
+                                <h3>No Model Available</h3>
+                                <p>This project doesn't have any models uploaded yet.</p>
+                                <p>Please contact the project admin if you need access.</p>
                             </div>
-                            <h3>Upload Your First Model</h3>
-                            <p>Drag & drop your 3D model files here</p>
-                            <p class="or-text">or</p>
-                            <input type="file" id="fileInputLarge" multiple style="display: none;">
-                            <label for="fileInputLarge" class="browse-btn-large">Select Files</label>
-                            <p class="file-types">Supported formats: .rvt, .dwg, .ifc, .obj, .glb, .fbx</p>
                         </div>
                     </div>
+                    
+                    <?php endif; ?>
                 <?php else: ?>
-
                     <div class="project-model-viewer" id="forgeViewer"></div> 
                     <div id="viewables_dropdown" style="display: none;">
                         <select id="viewables"></select>
@@ -140,7 +190,9 @@
                 
                 <div class="project-model-buttons">
                     <button class="btn">Share</button>
-                    <button class="btn">Download</button>
+                    <?php if ($is_admin || $is_manager || $is_editor): ?>
+                        <button class="btn">Download</button>
+                    <?php endif; ?>
                 </div>
                 <div class="project-model-data">
                     <h3>Model Details</h3>
@@ -157,13 +209,14 @@
                 <div class="project-model-timeline-header">
                     <h3>Model Timeline</h3>
                     <span class="total-commits">Total Commits: <?php echo empty($urn) ? '0' : '12'; ?></span>
-                    <div class="filter-container">
-                        <input type="date" id="filterDate" name="filterDate">
-                        <button id="filterBeforeBtn" class="btn">Before</button>
-                        <button id="filterAfterBtn" class="btn">After</button>
-                    </div>
+                    <?php if ($is_admin || $is_manager): ?>
+                        <div class="filter-container">
+                            <input type="date" id="filterDate" name="filterDate">
+                            <button id="filterBeforeBtn" class="btn">Before</button>
+                            <button id="filterAfterBtn" class="btn">After</button>
+                        </div>
+                    <?php endif; ?>
                 </div>
-                
             </div>
         </div>
     </div>
@@ -187,6 +240,13 @@
                     <label for="share-role">Role</label>
                     <select id="share-role" name="share-role">
                         <option value="viewer">Viewer</option>
+                        <?php if ($is_admin || $is_manager): ?>
+                            <option value="editor">Editor</option>
+                            <option value="manager">Manager</option>
+                        <?php endif; ?>
+                        <?php if ($is_admin): ?>
+                            <option value="admin">Admin</option>
+                        <?php endif; ?>
                     </select>
                 </div>
                 <div class="form-group">
@@ -206,13 +266,12 @@
     <script src="js/file-list-dropdown.js"></script>
 
     <script>
-
         document.addEventListener('DOMContentLoaded', function() {
+            <?php if ($is_admin || $is_manager || $is_editor): ?>
             const dropAreaLarge = document.getElementById('dropAreaLarge');
             const fileInputLarge = document.getElementById('fileInputLarge');
             
             if (dropAreaLarge && fileInputLarge) {
-
                 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                     dropAreaLarge.addEventListener(eventName, preventDefaults, false);
                 });
@@ -261,6 +320,7 @@
                     document.getElementById('file-upload').dispatchEvent(event);
                 }
             }
+            <?php endif; ?>
         });
     </script>
 </body>
