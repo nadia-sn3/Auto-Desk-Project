@@ -210,7 +210,6 @@ $access_token = getAccessToken($client_id, $client_secret);
                 <div class="project-model">
                     <!-- Model Action Buttons -->
                     <div class="project-model-buttons">
-                        <button class="btn">Share</button>
                         <button class="btn">Download</button>
                     </div>
 
@@ -302,36 +301,6 @@ $access_token = getAccessToken($client_id, $client_secret);
                     </div>
                 </div>
             </form> 
-           
-            <!-- Share Modal -->
-            <div id="shareModal" class="modal">
-                <div class="modal-content">
-                    <span class="close-btn">&times;</span>
-                    <h2>Share Project</h2>
-                    <form id="share-form">
-                        <div class="form-group">
-                            <label for="share-email">Invite by Email</label>
-                            <input type="email" id="share-email" name="share-email" placeholder="Enter email">
-                        </div>
-                        <div class="form-group">
-                            <label for="share-role">Role</label>
-                            <select id="share-role" name="share-role">
-                            <option value="viewer">Contractor</option>
-                                <option value="viewer">Viewer</option>
-                                <?php if ($show_manage_project): ?>
-                                    <option value="editor">Editor</option>
-                                    <option value="manager">Manager</option>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="share-duration">Access Duration (days)</label>
-                            <input type="number" id="share-duration" name="share-duration" placeholder="Enter number of days">
-                        </div>
-                        <button type="submit" class="submit-btn">Share</button>
-                    </form>
-                </div>
-            </div>
         </div>
     </div>
 
