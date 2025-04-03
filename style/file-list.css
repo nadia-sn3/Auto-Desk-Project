@@ -1,11 +1,26 @@
+/* .viewer-container {
+    position: relative;
+    z-index: 1; 
+}
+
+#forgeViewer {
+    z-index: 1; 
+}
+
 .viewer-container {
     width: 100%;
-    height: 600px; /* Adjust as needed */
-    display: flex;
-    justify-content: center;
-    align-items: center;  /* Center content horizontally and vertically */
+    height: 600px; 
     background-color: #f0f0f0;
-    position: relative;  /* Allows for stacking of the elements */
+    position: relative;
+    margin-bottom: 20px;
+}
+
+#forgeViewer {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 #imageContainer {
@@ -17,29 +32,16 @@
     overflow-x: auto;
     overflow-y: auto;
     margin: 20px;
-    position: absolute;  /* Positioning for z-index control */
+    position: absolute; 
     top: 0;
     left: 0;
-    z-index: 2;  /* Initially set to appear above the forgeViewer */
-    visibility: hidden;  /* Hidden by default */
-    opacity: 0;  /* Make it invisible */
-    transition: opacity 0.5s ease-in-out;  /* Smooth fade-in/fade-out */
+    z-index: 2;  
+    visibility: hidden; 
+    opacity: 0;  
+    transition: opacity 0.5s ease-in-out; 
 }
 
 #imageContainer.show {
-    visibility: visible;  /* Make visible */
-    opacity: 1;  /* Fully visible */
-}
-
-#forgeViewer {
-    width: 50%;
-    height: 100%;
-    background-color: #eaeaea;
-    position: absolute;  /* Positioning for z-index control */
-    top: 0;
-    left: 0;
-    z-index: 1;  /* Initially set to the bottom layer */
-    visibility: visible; /* Ensure forgeViewer is visible by default */
-    opacity: 1;
-}
-
+    visibility: visible; 
+    opacity: 1; 
+} */

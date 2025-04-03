@@ -9,52 +9,42 @@ if (!$user_id) {
     exit;
 }
 
-
 $filter_type = $_GET['filter'] ?? 'creation-date';
 $search_query = $_GET['search'] ?? '';
 
-$created_query = "SELECT * FROM Project WHERE created_by = :user_id";
-$member_query = "SELECT p.* FROM Project p JOIN project_members pm ON p.project_id = pm.project_id WHERE pm.user_id = :user_id AND p.created_by != :user_id";
+$query = "SELECT DISTINCT p.*, 
+          (SELECT COUNT(*) FROM Project_File pf WHERE pf.project_id = p.project_id) as file_count 
+          FROM Project p 
+          LEFT JOIN project_members pm ON p.project_id = pm.project_id 
+          WHERE p.created_by = :user_id OR pm.user_id = :user_id";
 
 if (!empty($search_query)) {
     $search_term = "%$search_query%";
-    $created_query .= " AND (project_name LIKE :search OR description LIKE :search)";
-    $member_query .= " AND (p.project_name LIKE :search OR p.description LIKE :search)";
+    $query .= " AND (p.project_name LIKE :search OR p.description LIKE :search)";
 }
 
 switch ($filter_type) {
     case 'last-modified':
-        $order_by = "ORDER BY project_id DESC"; 
+        $order_by = "ORDER BY p.project_id DESC"; 
         break;
     case 'alphabetical':
-        $order_by = "ORDER BY project_name ASC";
+        $order_by = "ORDER BY p.project_name ASC";
         break;
     case 'creation-date':
     default:
-        $order_by = "ORDER BY project_id DESC";
+        $order_by = "ORDER BY p.project_id DESC";
         break;
 }
 
-$created_query .= " $order_by";
-$member_query .= " $order_by";
+$query .= " $order_by";
 
-$stmt = $pdo->prepare($created_query);
+$stmt = $pdo->prepare($query);
 $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 if (!empty($search_query)) {
     $stmt->bindParam(':search', $search_term, PDO::PARAM_STR);
 }
 $stmt->execute();
-$created_projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$stmt = $pdo->prepare($member_query);
-$stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-if (!empty($search_query)) {
-    $stmt->bindParam(':search', $search_term, PDO::PARAM_STR);
-}
-$stmt->execute();
-$member_projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$projects = array_merge($created_projects, $member_projects);
+$projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -79,13 +69,6 @@ $projects = array_merge($created_projects, $member_projects);
                     <li><a href="view-project.php?project_id=<?= $project['project_id'] ?>"><?= htmlspecialchars($project['project_name']) ?></a></li>
                 <?php endforeach; ?>
             </ul>
-
-            <h3><a href="asset-library.php">Asset Library</a></h3>
-            <ul>
-                <li><a href="view-asset-model.php">Asset 1</a></li>
-                <li><a href="view-asset-model.php">Asset 2</a></li>
-                <li><a href="view-asset-model.php">Asset 3</a></li>
-            </ul>
         </aside>
 
         <main class="main-content">
@@ -107,12 +90,18 @@ $projects = array_merge($created_projects, $member_projects);
                     <p>No projects found matching your criteria.</p>
                 <?php else: ?>
                     <?php foreach ($projects as $project): ?>
-                        <?php 
-                            $project_name = $project['project_name'];
-                            $description = $project['description'];
-                            $project_id = $project['project_id'];
-                            include('preview.php'); 
-                        ?>
+                        <div class="model-preview-card">
+                            <div class="model-preview-thumbnail">
+                                <img src="<?= !empty($project['thumbnail_path']) ? htmlspecialchars($project['thumbnail_path']) : 'default-thumbnail.png' ?>" alt="Model Thumbnail">
+                            </div>
+                            <div class="model-preview-info">
+                                <h3><?= htmlspecialchars($project['project_name']) ?></h3>
+                                <p><?= htmlspecialchars($project['description']) ?></p>
+                                <div class="model-preview-actions">
+                                    <a href="<?= $project['file_count'] > 0 ? 'file-list.php?project_id='.$project['project_id'] : 'view-project.php?project_id='.$project['project_id'] ?>" class="btn-view">View</a>
+                                </div>
+                            </div>
+                        </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>

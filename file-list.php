@@ -477,29 +477,6 @@ $access_token = getAccessToken($client_id, $client_secret);
                             const issueForm = document.getElementById("issueForm");
                             const versionIdInput = document.getElementById("versionId");
                             
-                            // document.addEventListener('click', function(e) {
-                            //     if (e.target.classList.contains('raise-issue-btn')) {
-                            //         e.stopPropagation();
-                            //         const versionId = e.target.getAttribute('data-version');
-                            //         const projectId = e.target.getAttribute('data-project-id');
-                            //         // issueModal.style.display = "block";
-                            //     }
-                            //     console.log(`Commit Version ID: ${versionId}`);
-                            //     console.log(`Project ID: ${projectId}`);
-
-                            //     fetchProjectFile(projectId, versionId);
-                            //     const issueModal = document.getElementById("issueModal");
-                            //     issueModal.style.display = "block";
-
-                            //     // if (e.target.classList.contains('close')) {
-                            //     //     issueModal.style.display = "none";
-                            //     // }
-                                
-                            //     // if (e.target === issueModal) {
-                            //     //     issueModal.style.display = "none";
-                            //     // }
-                            // });
-
                             
                         document.addEventListener('click', function (e) {
                         if (e.target.classList.contains('raise-issue-btn')) {

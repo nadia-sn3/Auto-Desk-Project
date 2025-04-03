@@ -54,7 +54,7 @@ if (isset($_SESSION['user_id']) && (!isset($_SESSION['first_name']) || !isset($_
                     <li><a href="logout.php">Log Out</a></li>
 
                     <li class="welcome-message">
-                        <a href="profile.php">
+                        <a href="#">
                             Welcome, <?php echo htmlspecialchars($_SESSION['first_name']); ?>
                             <?php if ($isAdmin): ?>
                                 <span class="admin-badge">(Admin)</span>

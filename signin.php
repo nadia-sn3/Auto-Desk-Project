@@ -6,7 +6,7 @@ if (isset($_SESSION['user_id'])) {
     if ($_SESSION['system_role_id'] == 1) {
         header("Location: system-admin-home.php");
     } elseif (!empty($_SESSION['org_memberships'])) {
-        header("Location: org-dashboard.php");
+        header("Location: org-owner-home.php");
     } else {
         header("Location: project-home.php");
     }
@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     break;
                 case 2:
                 default:
-                    header("Location: ".(!empty($orgMemberships) ? "org-dashboard.php" : "project-home.php"));
+                    header("Location: ".(!empty($orgMemberships) ? "org-owner-home.php" : "project-home.php"));
             }
             exit();
         } else {

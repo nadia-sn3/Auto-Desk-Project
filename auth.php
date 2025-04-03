@@ -23,7 +23,7 @@ function require_org_access($org_id = null) {
     }
     
     if ($org_id && !has_org_access($org_id)) {
-        header("Location: org-dashboard.php");
+        header("Location: project-home.php");
         exit();
     }
 }

@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['current_org_role_id'] = 1; 
             $_SESSION['current_org_role_name'] = 'Organisation Owner';
             
-            header("Location: org-dashboard.php?new=1");
+            header("Location: org-owner-home.php?new=1");
             exit();
 
         } catch (Exception $e) {

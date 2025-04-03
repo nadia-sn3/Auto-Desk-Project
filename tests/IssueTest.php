@@ -12,3 +12,4 @@ class IssueTest extends TestCase {
         $this->assertEquals("open", $status);
     }
 }
+ 

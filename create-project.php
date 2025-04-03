@@ -25,17 +25,6 @@
                     <textarea id="project-description" name="project-description" placeholder="Enter a short description" rows="3" required></textarea>
                 </div>
 
-                <div class="input-group">
-                    <label for="invite-users">Invite Users</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="invite-users" name="invite-users" placeholder="Enter username or email">
-                        <button type="button" class="add-user-btn">Add</button>
-                    </div>
-                </div>
-
-                <div id="user-roles-section" class="input-group">
-                </div>
-
                 <button type="submit" class="create-btn">Create Project</button>
             </form>
         </div>
