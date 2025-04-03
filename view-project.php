@@ -1,4 +1,5 @@
 <?php
+    // Database and configuration includes
     require_once 'backend/Business_Logic/Function/config.php';
     require_once 'backend/Business_Logic/Function/createBucket.php';
     require_once 'backend/Business_Logic/Function/getAccessToken.php';
@@ -7,25 +8,28 @@
     require_once 'backend/Business_Logic/Function/create_project.php';
     require_once 'backend/Business_Logic/Function/upload-projectfile.php';
     require_once 'db/connection.php';
+
+    // Get URN from URL
     $urn = isset($_GET['urn']) ? htmlspecialchars($_GET['urn']) : '';
 
+    // Authentication and project setup
     $access_token = getAccessToken($client_id, $client_secret);
     $project_id = $_GET['project_id'] ?? null;
     if (!$project_id) {
         die("Project ID missing!");
     }
     
-    // Get current user ID from session
+    // Session and user information
     session_start();
     $user_id = $_SESSION['user_id'] ?? null;
     
-    // Get project details
+    // Get project details from database
     $stmt = $pdo->prepare("SELECT * FROM Project WHERE project_id = :project_id");
     $stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);
     $stmt->execute();
     $project = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Get user's role in this project
+    // User role and permissions
     $user_role = null;
     $is_admin = false;
     $is_manager = false;
@@ -59,27 +63,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autodesk | Project Name</title>
+    
+    <!-- CSS Files -->
     <link rel="stylesheet" href="style/base.css">
     <link rel="stylesheet" href="style/viewproject.css">
     <link rel="stylesheet" href="style/upload-button.css">
     <link rel="stylesheet" href="backend/css/main.css">
+    <link rel="stylesheet" href="style/version+issues.css">
     <link href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.css" rel="stylesheet">
-    <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
-    <title>Autodesk | Project Name</title>
 </head>
 <body>
     <?php include('include/header.php'); ?>
 
     <div class="page-container">
         <div class="project-container">
-        <div class="project-header">
-                    <div class="project-title">
+            <!-- Project Header Section -->
+            <div class="project-header">
+                <div class="project-title">
                     <h2><?php echo htmlspecialchars($project['project_name']); ?></h2>
-                        <p><?php echo htmlspecialchars($project['description']); ?></p>
-                    </div>
+                    <p><?php echo htmlspecialchars($project['description']); ?></p>
                 </div>
+            </div>
 
-                <nav class="project-nav-bar">
+            <!-- Navigation Bar -->
+            <nav class="project-nav-bar">
                 <ul>
                     <li><a href="collaborators.php?project_id=<?php echo $project_id; ?>" class="nav-link">Collaborators</a></li>    
                     <?php if ($is_admin || $is_manager || $is_editor): ?>
@@ -103,6 +111,8 @@
                     <?php endif; ?>    
                 </ul>
             </nav>
+
+            <!-- File Dropdown Section -->
             <div class="file-dropdown-wrapper">
                 <div class="file-dropdown">
                     <button class="dropdown-header">
@@ -121,36 +131,39 @@
                         </div>
                         <ul class="file-list">
                         </ul>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <?php if ($is_admin || $is_manager || $is_editor): ?>
-        <form method="POST" enctype="multipart/form-data" id="upload-form"> 
-            <div id="uploadModal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h2>Upload Files</h2>
-                    <div class="upload-area" id="dropArea">
-                        <p>Drag & Drop files here</p>
-                        <p>or</p>
-                        <input type="file" id="file-upload" name="file-upload[]" multiple>
-                        <label for="file-upload" class="browse-btn">Browse Files</label>
+            <!-- Upload Modal (Conditional) -->
+            <?php if ($is_admin || $is_manager || $is_editor): ?>
+            <form method="POST" enctype="multipart/form-data" id="upload-form"> 
+                <div id="uploadModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2>Upload Files</h2>
+                        <div class="upload-area" id="dropArea">
+                            <p>Drag & Drop files here</p>
+                            <p>or</p>
+                            <input type="file" id="file-upload" name="file-upload[]" multiple>
+                            <label for="file-upload" class="browse-btn">Browse Files</label>
+                        </div>
+                        <div id="fileList"></div>
+                        <div id="commitMessageContainer" style="display: none;">
+                            <label for="commitMessage">Initial Commit Message:</label>
+                            <input type="text" id="commitMessage" name= "commitMessage" placeholder="Enter commit message" required>
+                        </div>
+                        <button type="submit" class="browse-btn">Upload</button>
                     </div>
-                    <div id="fileList"></div>
-                    <div id="commitMessageContainer" style="display: none;">
-                        <label for="commitMessage">Initial Commit Message:</label>
-                        <input type="text" id="commitMessage" name= "commitMessage" placeholder="Enter commit message" required>
-                    </div>
-                    <button type="submit" class="browse-btn">Upload</button>
                 </div>
-            </div>
-        </form> 
-        <?php endif; ?>
+            </form> 
+            <?php endif; ?>
 
+            <!-- Main Model Viewer Section -->
             <div class="project-model">
                 <?php if (empty($urn)): ?>
                     <?php if ($is_admin || $is_manager || $is_editor): ?>
+                        <!-- Empty viewer with upload option -->
                         <div class="empty-viewer-upload">
                             <div class="upload-area-large" id="dropAreaLarge">
                                 <div class="upload-icon">
@@ -169,31 +182,34 @@
                             </div>
                         </div>
                     <?php else: ?>
-
-                    <div class="empty-viewer-upload">
-                        <div class="upload-area-large" id="dropAreaLarge">
-                            <div class="empty-viewer-message">
-                                <h3>No Model Available</h3>
-                                <p>This project doesn't have any models uploaded yet.</p>
-                                <p>Please contact the project admin if you need access.</p>
+                        <!-- Empty viewer for non-editors -->
+                        <div class="empty-viewer-upload">
+                            <div class="upload-area-large" id="dropAreaLarge">
+                                <div class="empty-viewer-message">
+                                    <h3>No Model Available</h3>
+                                    <p>This project doesn't have any models uploaded yet.</p>
+                                    <p>Please contact the project admin if you need access.</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
                     <?php endif; ?>
                 <?php else: ?>
+                    <!-- Model viewer when URN exists -->
                     <div class="project-model-viewer" id="forgeViewer"></div> 
                     <div id="viewables_dropdown" style="display: none;">
                         <select id="viewables"></select>
                     </div>
                 <?php endif; ?>
                 
+                <!-- Model Action Buttons -->
                 <div class="project-model-buttons">
                     <button class="btn">Share</button>
                     <?php if ($is_admin || $is_manager || $is_editor): ?>
                         <button class="btn">Download</button>
                     <?php endif; ?>
                 </div>
+                
+                <!-- Model Metadata -->
                 <div class="project-model-data">
                     <h3>Model Details</h3>
                     <ul>
@@ -205,17 +221,26 @@
                 </div>
             </div>
 
+            <!-- Version Timeline Section -->
             <div class="project-model-timeline">
                 <div class="project-model-timeline-header">
                     <h3>Model Timeline</h3>
-                    <span class="total-commits">Total Commits: <?php echo empty($urn) ? '0' : '12'; ?></span>
-                    <?php if ($is_admin || $is_manager): ?>
-                        <div class="filter-container">
-                            <input type="date" id="filterDate" name="filterDate">
-                            <button id="filterBeforeBtn" class="btn">Before</button>
-                            <button id="filterAfterBtn" class="btn">After</button>
+                </div>
+
+                <div class="versions-list" id="commitDetails">
+                    <div class="project-model-timeline-versions">
+                        <div class="timeline-version">
+                            <div class="version-no-issues">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#4CAF50" width="18px" height="18px">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                </svg>
+                            </div>
+                            <span class="commit-message">Initial project creation</span>
+                            <span class="commit-info">
+                                <span class="commit-date">V.1</span>
+                            </span>
                         </div>
-                    <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
@@ -223,6 +248,7 @@
 
     <?php include('include/footer.php'); ?>
 
+    <!-- Share Modal -->
     <div id="shareModal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
@@ -258,6 +284,8 @@
         </div>
     </div>
 
+    <!-- JavaScript Section -->
+    <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
     <script>var accessToken = "<?php echo $access_token; ?>";</script>
     <script src="backend/Business_Logic/js/main.js"></script>
     <script src="js/share.js"></script>
