@@ -4,7 +4,6 @@ if (isset($_GET['file'])) {
     $file_path = '..\\..\\Business_Logic\\Uploaded_Process\\uploads\\' . $file;
 
     if (file_exists($file_path)) {
-        // Set headers to force download
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename="' . basename($file_path) . '"');

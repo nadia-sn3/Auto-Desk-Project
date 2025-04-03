@@ -13,7 +13,6 @@ try {
         if (!$project_id) {
             die("Project ID missing!");
         }
-
         $sql = "SELECT * FROM Project WHERE project_id = :project_id";
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':project_id', $project_id, PDO::PARAM_INT);
@@ -21,6 +20,8 @@ try {
         $project = $stmt->fetch(PDO::FETCH_ASSOC);
         $files = GetAllProjectFiles2($project_id);
         $pdo = null;
+        $object_key = $_GET['object_key'] ?? null;
+        
     } catch (Exception $e) {
         echo "Error: " . $e->getMessage();
     }
@@ -71,7 +72,7 @@ $access_token = getAccessToken($client_id, $client_secret);
 
         <div class="page-container">
             <div class="project-container">
-                <div class="project-header">
+            <div class="project-header">
                     <div class="project-title">
                     <h2><?php echo htmlspecialchars($project['project_name']); ?></h2>
                         <p><?php echo htmlspecialchars($project['description']); ?></p>
@@ -121,7 +122,7 @@ $access_token = getAccessToken($client_id, $client_secret);
                                         data-file-name="<?= urlencode($file['file_name']) ?>" 
                                         data-file-type="<?= pathinfo($file['file_name'], PATHINFO_EXTENSION) ?>" 
                                         data-urn="<?= htmlspecialchars($file['object_id']) ?>" 
-                                        data-object-key="<?= isset($file['object_key']) ? htmlspecialchars($file['object_key']) : '' ?>" onclick="showFileDetails(event)">
+                                        data-object-key="<?= htmlspecialchars($file['object_key']) ?>" onclick="showFileDetails(event)">
                                         
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>

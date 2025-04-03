@@ -47,15 +47,8 @@ function ObtainSignedCookie($accessToken, $urnSourceFile, $urnObjFile)
         exit;
     }
 
-    $headerSize = curl_getinfo($ch,CURLINFO_HEADER_SIZE);
-    
+    $headerSize = curl_getinfo($ch,CURLINFO_HEADER_SIZE);    
     $header = substr($response, 0, $headerSize);
-
-    // echo '<br> <br>';
-    // echo 'Header: <br>';
-    // echo $header;
-    // echo '<br> <br>';
-
     $body =json_decode(substr($response, $headerSize),true);
     
     $response =
@@ -65,18 +58,12 @@ function ObtainSignedCookie($accessToken, $urnSourceFile, $urnObjFile)
     ];
 
     return $response;
-    //return json_decode($response,true);
 }
 
 function DownloadThumbnail($downloadURL, $cookiesList, $saveAsFileName)
 {
     var_dump($downloadURL);
-    /*$headers = [
-        "Cookie: ".$cookiesList[0].';'.$cookiesList[1].';'.$cookiesList[2]
-    ];*/
-
     $ch = curl_init();
-
     curl_setopt_array($ch, [
         CURLOPT_URL => $downloadURL,
         CURLOPT_CUSTOMREQUEST => "GET",
@@ -131,8 +118,6 @@ function DownloadThumbnail($downloadURL, $cookiesList, $saveAsFileName)
         if (!$stmt->execute([$saveAsFilePath, $projectId])) {
             die("Database insertion failed: " . $stmt->error);
         }
-
-    
         return true;
     }
     
