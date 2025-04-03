@@ -1,6 +1,8 @@
 <?php
 session_start();
 require_once 'db/connection.php';
+require_once 'backend/Business_Logic/Function/send_email.php' ;
+
 
 $success = '';
 $error = '';
@@ -93,6 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             $stmt->execute([$orgId, $userId, $roleId, $invitedBy]);
             
             $success = "User added to organisation";
+            $message = "Hello $firstName $lastName,\n\nYou have been added to the organisation. Please log in using your existing credentials.";
         } else {
             $password = isset($_POST['set_custom_password']) && !empty($_POST['password']) 
                 ? $_POST['password'] 
@@ -125,6 +128,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             
             $pdo->commit();
             $success = "New user created and added to organisation";
+            $stmt = $pdo->prepare("SELECT role_name FROM organisation_roles WHERE org_role_id = ?");
+            $stmt->execute([$roleId]);
+            $roleName = $stmt->fetchColumn() ?: "Member";
+            $message = "Hello $firstName $lastName,\n\nYou have been added to the organisation as a $roleName. Please use the following credentials to log in:\n\nEmail: $email\nPassword: $password\n\nBest regards,\nTeam";
+        }
+
+        $subject = "Welcome to the Organisation!";
+        $headers = "From: your_email@example.com"; 
+        if (send_email($email, $subject, $message)) {
+            echo "A welcome email has been sent to $email.";
+        } else {
+            echo "Failed to send welcome email.";
         }
 
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM organisation_members WHERE org_id = ?");
@@ -431,6 +446,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_member'])) {
                                value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
                         <small class="form-hint">The member will use this to log in</small>
                     </div>
+
+                    
                     
                     <div class="form-group">
                         <label for="org_role_id">Role *</label>
