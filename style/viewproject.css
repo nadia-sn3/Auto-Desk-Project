@@ -10,6 +10,7 @@
 .project-nav-bar {
     position: relative;
     z-index: 1002;
+    border-bottom: 1px solid black;
 }
 
 .project-nav-bar .dropdown-content {
@@ -17,6 +18,8 @@
 }
 
 .file-dropdown-wrapper {
+    padding-top: 15px;
+    padding-bottom: 8px;
     position: relative;
     z-index: 1000;
 }
