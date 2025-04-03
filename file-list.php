@@ -64,7 +64,7 @@ $access_token = getAccessToken($client_id, $client_secret);
         <link href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.css" rel="stylesheet">
         <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
         <script>
-            const accessToken = "<?php echo $access_token; ?>";  // Echo the PHP token value into JS
+            const accessToken = "<?php echo $access_token; ?>";  
         </script>
     </head>
     <body>
@@ -380,17 +380,14 @@ $access_token = getAccessToken($client_id, $client_secret);
 
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
-                            // Initialize the project ID
-                            const project_id = <?php echo json_encode($project_id); ?>;;
-                            
-                            // Show commits when page loads
+                            const project_id = <?php echo json_encode($project_id); ?>;
                             if (project_id) {
                                 showCommitMessages(project_id);
                             } else {
                                 console.error('Project ID is missing');
                             }
 
-                            // Toggle issues dropdown
+                          
                             document.addEventListener('click', function(e) {
                                 if (e.target.classList.contains('version-warning-indicator')) {
                                     e.stopPropagation();
@@ -480,34 +477,92 @@ $access_token = getAccessToken($client_id, $client_secret);
                             const issueForm = document.getElementById("issueForm");
                             const versionIdInput = document.getElementById("versionId");
                             
-                            document.addEventListener('click', function(e) {
-                                if (e.target.classList.contains('raise-issue-btn')) {
-                                    e.stopPropagation();
-                                    versionIdInput.value = e.target.getAttribute('data-version');
-                                    issueModal.style.display = "block";
-                                }
+                            // document.addEventListener('click', function(e) {
+                            //     if (e.target.classList.contains('raise-issue-btn')) {
+                            //         e.stopPropagation();
+                            //         const versionId = e.target.getAttribute('data-version');
+                            //         const projectId = e.target.getAttribute('data-project-id');
+                            //         // issueModal.style.display = "block";
+                            //     }
+                            //     console.log(`Commit Version ID: ${versionId}`);
+                            //     console.log(`Project ID: ${projectId}`);
+
+                            //     fetchProjectFile(projectId, versionId);
+                            //     const issueModal = document.getElementById("issueModal");
+                            //     issueModal.style.display = "block";
+
+                            //     // if (e.target.classList.contains('close')) {
+                            //     //     issueModal.style.display = "none";
+                            //     // }
                                 
-                                if (e.target.classList.contains('close')) {
-                                    issueModal.style.display = "none";
-                                }
-                                
-                                if (e.target === issueModal) {
-                                    issueModal.style.display = "none";
-                                }
-                            });
+                            //     // if (e.target === issueModal) {
+                            //     //     issueModal.style.display = "none";
+                            //     // }
+                            // });
+
                             
-                            issueForm.addEventListener("submit", function(e) {
-                                e.preventDefault();
-                                const versionId = versionIdInput.value;
-                                const file = document.getElementById("issueFile").value;
-                                const description = document.getElementById("issueDescription").value;
-                                
-                                console.log(`New issue for version ${versionId}: ${file} - ${description}`);
-                                
+                        document.addEventListener('click', function (e) {
+                        if (e.target.classList.contains('raise-issue-btn')) {
+                            e.stopPropagation();
+                            
+                            const versionId = e.target.getAttribute('data-version');
+                            const projectId = e.target.getAttribute('data-project-id');
+
+                            console.log(`Commit Version ID: ${versionId}`);
+                            console.log(`Project ID: ${projectId}`);
+
+                            document.getElementById("versionId").value = versionId;
+                            document.getElementById("issueForm").setAttribute("data-project-id", projectId);
+
+                            const issueModal = document.getElementById("issueModal");
+                            issueModal.style.display = "block";
+                        }
+                    });
+
+                    document.getElementById("issueForm").addEventListener("submit", function (e) {
+                        e.preventDefault();
+
+                        const versionId = document.getElementById("versionId").value;
+                        const projectId = document.getElementById("issueForm").getAttribute("data-project-id");
+                        const file = document.getElementById("issueFile").value;
+                        const description = document.getElementById("issueDescription").value;
+
+                        console.log(`Submitting issue for Version: ${versionId}, File: ${file}, Description: ${description}`);
+
+                        fetch("http://localhost/Auto-Desk-Project/backend/Business_Logic/Function/get_projectfile.php", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                        },
+                        body: `version_id=${encodeURIComponent(versionId)}&project_id=${encodeURIComponent(projectId)}&file=${encodeURIComponent(file)}&description=${encodeURIComponent(description)}`
+                    })
+                    .then(response => {
+                        return response.text();  
+                    })
+                    .then(responseText => {
+                        console.log('Raw Response:', responseText); 
+
+                    
+                        try {
+                            const data = JSON.parse(responseText); 
+                            if (data.success) {
                                 alert("Issue submitted successfully!");
-                                issueModal.style.display = "none";
-                                issueForm.reset();
-                            });
+                                // location.reload(); 
+                                window.location.href = "version.php?project_id=" + projectId;
+                            } else {
+                                alert("Failed to submit issue: " + data.message);
+                            }
+                        } catch (error) {
+                            console.error("Error parsing JSON:", error);
+                        }
+                    })
+                    .catch(error => console.error("Error submitting issue:", error));
+                        document.getElementById("issueModal").style.display = "none";
+                        document.getElementById("issueForm").reset();
+                    });
+
+
+
                             
                             // Rollback functionality
                             window.showRollbackModal = function(commit_id, project_id) {
@@ -605,7 +660,7 @@ $access_token = getAccessToken($client_id, $client_secret);
                                                             <span class="commit-date">${new Date(commit.commit_date).toLocaleDateString()}</span>
                                                         </span>
                                                         <button class="rollback-btn" onclick="showRollbackModal(${commit.commit_id}, ${project_id})">Rollback</button>
-                                                        <button class="raise-issue-btn" data-version="v${commit.commit_id}">Raise Issue</button>
+                                                        <button class="raise-issue-btn" data-version="${commit.commit_id}" data-project-id="${project_id}">Raise Issue</button>
                                                     </div>
                                                     
                                                     ${hasIssues ? `
