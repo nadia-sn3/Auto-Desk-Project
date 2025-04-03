@@ -172,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
         $stmt->execute([$orgId]);
         $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        header("Location: org-dashboard.php");
+        header("Location: org-owner-home.php");
         exit();
         
     } catch (Exception $e) {
@@ -264,10 +264,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_member'])) {
 
     <div class="page-container">
         <aside class="sidebar">
-            <h3><a href="org-dashboard.php"><?= htmlspecialchars($orgName) ?></a></h3>
+            <h3><a href="org-owner-home.php"><?= htmlspecialchars($orgName) ?></a></h3>
             <ul>
                 <li><a href="#overview">Overview</a></li>
-                <li><a href="#projects">Projects</a></li>
+                <li><a href="#projec">Projects</a></li>
             </ul>
 
             <h3>Quick Actions</h3>

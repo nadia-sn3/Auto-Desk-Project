@@ -310,16 +310,13 @@ $access_token = getAccessToken($client_id, $client_secret);
                     <h2>Share Project</h2>
                     <form id="share-form">
                         <div class="form-group">
-                            <label for="share-username">Search by Username</label>
-                            <input type="text" id="share-username" name="share-username" placeholder="Enter username">
-                        </div>
-                        <div class="form-group">
-                            <label for="share-email">Or Invite by Email</label>
+                            <label for="share-email">Invite by Email</label>
                             <input type="email" id="share-email" name="share-email" placeholder="Enter email">
                         </div>
                         <div class="form-group">
                             <label for="share-role">Role</label>
                             <select id="share-role" name="share-role">
+                            <option value="viewer">Contractor</option>
                                 <option value="viewer">Viewer</option>
                                 <?php if ($show_manage_project): ?>
                                     <option value="editor">Editor</option>

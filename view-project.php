@@ -203,10 +203,7 @@
                 
                 <!-- Model Action Buttons -->
                 <div class="project-model-buttons">
-                    <button class="btn">Share</button>
-                    <?php if ($is_admin || $is_manager || $is_editor): ?>
                         <button class="btn">Download</button>
-                    <?php endif; ?>
                 </div>
                 
                 <!-- Model Metadata -->
@@ -247,42 +244,6 @@
     </div>
 
     <?php include('include/footer.php'); ?>
-
-    <!-- Share Modal -->
-    <div id="shareModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>Share Project</h2>
-            <form id="share-form">
-                <div class="form-group">
-                    <label for="share-username">Search by Username</label>
-                    <input type="text" id="share-username" name="share-username" placeholder="Enter username">
-                </div>
-                <div class="form-group">
-                    <label for="share-email">Or Invite by Email</label>
-                    <input type="email" id="share-email" name="share-email" placeholder="Enter email">
-                </div>
-                <div class="form-group">
-                    <label for="share-role">Role</label>
-                    <select id="share-role" name="share-role">
-                        <option value="viewer">Viewer</option>
-                        <?php if ($is_admin || $is_manager): ?>
-                            <option value="editor">Editor</option>
-                            <option value="manager">Manager</option>
-                        <?php endif; ?>
-                        <?php if ($is_admin): ?>
-                            <option value="admin">Admin</option>
-                        <?php endif; ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="share-duration">Access Duration (days)</label>
-                    <input type="number" id="share-duration" name="share-duration" placeholder="Enter number of days">
-                </div>
-                <button type="submit" class="submit-btn">Share</button>
-            </form>
-        </div>
-    </div>
 
     <!-- JavaScript Section -->
     <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
