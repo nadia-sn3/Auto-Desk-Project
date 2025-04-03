@@ -131,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             $stmt = $pdo->prepare("SELECT role_name FROM organisation_roles WHERE org_role_id = ?");
             $stmt->execute([$roleId]);
             $roleName = $stmt->fetchColumn() ?: "Member";
-            $message = "Hello $firstName $lastName,\n\nYou have been added to the organisation as a $roleName. Please use the following credentials to log in:\n\nEmail: $email\nPassword: $password\n\nBest regards,\nTeam";
+            $message = "Hello $firstName $lastName,\n\nYou have been added to the organisation as a $roleName. Please use the following credentials to log in:\n\nEmail: $email\nPassword: $password\n\nYou are able to reset your password after logging in.\n\nBest regards,\nTeam.";
         }
 
         $subject = "Welcome to the Organisation!";
