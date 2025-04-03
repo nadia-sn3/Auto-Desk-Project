@@ -1,3 +1,11 @@
+
+
+<?php 
+include 'db/connection.php'; 
+?>
+
+
+
 <link rel="stylesheet" href="style/version+issues.css">
 
 
@@ -19,14 +27,49 @@
                         <path d="M12 16c.8 0 1.5-.7 1.5-1.5S12.8 13 12 13s-1.5.7-1.5 1.5.7 1.5 1.5 1.5zm-1-5h2v-4h-2v4z"/>
                     </svg>
                 </div>
-                <span class="commit-message">Changes to models</span>
-                <span class="commit-info">
-                    <span class="username">User</span>
-                    <span class="commit-date">V.03</span>
+                <?php
 
-                    <span class="commit-date">yesterday</span>
-                </span>
-                <button class="raise-issue-btn" data-version="v1">Raise Issue</button>
+                    include 'db/connection.php';
+
+                    $project_id = $_GET['project_id'] ?? null; 
+
+                    if ($project_id) {
+                        $sql = "SELECT commit_message, commit_date FROM project_commit WHERE project_id = :project_id ORDER BY commit_date DESC";  
+                        $stmt = $pdo->prepare($sql);
+                        $stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);
+                        $stmt->execute();
+
+                        if ($stmt->rowCount() > 0) {
+                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                
+                                $commit_date = date('Y-m-d', strtotime($row['commit_date']));
+                                $commit_message = htmlspecialchars($row['commit_message']); 
+
+                                $commit_time = strtotime($row['commit_date']);
+                                $time_diff = time() - $commit_time;
+                                if ($time_diff < 86400) {
+                                    $commit_time_str = 'yesterday';
+                                } else {
+                                    $commit_time_str = $commit_date;
+                                }
+
+                                echo "<div class='commit-entry'>";
+                                echo "<span class='commit-message'>{$commit_message}</span>";
+                                echo "<span class='commit-info'>";
+                                echo "<span class='commit-date'>{$commit_date}</span>";
+                                echo "<span class='commit-date'>{$commit_time_str}</span>";
+                                echo "</span>"; 
+                                echo "</div>";
+                            }
+                        } else {
+                            echo "<p>No commits found for this project.</p>";
+                        }
+                    } else {
+                        echo "<p>No project ID provided.</p>";
+                    }
+                    ?>
+
+            <button class="raise-issue-btn" data-version="v1">Raise Issue</button>
             </div>
             
             <div class="issues-dropdown-content" id="version1">
@@ -42,42 +85,36 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="open">
-                            <td>models/main.obj</td>
-                            <td>Texture missing on the main model</td>
-                            <td><span class="status-badge pending">Open</span></td>
-                            <td>user1</td>
-                            <td>2023-06-15</td>
-                            <td class="actions">
-                                <button class="btn small change-status" data-issue="i1" data-status="in_progress">Mark In Progress</button>
-                            </td>
-                        </tr>
-                        <tr class="in_progress">
-                            <td>models/secondary.fbx</td>
-                            <td>Geometry errors in secondary model</td>
-                            <td><span class="status-badge in-progress">In Progress</span></td>
-                            <td>user2</td>
-                            <td>2023-06-14</td>
-                            <td class="actions">
-                                <button class="btn small change-status" data-issue="i2" data-status="resolved">Mark Resolved</button>
-                            </td>
-                        </tr>
-                        <tr class="resolved">
-                            <td>textures/main.png</td>
-                            <td>Texture resolution too low</td>
-                            <td><span class="status-badge resolved">Resolved</span></td>
-                            <td>user3</td>
-                            <td>2023-06-10</td>
-                            <td class="actions">
-                                <button class="btn small change-status" data-issue="i3" data-status="open">Reopen</button>
-                            </td>
-                        </tr>
-                    </tbody>
+            <?php
+           
+            include 'db/connection.php';
+            $sql = "SELECT * FROM issues";  
+            $stmt = $pdo->query($sql);
+            if ($stmt->rowCount() > 0) {
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    echo "<tr class='{$row['status']}'>";
+                    echo "<td>{$row['file']}</td>";
+                    echo "<td>{$row['description']}</td>";
+                    echo "<td><span class='status-badge {$row['status']}'>{$row['status']}</span></td>";
+                    echo "<td>{$row['raised_by']}</td>";
+                    echo "<td>{$row['date']}</td>";
+                    echo "<td class='actions'>";
+                    // Action buttons based on current status
+                    $nextStatus = ($row['status'] == 'open') ? 'in_progress' : (($row['status'] == 'in_progress') ? 'resolved' : 'open');
+                    echo "<button class='btn small change-status' data-issue='{$row['issues_id']}' data-status='{$nextStatus}'>Mark as {$nextStatus}</button>";
+                    echo "</td>";
+                    echo "</tr>";
+                }
+            } else {
+                echo "<tr><td colspan='6'>No issues found</td></tr>";
+            }
+            ?>
+        </tbody>
                 </table>
             </div>
         </div>
         
-        <div class="project-model-timeline-versions">
+        <!-- <div class="project-model-timeline-versions">
             <div class="timeline-version">
                 <div class="version-warning-indicator" data-issues="version2">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ff6b6b" width="18px" height="18px">
@@ -108,18 +145,7 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr class="open">
-                            <td>scripts/main.js</td>
-                            <td>Script errors on load</td>
-                            <td><span class="status-badge pending">Open</span></td>
-                            <td>user4</td>
-                            <td>2023-06-16</td>
-                            <td class="actions">
-                                <button class="btn small change-status" data-issue="i4" data-status="in_progress">Mark In Progress</button>
-                            </td>
-                        </tr>
-                    </tbody>
+                    
                 </table>
             </div>
         </div>
@@ -141,7 +167,7 @@
                 <button class="rollback-btn">Rollback</button>
                 <button class="raise-issue-btn" data-version="v3">Raise Issue</button>
             </div>
-        </div>
+        </div> -->
     </div>
 </div>
 
