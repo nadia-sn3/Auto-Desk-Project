@@ -5,16 +5,9 @@ require_once __DIR__ . '/../backend/Business_Logic/Function/functions.php';
 
 class CompleteUploadTest extends TestCase
 {
-    public function testCompleteUploadSimulated()
+    public function testCompleteUploadInTestMode()
     {
-        $access_token = "fake-token";
-        $bucket_key = "testbucket";
-        $file_name = "model.obj";
-        $upload_key = "mock-upload-key";
-
-        $result = completeUpload($access_token, $bucket_key, $file_name, $upload_key, true);
-
-        $this->assertIsArray($result);
+        $result = completeUpload("fake-token", "bucket123", "model.obj", "upload-key", true);
         $this->assertEquals("success", $result["status"]);
     }
 }
