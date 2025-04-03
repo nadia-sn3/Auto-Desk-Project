@@ -1,53 +1,33 @@
-.project-nav-bar {
-    position: relative;
-    z-index: 1000; 
+
+.modal {
+    z-index: 2000 !important;
 }
 
-.project-nav-bar .dropdown {
+.modal-content {
+    z-index: 2001 !important;
+}
+
+.project-nav-bar {
     position: relative;
-    display: inline-block;
+    z-index: 1002;
 }
 
 .project-nav-bar .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1001; 
-    border-radius: 4px;
-    left: 0;
-    top: 100%;
+    z-index: 1003;
 }
 
-.project-nav-bar .dropdown:hover .dropdown-content {
-    display: block;
+.file-dropdown-wrapper {
+    position: relative;
+    z-index: 1000;
 }
 
-.project-nav-bar .dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    font-size: 14px;
-}
-
-.project-nav-bar .dropdown-content a:hover {
-    background-color: #f1f1f1;
+.dropdown-menu {
+    z-index: 1001;
 }
 
 .viewer-container {
     position: relative;
     z-index: 1;
-}
-
-.file-dropdown-wrapper {
-    position: relative;
-    z-index: 10;
-}
-
-.file-dropdown .dropdown-menu {
-    z-index: 1001;
 }
 
 .project-container {
@@ -69,12 +49,6 @@
 .project-description {
     font-size: 1rem;
     color: #666;
-}
-
-.project-nav-bar {
-    width: 100%;
-    border-bottom: 1px solid #e1e4e8;
-    margin-bottom: 20px;
 }
 
 .project-nav-bar ul {
@@ -342,66 +316,6 @@
     font-size: 0.875rem;
 }
 
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    width: 400px;
-    max-width: 500px;
-    margin: 20px auto;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    text-align: left;
-}
-
-.modal-content h2 {
-    margin-top: 0;
-    font-size: 1.25rem;
-    color: #24292e;
-}
-
-.close-btn,
-.modal-content .close {
-    float: right;
-    font-size: 24px;
-    cursor: pointer;
-    color: #666;
-    transition: color 0.3s ease;
-}
-
-.close-btn:hover,
-.modal-content .close:hover {
-    color: #000;
-}
-
-.form-group {
-    margin-bottom: 15px;
-    text-align: left;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
 #dropArea {
     border: 2px dashed #ccc;
     border-radius: 8px;
@@ -484,10 +398,8 @@
     outline: none;
 }
 
-
 .file-dropdown {
     position: relative;
-    z-index: 10;
 }
 
 .dropdown-header {
@@ -522,11 +434,8 @@
 }
 
 .file-dropdown-wrapper {
-    position: relative;
-    margin-bottom: 20px;
     width: 280px;
     font-family: 'Segoe UI', system-ui, sans-serif;
-    z-index: 1000; 
 }
 
 .dropdown-menu {
@@ -546,9 +455,9 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    z-index: 1001;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
 .file-dropdown.active .dropdown-menu {
     opacity: 1;
     visibility: visible;
@@ -629,7 +538,6 @@
     background-color: #f9f9f9;
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
     border-radius: 4px;
 }
 
@@ -650,28 +558,15 @@
 }
 
 .viewer-container {
-    position: relative;
-    z-index: 1; 
-}
-
-#forgeViewer {
-    z-index: 1; 
-}
-
-.viewer-container {
     width: 100%;
-    height: 600px; 
+    height: 600px;
     background-color: #f0f0f0;
-    position: relative;
     margin-bottom: 20px;
 }
 
 #forgeViewer {
     width: 100%;
     height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
 }
 
 #imageContainer {
@@ -683,19 +578,16 @@
     overflow-x: auto;
     overflow-y: auto;
     margin: 20px;
-    position: absolute; 
-    top: 0;
-    left: 0;
-    z-index: 2;  
-    visibility: hidden; 
-    opacity: 0;  
-    transition: opacity 0.5s ease-in-out; 
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
 }
 
 #imageContainer.show {
-    visibility: visible; 
-    opacity: 1; 
+    visibility: visible;
+    opacity: 1;
 }
+
 @media (max-width: 768px) {
     .project-model-viewer {
         height: 300px;

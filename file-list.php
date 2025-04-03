@@ -96,9 +96,8 @@ $access_token = getAccessToken($client_id, $client_secret);
     <title>File List</title>
     
     <!-- CSS Files -->
-    <link rel="stylesheet" href="style/file-list.css">
-    <link rel="stylesheet" href="style/base.css">
     <link rel="stylesheet" href="style/viewproject.css">
+    <link rel="stylesheet" href="style/base.css">
     <link rel="stylesheet" href="style/upload-button.css">
     <link rel="stylesheet" href="style/version+issues.css">
     <link href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.css" rel="stylesheet">
