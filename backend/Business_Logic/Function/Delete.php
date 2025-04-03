@@ -26,22 +26,12 @@ function DeleteObject($accessToken, $bucketKey, $objectKey)
     }
 
     curl_close($ch);
-
-    // Check for valid JSON before returning
     json_decode($response);
     if (json_last_error() !== JSON_ERROR_NONE) {
         error_log("Invalid JSON response: " . $response);
-        return null; // or handle it accordingly
+        return null; 
     }
     return $response;
-    // echo "Deleted item: $objectKey";
-    // echo '<br> <br>';
-    // echo 'Response Code: '.$http_code;
-    // echo '<br> <br>';
-    // echo 'Response received: ';
-     echo '<br> <br>';
-     var_dump($response);
-    echo '<br> <br>';
 }
 
 function DeleteTableData($tableName)
@@ -51,9 +41,7 @@ function DeleteTableData($tableName)
     $sql = "DELETE FROM :tableName;";    
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':tableName', $tableName, SQLITE3_TEXT);
-    $result= $stmt->execute();
-
-    
+    $result= $stmt->execute(); 
 }
 
 ?>

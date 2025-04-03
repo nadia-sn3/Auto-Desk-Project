@@ -13,7 +13,6 @@ try {
         if (!$project_id) {
             die("Project ID missing!");
         }
-
         $sql = "SELECT * FROM Project WHERE project_id = :project_id";
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':project_id', $project_id, PDO::PARAM_INT);
@@ -21,14 +20,8 @@ try {
         $project = $stmt->fetch(PDO::FETCH_ASSOC);
         $files = GetAllProjectFiles2($project_id);
         $pdo = null;
-
-         // Check if object key is present
-    $object_key = $_GET['object_key'] ?? null;
-
-    // Output the list of files for debugging
-    echo "<pre>";
-    print_r($files);
-    echo "</pre>";
+        $object_key = $_GET['object_key'] ?? null;
+        
     } catch (Exception $e) {
         echo "Error: " . $e->getMessage();
     }

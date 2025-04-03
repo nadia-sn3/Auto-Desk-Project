@@ -10,34 +10,10 @@
     $urn = isset($_GET['urn']) ? htmlspecialchars($_GET['urn']) : '';
 
     $access_token = getAccessToken($client_id, $client_secret);
-
-    if(isset($_GET['downloadFile']))
-    {
-        include("backend/php/Download_Functions.php");
-        
-        $objectkey =  $_GET['objectKey'];
-
-        $signedUrl = ObtainSignedURL($access_token, $bucket_key, $objectkey);
-
-        $downloadURL = $signedUrl["url"];
-
-        $fileNameSaveAs = $objectkey;
-
-        $fileData = DownloadFile($downloadURL, $fileNameSaveAs);
-        
-        header("Cache-Control: public");
-        header("Content-Description: FIle Transfer");
-        header("Content-Disposition: attachment; filename=$objectkey");
-        header("Content-Type: application/zip");
-        header("Content-Transfer-Emcoding: binary");
-        exit;
-    }
-
     $project_id = $_GET['project_id'] ?? null;
     if (!$project_id) {
         die("Project ID missing!");
     }
-
     $stmt = $pdo->prepare("SELECT * FROM Project WHERE project_id = :project_id");
     $stmt->bindParam(':project_id', $project_id, PDO::PARAM_INT);
     $stmt->execute();
@@ -107,9 +83,9 @@
                         </div>
                         <ul class="file-list">
                         </ul>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
         <form method="POST" enctype="multipart/form-data" id="upload-form"> 
 
@@ -222,24 +198,7 @@
         </div>
     </div>
 
-    <!-- <script>
-        <?php if ($access_token): ?>
-                var accessToken = "<?php echo htmlspecialchars($access_token, ENT_QUOTES, 'UTF-8'); ?>";
-                console.log('Access Token:', accessToken);
-        <?php else: ?>
-                console.log('Error: Access token not retrieved.');
-        <?php endif; ?>
-            var urn = "<?php echo htmlspecialchars($urn, ENT_QUOTES, 'UTF-8'); ?>"; 
-            
-            if (!urn || urn === 'undefined') {
-                console.log("Error: URN is undefined or invalid.");
-            } else {
-                console.log("URN passed successfully:", urn);
-            }
-    </script> -->
-     <script>  
-      var accessToken = "<?php echo $access_token; ?>";
-    </script>
+    <script>var accessToken = "<?php echo $access_token; ?>";</script>
     <script src="backend/Business_Logic/js/main.js"></script>
     <script src="js/share.js"></script>
     <script src="js/upload.js"></script>

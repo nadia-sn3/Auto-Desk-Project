@@ -44,62 +44,56 @@ function createUploadSession($access_token, $bucket_key, $file_name, $total_part
 
 function uploadFileTobucket($signed_urls, $file_path) {
     
-    $file = fopen($file_path, 'r'); // Open the file for reading
-    $part_number = 0; // Initialize part number
+    $file = fopen($file_path, 'r'); 
+    $part_number = 0; 
     $file_size = filesize($file_path);
-    $chunk_size = 1024 * 1024 * 10; // 10MB per chunk
-    $total_parts = ceil($file_size / $chunk_size); // Calculate total parts
+    $chunk_size = 1024 * 1024 * 10; 
+    $total_parts = ceil($file_size / $chunk_size); 
 
-    // Read the file in chunks and upload each chunk
     for ($part_number = 0; $part_number < $total_parts; $part_number++) {
-        // Read the next chunk
         $chunk = fread($file, $chunk_size);
-        $chunk_length = strlen($chunk); // Get the length of the chunk
-        $signed_url = $signed_urls[$part_number]; // Get the signed URL for the current part
+        $chunk_length = strlen($chunk); 
+        $signed_url = $signed_urls[$part_number]; 
 
         $headers = [
-            "Content-Type: application/octet-stream", // MIME type for binary data
-            "Content-Length: $chunk_length", // Set the content length for the chunk
-            "Expect: 100-continue" // Expect the server to acknowledge the request before sending the body
+            "Content-Type: application/octet-stream", 
+            "Content-Length: $chunk_length", 
+            "Expect: 100-continue" 
         ];
 
-        $ch = curl_init(); // Initialize the cURL session
+        $ch = curl_init(); 
         curl_setopt_array($ch, [
-            CURLOPT_URL => $signed_url, // Set the URL to the signed URL
-            CURLOPT_CUSTOMREQUEST => "PUT", // Use PUT method for uploading
-            CURLOPT_HTTPHEADER => $headers, // Set headers
-            CURLOPT_RETURNTRANSFER => true, // Return the response as a string
-            CURLOPT_POSTFIELDS => $chunk // Send the chunk in the request body
+            CURLOPT_URL => $signed_url, 
+            CURLOPT_CUSTOMREQUEST => "PUT", 
+            CURLOPT_HTTPHEADER => $headers, 
+            CURLOPT_RETURNTRANSFER => true, 
+            CURLOPT_POSTFIELDS => $chunk 
         ]);
 
-        $response = curl_exec($ch); // Execute the cURL request
-        $status_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE); // Get the HTTP response code
-
-        // Error handling for cURL execution
+        $response = curl_exec($ch);
+        $status_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE); 
         if ($response === false) {
             echo 'Curl error:' . curl_error($ch) . '<br>';
-            fclose($file); // Close the file
-            curl_close($ch); // Close the cURL session
+            fclose($file); 
+            curl_close($ch); 
             return;
         }
 
-        // Check if the upload was successful (status code 200 means success)
         if ($status_code != 200) {
             echo "Error uploading chunk $part_number. Status code: $status_code\n";
-            curl_close($ch); // Close the cURL session
+            curl_close($ch); 
             return;
         }
 
-        curl_close($ch); // Close the cURL session after successful upload
+        curl_close($ch); 
         echo "Chunk $part_number uploaded successfully\n";
     }
 
-    fclose($file); // Close the file after the upload is complete
+    fclose($file); 
     echo "File uploaded successfully in $total_parts chunks.\n";
 
 }
 
-//set_time_limit(int $seconds):bool
 function completeUpload($access_token, $bucket_key, $file_name, $upload_key) {
     $url = "https://developer.api.autodesk.com/oss/v2/buckets/$bucket_key/objects/$file_name/signeds3upload";
     
@@ -212,16 +206,5 @@ function InsertBucketFile($fileName, $projectId, $objectId, $objectKey, $entryPo
 
 }
 
-// function EncodeObjectKey($objectKey) {
-//     $encoded="";
-//     for ($i = 0; $i < strlen($objectKey); $i++) {
-//         if ($objectKey[$i] >= '0' && $objectKey[$i] <= '9') {
-//             $encoded .= chr((ord($objectKey[$i])-ord('0')) + ord('a'));
-//         } else {
-//             $encoded .= $objectKey[$i]; // Keep non-numeric characters as is
-//         }
-//     }
-//     return $encoded;
-// }
 
 ?>
