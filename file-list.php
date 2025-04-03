@@ -161,7 +161,7 @@ $access_token = getAccessToken($client_id, $client_secret);
                     <select id="viewables"></select>
                 </div>   
                 <div id="imageContainer"></div>     
-            </div>    
+            </div>  
 
             <!-- Project Model Section -->
             <?php if(!empty($files)): ?>
