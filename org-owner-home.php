@@ -1,8 +1,11 @@
 <?php
 session_start();
 require_once 'db/connection.php';
-require_once 'backend/Business_Logic/Function/send_email.php' ;
+require_once 'backend/Business_Logic/Function/send_email.php';
 
+if (isset($_SESSION['email_success'])) {
+    unset($_SESSION['email_success']);
+}
 
 $success = '';
 $error = '';
@@ -46,6 +49,15 @@ try {
     ");
     $stmt->execute([$orgId]);
     $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Get current user's role in this organisation
+    $currentUserRole = null;
+    foreach ($members as $member) {
+        if ($member['user_id'] == ($_SESSION['user_id'] ?? null)) {
+            $currentUserRole = $member['org_role_id'];
+            break;
+        }
+    }
 
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM Project WHERE created_by = ?");
     $stmt->execute([$orgId]);
@@ -109,7 +121,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
             
             $pdo->beginTransaction();
             
-
             $stmt = $pdo->prepare("
                 INSERT INTO users 
                 (system_role_id, email, password_hash, first_name, last_name, created_at, is_active) 
@@ -137,9 +148,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
         $subject = "Welcome to the Organisation!";
         $headers = "From: your_email@example.com"; 
         if (send_email($email, $subject, $message)) {
-            echo "A welcome email has been sent to $email.";
+            $_SESSION['email_success'] = [
+                'message' => "A welcome email has been sent to $email.",
+                'email' => $email
+            ];
         } else {
-            echo "Failed to send welcome email.";
+            $error = "Failed to send welcome email to $email.";
         }
 
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM organisation_members WHERE org_id = ?");
@@ -157,6 +171,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_member'])) {
         ");
         $stmt->execute([$orgId]);
         $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        header("Location: org-dashboard.php");
+        exit();
         
     } catch (Exception $e) {
         if (isset($pdo) && $pdo->inTransaction()) {
@@ -236,10 +253,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_member'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style/organisation.css">
     <link rel="stylesheet" href="style/base.css">
     <link rel="stylesheet" href="style/userhome.css">
     <link rel="stylesheet" href="style/preview.css">
-    <link rel="stylesheet" href="style/organisation.css">
     <title>Autodesk | Organisation Owner Dashboard</title>
 </head>
 <body>
@@ -247,33 +264,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_member'])) {
 
     <div class="page-container">
         <aside class="sidebar">
-            <h3><a href="org-dashboard.php"><?= $orgName ?></a></h3>
+            <h3><a href="org-dashboard.php"><?= htmlspecialchars($orgName) ?></a></h3>
             <ul>
                 <li><a href="#overview">Overview</a></li>
-                <li><a href="#members">Members</a></li>
                 <li><a href="#projects">Projects</a></li>
-                <li><a href="#settings">Settings</a></li>
             </ul>
 
             <h3>Quick Actions</h3>
             <ul>
-                <li><a href="#invite-member" class="open-modal">Invite Member</a></li>
-                <li><a href="create-project.php">Create Project</a></li>
-                <li><a href="#manage-roles">Manage Roles</a></li>
+                <?php if ($currentUserRole <= 2): ?>
+                    <li><a href="#invite-member" class="open-modal">Invite Member</a></li>
+                    <li><a href="create-project.php">Create Project</a></li>
+                <?php elseif ($currentUserRole == 3): ?>
+                    <li><a href="create-project.php">Create Project</a></li>
+                <?php endif; ?>
             </ul>
         </aside>
 
         <main class="main-content">
             <div class="org-header">
                 <div>
-                    <h1><?= $orgName ?></h1>
+                    <h1><?= htmlspecialchars($orgName) ?></h1>
                     <?php if (!empty($orgDescription)): ?>
-                        <p class="org-description"><?= $orgDescription ?></p>
+                        <p class="org-description"><?= htmlspecialchars($orgDescription) ?></p>
                     <?php endif; ?>
                 </div>
                 <div class="org-actions">
-                    <button class="btn-primary open-modal">Invite Members</button>
+                    <?php if ($currentUserRole <= 2): ?>
+                        <button class="btn-primary open-modal">Invite Members</button>
                     <a href="create-project.php" class="btn-secondary">Create Project</a>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -360,17 +380,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_member'])) {
                         <tbody>
                             <?php if (!empty($members)): ?>
                                 <?php foreach ($members as $member): ?>
-                                    <tr data-role-id="<?= $member['role_id'] ?>">
+                                    <tr data-role-id="<?= $member['org_role_id'] ?>">
                                         <td><?= htmlspecialchars($member['first_name'] . ' ' . $member['last_name']) ?></td>
                                         <td><?= htmlspecialchars($member['email']) ?></td>
                                         <td><?= htmlspecialchars($member['role_name']) ?></td>
                                         <td><?= date('M j, Y', strtotime($member['joined_at'])) ?></td>
                                         <td>
-                                            <button class="btn-small edit-member" 
-                                                    data-user-id="<?= $member['user_id'] ?>"
-                                                    data-current-role="<?= $member['role_name'] ?>">Edit</button>
-                                            <button class="btn-small btn-danger remove-member"
-                                                    data-user-id="<?= $member['user_id'] ?>">Remove</button>
+                                            <?php if ($currentUserRole <= 2): ?>
+                                                <button class="btn-small edit-member" 
+                                                        data-user-id="<?= $member['user_id'] ?>"
+                                                        data-current-role="<?= $member['role_name'] ?>">Edit</button>
+                                                <?php if ($member['org_role_id'] > 2 || $member['user_id'] == ($_SESSION['user_id'] ?? null)): ?>
+                                                    <button class="btn-small btn-danger remove-member"
+                                                            data-user-id="<?= $member['user_id'] ?>">Remove</button>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -383,7 +407,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_member'])) {
                     </table>
                 </div>
             </section>
-
 
             <section id="projects" class="org-section">
                 <h2>Recent Projects</h2>
@@ -411,7 +434,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_member'])) {
         </main>
     </div>
 
-
+    <?php if ($currentUserRole <= 2): ?>
     <div id="addMemberModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -446,8 +469,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_member'])) {
                                value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
                         <small class="form-hint">The member will use this to log in</small>
                     </div>
-
-                    
                     
                     <div class="form-group">
                         <label for="org_role_id">Role *</label>
@@ -483,9 +504,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_member'])) {
             </div>
         </div>
     </div>
+    <?php endif; ?>
+
+    <div id="emailSuccessModal" class="email-success-modal" style="<?= isset($_SESSION['email_success']) ? 'display: block;' : 'display: none;' ?>">
+        <div class="email-success-modal-content">
+            <div class="email-success-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" fill="#4CAF50"/>
+                </svg>
+            </div>
+            <div class="email-success-header">
+                <h3>Email Sent Successfully</h3>
+            </div>
+            <div class="email-success-body">
+                <p>A welcome email has been sent to:</p>
+                <p class="email-success-address"><?= $_SESSION['email_success']['email'] ?? '' ?></p>
+            </div>
+            <button class="email-success-close-btn" onclick="document.getElementById('emailSuccessModal').style.display='none'">OK</button>
+        </div>
+    </div>
 
     <script>
-                document.getElementById('filterButton').addEventListener('click', function() {
+        document.getElementById('filterButton').addEventListener('click', function() {
             const searchTerm = document.getElementById('memberSearch').value.toLowerCase();
             const roleFilter = document.getElementById('roleFilter').value;
             const rows = document.querySelectorAll('#membersTable tbody tr');
@@ -502,7 +542,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_member'])) {
                 row.style.display = (matchesSearch && matchesRole) ? '' : 'none';
             });
         });
-
 
         document.querySelectorAll('.open-modal').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -523,25 +562,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_member'])) {
             if (e.target === document.getElementById('addMemberModal')) {
                 document.getElementById('addMemberModal').style.display = 'none';
             }
+            if (e.target === document.getElementById('emailSuccessModal')) {
+                document.getElementById('emailSuccessModal').style.display = 'none';
+            }
         });
 
-document.querySelectorAll('.remove-member').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const userId = this.getAttribute('data-user-id');
-        if (confirm('Are you sure you want to remove this member from the organisation?')) {
-            document.getElementById('removeUserId').value = userId;
-            document.getElementById('removeMemberForm').submit();
-        }
-    });
-});
+        document.querySelectorAll('.remove-member').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const userId = this.getAttribute('data-user-id');
+                if (confirm('Are you sure you want to remove this member from the organisation?')) {
+                    document.getElementById('removeUserId').value = userId;
+                    document.getElementById('removeMemberForm').submit();
+                }
+            });
+        });
 
+        <?php if (isset($_SESSION['email_success'])): ?>
+            setTimeout(function() {
+                document.getElementById('emailSuccessModal').style.display = 'none';
+            }, 5000);
+        <?php endif; ?>
     </script>
 
-<form id="removeMemberForm" method="POST" style="display: none;">
-    <input type="hidden" name="remove_member" value="1">
-    <input type="hidden" name="user_id" id="removeUserId" value="">
-</form>
+    <form id="removeMemberForm" method="POST" style="display: none;">
+        <input type="hidden" name="remove_member" value="1">
+        <input type="hidden" name="user_id" id="removeUserId" value="">
+    </form>
 
-    <?php include('include/footer.php'); ?>
+    <?php 
+    if (isset($_SESSION['email_success'])) {
+        unset($_SESSION['email_success']);
+    }
+    include('include/footer.php'); 
+    ?>
 </body>
-</html> 
+</html>
