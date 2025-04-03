@@ -155,6 +155,7 @@ $access_token = getAccessToken($client_id, $client_secret);
             </div>
 
             <!-- Main Viewer Section -->
+             
             <div class="viewer-container">
                 <div id="forgeViewer"></div>
                 <div id="viewables_dropdown" style="display: none;">
@@ -635,7 +636,6 @@ $access_token = getAccessToken($client_id, $client_secret);
                                         }
                                         <span class="commit-message">${commit.commit_message}</span>
                                         <span class="commit-info">
-                                            <span class="username">${commit.username || 'Unknown'}</span>
                                             <span class="commit-date">V.${versionNumber}</span>
                                             <span class="commit-date">${new Date(commit.commit_date).toLocaleDateString()}</span>
                                         </span>
