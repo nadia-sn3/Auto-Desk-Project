@@ -209,5 +209,48 @@ function GetAllProjectFiles2($projectId)
 }
 
 
+function GetAllProjectFiles3($projectId)
+{
+    global $pdo;
+    $sql = 'SELECT latest_version FROM Project WHERE project_id = :project_id';
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':project_id', $projectId, PDO::PARAM_INT);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$result) return [];
+    $projectVersion = $result['latest_version'];
+    
+    $sql = 'SELECT commit_id FROM Project_Commit WHERE project_version = :project_version ORDER BY commit_id DESC LIMIT 1';
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':project_version', $projectVersion, PDO::PARAM_INT);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$result) return [];
+    
+    $commitId = $result['commit_id'];
+    
+    $sql = 'SELECT bucket_file_id FROM commit_file WHERE commit_id = :commit_id';
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':commit_id', $commitId, PDO::PARAM_INT);
+    $stmt->execute();
+    $committedFileList = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (empty($committedFileList)) return [];
+    
+    $sql = 'SELECT pf.project_file_id, pf.file_name, bf.object_id, bf.object_key FROM Bucket_File bf JOIN Project_File pf ON pf.project_file_id = bf.project_file_id WHERE bf.bucket_file_id = :bucket_file_id';
+    $stmt = $pdo->prepare($sql);
+    $bucketFileList = [];
+    
+    foreach ($committedFileList as $bucketFile) {
+        $stmt->bindParam(':bucket_file_id', $bucketFile['bucket_file_id'], PDO::PARAM_INT);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($result) {
+            $bucketFileList[] = $result;
+        }
+    }
+    
+    return $bucketFileList;
+}
 
 ?>

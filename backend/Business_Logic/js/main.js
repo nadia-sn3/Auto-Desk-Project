@@ -161,7 +161,8 @@ Autodesk.Viewing.Initializer(options, () => {
                 console.log('Download link displayed:', fileDownloadPath);
                 }
                 
-                }else if (fileType === 'video' || fileType === 'mp4' || fileType === 'webm' || fileType === 'ogg') {
+            }
+            else if (fileType === 'video' || fileType === 'mp4' || fileType === 'webm' || fileType === 'ogg') {
                 const videoPath = `http://localhost/Auto-Desk-Project/backend/Business_Logic/Function/download.php?file=${encodeURIComponent(decodeURIComponent(fileName))}`;
                 imageContainer.innerHTML = '';
                 const videoElement = document.createElement('video');
