@@ -9,6 +9,11 @@ require_once 'backend/Business_Logic/Function/upload-projectfile.php';
 require_once 'backend/Business_Logic/Function/upload.php';
 require_once 'db/connection.php';
 
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // Database operations
 try {
     $project_id = $_GET['project_id'] ?? null;
@@ -21,11 +26,41 @@ try {
     $stmt->execute();
     $project = $stmt->fetch(PDO::FETCH_ASSOC);
     $files = GetAllProjectFiles2($project_id);
+    
+    // Get current user's role for this project
+    $current_user_id = $_SESSION['user_id'] ?? null;
+    $user_role = null;
+    $user_permissions = [];
+    
+    if ($current_user_id) {
+        $sql = "SELECT pr.role_name, pr.permissions 
+                FROM project_members pm
+                JOIN project_roles pr ON pm.project_role_id = pr.project_role_id
+                WHERE pm.project_id = :project_id AND pm.user_id = :user_id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':project_id', $project_id, PDO::PARAM_INT);
+        $stmt->bindValue(':user_id', $current_user_id, PDO::PARAM_INT);
+        $stmt->execute();
+        $role = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($role) {
+            $user_role = $role['role_name'];
+            $user_permissions = json_decode($role['permissions'], true) ?? [];
+        }
+    }
+    
     $pdo = null;
     $object_key = $_GET['object_key'] ?? null;
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage();
 }
+
+// Determine which buttons to show
+$show_collaborators = true; // Always visible
+$show_commit_button = in_array($user_role, ['Project Admin', 'Project Manager', 'Project Editor']);
+$show_manage_project = in_array($user_role, ['Project Admin', 'Project Manager']);
+$show_rollback = in_array($user_role, ['Project Admin', 'Project Manager']);
+$show_raise_issue = !in_array($user_role, ['Project Contractor']); // Everyone but contractors can raise issues
 
 // Helper function for file preview icons
 function getPreviewIcon($fileName) {
@@ -72,6 +107,7 @@ $access_token = getAccessToken($client_id, $client_secret);
     <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
     <script>
         const accessToken = "<?php echo $access_token; ?>";  // Echo the PHP token value into JS
+        const userRole = "<?php echo $user_role; ?>";
     </script>
 </head>
 <body>
@@ -90,21 +126,28 @@ $access_token = getAccessToken($client_id, $client_secret);
             <!-- Navigation Bar -->
             <nav class="project-nav-bar">
                 <ul>
-                    <li><a href="collaborators.php?project_id=<?php echo $project_id; ?>" class="nav-link">Collaborators</a></li>    
-                    <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Create a Commit</a></li>
-                    <li>
-                        <?php if ($is_admin): ?>
+                    <?php if ($show_collaborators): ?>
+                        <li><a href="collaborators.php?project_id=<?php echo $project_id; ?>" class="nav-link">Collaborators</a></li>    
+                    <?php endif; ?>
+                    
+                    <?php if ($show_commit_button): ?>
+                        <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Create a Commit</a></li>
+                    <?php endif; ?>
+                    
+                    <?php if ($show_manage_project): ?>
+                        <li>
                             <div class="dropdown">
                                 <a href="javascript:void(0);" class="nav-link dropdown-toggle">Manage Project</a>
                                 <div class="dropdown-content">
                                     <a href="#" id="archiveProject">Archive Project</a>
                                     <a href="#" id="deleteProject">Delete Project</a>
+                                    <?php if ($show_rollback): ?>
+                                        <a href="#" id="rollbackOption">Rollback Version</a>
+                                    <?php endif; ?>
                                 </div>
                             </div>
-                        <?php else: ?>
-                            <a href="javascript:void(0);" class="nav-link">Manage Project</a>
-                        <?php endif; ?>
-                    </li>
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </nav>
 
@@ -155,7 +198,6 @@ $access_token = getAccessToken($client_id, $client_secret);
             </div>
 
             <!-- Main Viewer Section -->
-             
             <div class="viewer-container">
                 <div id="forgeViewer"></div>
                 <div id="viewables_dropdown" style="display: none;">
@@ -280,6 +322,10 @@ $access_token = getAccessToken($client_id, $client_secret);
                             <label for="share-role">Role</label>
                             <select id="share-role" name="share-role">
                                 <option value="viewer">Viewer</option>
+                                <?php if ($show_manage_project): ?>
+                                    <option value="editor">Editor</option>
+                                    <option value="manager">Manager</option>
+                                <?php endif; ?>
                             </select>
                         </div>
                         <div class="form-group">
@@ -324,6 +370,23 @@ $access_token = getAccessToken($client_id, $client_secret);
                 </ul>
             `;
         }
+
+        // Hide buttons based on user role
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide rollback buttons if user doesn't have permission
+            if (userRole !== 'Project Admin' && userRole !== 'Project Manager') {
+                document.querySelectorAll('.rollback-btn').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+            }
+            
+            // Hide raise issue buttons for contractors
+            if (userRole === 'Project Contractor') {
+                document.querySelectorAll('.raise-issue-btn').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+            }
+        });
     </script>
 
     <!-- Upload Handling -->
@@ -489,14 +552,6 @@ $access_token = getAccessToken($client_id, $client_secret);
                     badge.textContent = newStatus.replace('_', ' ');
                     
                     if (newStatus === 'open') {
-                        badge.classList.add('pending');
-                    } else if (newStatus === 'in_progress') {
-                        badge.classList.add('in-progress');
-                    } else if (newStatus === 'resolved') {
-                        badge.classList.add('resolved');
-                    }
-                    
-                    if (newStatus === 'open') {
                         e.target.textContent = 'Mark In Progress';
                         e.target.setAttribute('data-status', 'in_progress');
                     } else if (newStatus === 'in_progress') {
@@ -639,8 +694,10 @@ $access_token = getAccessToken($client_id, $client_secret);
                                             <span class="commit-date">V.${versionNumber}</span>
                                             <span class="commit-date">${new Date(commit.commit_date).toLocaleDateString()}</span>
                                         </span>
-                                        <button class="rollback-btn" onclick="showRollbackModal(${commit.commit_id}, ${project_id})">Rollback</button>
-                                        <button class="raise-issue-btn" data-version="v${commit.commit_id}">Raise Issue</button>
+                                        ${userRole === 'Project Admin' || userRole === 'Project Manager' ? 
+                                            `<button class="rollback-btn" onclick="showRollbackModal(${commit.commit_id}, ${project_id})">Rollback</button>` : ''}
+                                        ${userRole !== 'Project Contractor' ? 
+                                            `<button class="raise-issue-btn" data-version="v${commit.commit_id}">Raise Issue</button>` : ''}
                                     </div>
                                     
                                     ${hasIssues ? `
