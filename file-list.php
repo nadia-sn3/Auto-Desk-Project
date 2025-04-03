@@ -73,7 +73,7 @@ $access_token = getAccessToken($client_id, $client_secret);
             <div class="project-container">
                 <div class="project-header">
                     <div class="project-title">
-                    <h2>Project: <?php echo htmlspecialchars($project['project_name']); ?></h2>
+                    <h2><?php echo htmlspecialchars($project['project_name']); ?></h2>
                         <p><?php echo htmlspecialchars($project['description']); ?></p>
                     </div>
                 </div>
