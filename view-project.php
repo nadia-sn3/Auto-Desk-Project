@@ -99,11 +99,7 @@
                                 <a href="javascript:void(0);" class="nav-link dropdown-toggle">Manage Project</a>
                                 <div class="dropdown-content">
                                     <?php if ($is_admin): ?>
-                                        <a href="#" id="archiveProject">Archive Project</a>
                                         <a href="#" id="deleteProject">Delete Project</a>
-                                    <?php endif; ?>
-                                    <?php if ($is_admin || $is_manager): ?>
-                                        <a href="#" id="editProject">Edit Project</a>
                                     <?php endif; ?>
                                 </div>
                             </div>
