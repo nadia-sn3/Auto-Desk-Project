@@ -408,29 +408,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_member'])) {
                 </div>
             </section>
 
-            <section id="projects" class="org-section">
-                <h2>Recent Projects</h2>
-                <div class="preview-projects">
-                    <?php if (!empty($projects)): ?>
-                        <?php foreach ($projects as $project): ?>
-                            <div class="project-card">
-                                <h3><?= htmlspecialchars($project['project_name']) ?></h3>
-                                <p><?= htmlspecialchars($project['description']) ?></p>
-                                <div class="project-meta">
-                                    <span>Created: <?= date('M j, Y', strtotime($project['created_at'])) ?></span>
-                                    <span>Members: <?= $project['member_count'] ?></span>
-                                </div>
-                                <a href="project.php?id=<?= $project['project_id'] ?>" class="btn-small">View Project</a>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <p>No projects yet. <a href="create-project.php">Create your first project</a></p>
-                    <?php endif; ?>
-                </div>
-                <div class="view-all">
-                    <a href="org-projects.php" class="btn-secondary">View All Projects</a>
-                </div>
-            </section>
         </main>
     </div>
 
