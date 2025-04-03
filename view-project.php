@@ -63,14 +63,14 @@
 
     <div class="page-container">
         <div class="project-container">
-            <div class="project-header">
-                <div class="project-title">
-                    <h2>Project: <?php echo htmlspecialchars($project['project_name']); ?></h2>
-                    <p><?php echo htmlspecialchars($project['description']); ?></p>
+        <div class="project-header">
+                    <div class="project-title">
+                    <h2><?php echo htmlspecialchars($project['project_name']); ?></h2>
+                        <p><?php echo htmlspecialchars($project['description']); ?></p>
+                    </div>
                 </div>
-            </div>
 
-            <nav class="project-nav-bar">
+                <nav class="project-nav-bar">
                 <ul>
                     <li><a href="collaborators.php?project_id=<?php echo $project_id; ?>" class="nav-link">Collaborators</a></li>    
                     <li><a href="javascript:void(0);" id="uploadBtn" class="nav-link">Create a Commit</a></li>
