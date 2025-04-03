@@ -58,7 +58,7 @@ try {
 // Determine which buttons to show
 $show_collaborators = true; // Always visible
 $show_commit_button = in_array($user_role, ['Project Admin', 'Project Manager', 'Project Editor']);
-$show_manage_project = in_array($user_role, ['Project Admin', 'Project Manager']);
+$show_manage_project = in_array($user_role, ['Project Admin']);
 $show_rollback = in_array($user_role, ['Project Admin', 'Project Manager']);
 $show_raise_issue = true;
 
@@ -138,11 +138,7 @@ $access_token = getAccessToken($client_id, $client_secret);
                             <div class="dropdown">
                                 <a href="javascript:void(0);" class="nav-link dropdown-toggle">Manage Project</a>
                                 <div class="dropdown-content">
-                                    <a href="#" id="archiveProject">Archive Project</a>
                                     <a href="#" id="deleteProject">Delete Project</a>
-                                    <?php if ($show_rollback): ?>
-                                        <a href="#" id="rollbackOption">Rollback Version</a>
-                                    <?php endif; ?>
                                 </div>
                             </div>
                         </li>
@@ -435,13 +431,62 @@ $access_token = getAccessToken($client_id, $client_secret);
         });
     </script>
 
+    <!-- Deleting Project Handling -->
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteProjectBtn = document.getElementById('deleteProject');
+            
+            if (deleteProjectBtn) {
+                deleteProjectBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const projectId = new URLSearchParams(window.location.search).get('project_id');
+                    if (!projectId || isNaN(projectId)) {
+                        alert('Invalid project ID');
+                        return;
+                    }
+                    
+                    if (confirm('Are you sure you want to permanently delete this project? This cannot be undone.')) {
+                        const originalText = deleteProjectBtn.textContent;
+                        deleteProjectBtn.disabled = true;
+                        deleteProjectBtn.textContent = 'Deleting...';
+                        
+                        fetch(`/Auto-desk-project/backend/Business_Logic/Function/deleteProject.php?project_id=${encodeURIComponent(projectId)}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(err => { throw err; });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.status === 'success') {
+                                alert('Project deleted successfully!');
+                                window.location.href = 'project-home.php';
+                            } else {
+                                throw new Error(data.message || 'Failed to delete project');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Error: ' + error.message);
+                        })
+                        .finally(() => {
+                            deleteProjectBtn.disabled = false;
+                            deleteProjectBtn.textContent = originalText;
+                        });
+                    }
+                });
+            }
+        });
+        </script>
+
     <!-- Commit and Issue Management -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
             const project_id = <?php echo json_encode($project_id); ?>;
             
-            // Show commits when page loads
             if (project_id) {
                 showCommitMessages(project_id);
             } else {

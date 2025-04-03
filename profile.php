@@ -1,2 +1,0 @@
-resetting password
-leaving organisation
