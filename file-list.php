@@ -60,7 +60,7 @@ $show_collaborators = true; // Always visible
 $show_commit_button = in_array($user_role, ['Project Admin', 'Project Manager', 'Project Editor']);
 $show_manage_project = in_array($user_role, ['Project Admin', 'Project Manager']);
 $show_rollback = in_array($user_role, ['Project Admin', 'Project Manager']);
-$show_raise_issue = !in_array($user_role, ['Project Contractor']); // Everyone but contractors can raise issues
+$show_raise_issue = true;
 
 // Helper function for file preview icons
 function getPreviewIcon($fileName) {
@@ -376,12 +376,6 @@ $access_token = getAccessToken($client_id, $client_secret);
                 });
             }
             
-            // Hide raise issue buttons for contractors
-            if (userRole === 'Project Contractor') {
-                document.querySelectorAll('.raise-issue-btn').forEach(btn => {
-                    btn.style.display = 'none';
-                });
-            }
         });
     </script>
 
@@ -692,8 +686,8 @@ $access_token = getAccessToken($client_id, $client_secret);
                                         </span>
                                         ${userRole === 'Project Admin' || userRole === 'Project Manager' ? 
                                             `<button class="rollback-btn" onclick="showRollbackModal(${commit.commit_id}, ${project_id})">Rollback</button>` : ''}
-                                        ${userRole !== 'Project Contractor' ? 
-                                            `<button class="raise-issue-btn" data-version="v${commit.commit_id}">Raise Issue</button>` : ''}
+                                        <button class="raise-issue-btn" data-version="v${commit.commit_id}">Raise Issue</button>
+
                                     </div>
                                     
                                     ${hasIssues ? `
