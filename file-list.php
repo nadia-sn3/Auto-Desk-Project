@@ -12,12 +12,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Database operations
 try {
     $project_id = $_GET['project_id'] ?? null;
     if (!$project_id) {
         die("Project ID missing!");
     }
+
     $sql = "SELECT * FROM Project WHERE project_id = :project_id";
     $stmt = $pdo->prepare($sql);
     $stmt->bindValue(':project_id', $project_id, PDO::PARAM_INT);
@@ -25,7 +25,6 @@ try {
     $project = $stmt->fetch(PDO::FETCH_ASSOC);
     $files = GetAllProjectFiles2($project_id);
     
-    // Get current user's role for this project
     $current_user_id = $_SESSION['user_id'] ?? null;
     $user_role = null;
     $user_permissions = [];
@@ -53,36 +52,24 @@ try {
     echo "Error: " . $e->getMessage();
 }
 
-// Determine which buttons to show
-$show_collaborators = true; // Always visible
+$show_collaborators = true; 
 $show_commit_button = in_array($user_role, ['Project Admin', 'Project Manager', 'Project Editor']);
 $show_manage_project = in_array($user_role, ['Project Admin']);
 $show_rollback = in_array($user_role, ['Project Admin', 'Project Manager']);
 $show_raise_issue = true;
 
-// Helper function for file preview icons
 function getPreviewIcon($fileName) {
     $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
     switch (strtolower($fileExtension)) {
-        case 'pdf':
-            return 'images/pdf.png';
-        case 'dwg':
-            return 'icons/dwg-icon.png';
-        case 'jpg':
-        case 'jpeg':
-        case 'png':
-            return 'images/image.png';
-        case 'obj':
-            return 'images/obj.png';
-        case 'doc':
-        case 'docx':
-            return 'images/word.png';
-        default:
-            return 'icons/default-icon.png';
+        case 'pdf': return 'images/pdf.png';
+        case 'dwg': return 'icons/dwg-icon.png';
+        case 'jpg': case 'jpeg': case 'png': return 'images/image.png';
+        case 'obj': return 'images/obj.png';
+        case 'doc': case 'docx': return 'images/word.png';
+        default: return 'icons/default-icon.png';
     }
 }
 
-// Authentication
 $access_token = getAccessToken($client_id, $client_secret);
 ?>
 
@@ -91,20 +78,19 @@ $access_token = getAccessToken($client_id, $client_secret);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File List</title>
+    <title>Project</title>
     
-    <!-- CSS Files -->
     <link rel="stylesheet" href="style/viewproject.css">
     <link rel="stylesheet" href="style/base.css">
     <link rel="stylesheet" href="style/upload-button.css">
     <link rel="stylesheet" href="style/version+issues.css">
     <link href="https://developer.api.autodesk.com/viewingservice/v1/viewers/style.css" rel="stylesheet">
     
-    <!-- JavaScript Libraries -->
     <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
     <script>
-        const accessToken = "<?php echo $access_token; ?>";  // Echo the PHP token value into JS
+        const accessToken = "<?php echo $access_token; ?>";
         const userRole = "<?php echo $user_role; ?>";
+        const projectId = <?php echo json_encode($project_id); ?>;
     </script>
 </head>
 <body>
@@ -112,15 +98,14 @@ $access_token = getAccessToken($client_id, $client_secret);
 
     <div class="page-container">
         <div class="project-container">
-            <!-- Project Header Section -->
-            <div class="project-header">
+
+        <div class="project-header">
                 <div class="project-title">
                     <h2><?php echo htmlspecialchars($project['project_name']); ?></h2>
                     <p><?php echo htmlspecialchars($project['description']); ?></p>
                 </div>
             </div>
 
-            <!-- Navigation Bar -->
             <nav class="project-nav-bar">
                 <ul>
                     <?php if ($show_collaborators): ?>
@@ -144,7 +129,7 @@ $access_token = getAccessToken($client_id, $client_secret);
                 </ul>
             </nav>
 
-            <!-- File Dropdown Section -->
+            <!-- FILE DROPDOWN SECTION -->
             <div class="file-dropdown-wrapper">
                 <div class="file-dropdown">
                     <button class="dropdown-header">
@@ -176,9 +161,7 @@ $access_token = getAccessToken($client_id, $client_secret);
                                             <polyline points="14 2 14 8 20 8"/>
                                         </svg>
                                         
-                                        <span>
-                                            <?= htmlspecialchars($file['file_name']); ?>
-                                        </span>
+                                        <span><?= htmlspecialchars($file['file_name']); ?></span>
                                     </a>
                                 </li>
                                 <?php endforeach; ?>
@@ -190,7 +173,7 @@ $access_token = getAccessToken($client_id, $client_secret);
                 </div>
             </div>
 
-            <!-- Main Viewer Section -->
+            <!-- MAIN VIEWER SECTION -->
             <div class="viewer-container">
                 <div id="forgeViewer"></div>
                 <div id="viewables_dropdown" style="display: none;">
@@ -199,7 +182,7 @@ $access_token = getAccessToken($client_id, $client_secret);
                 <div id="imageContainer"></div>     
             </div>  
 
-            <!-- Project Model Section -->
+            <!-- PROJECT MODEL SECTION -->
             <?php if(!empty($files)): ?>
                 <div class="project-model">
                     <!-- Model Action Buttons -->
@@ -232,7 +215,7 @@ $access_token = getAccessToken($client_id, $client_secret);
                         <!-- Rollback Modal -->
                         <div id="rollbackModal" class="modal">
                             <div class="modal-content">
-                                <span class="close">&times;</span>
+                                <span class="close close-rollback">&times;</span>
                                 <h2>Rollback to this version?</h2>
                                 <form id="rollbackForm">
                                     <div class="form-group">
@@ -251,20 +234,28 @@ $access_token = getAccessToken($client_id, $client_secret);
                     </div>
                 </div>
 
-                <!-- Issue Modal -->
+               <!-- ISSUE MODAL -->
                 <div id="issueModal" class="modal">
                     <div class="modal-content">
-                        <span class="close">&times;</span>
+                        <span class="close close-issue">&times;</span>
                         <h2>Raise New Issue</h2>
                         <form id="issueForm">
-                            <input type="hidden" id="versionId">
+                            <input type="hidden" id="issueVersionId" name="version_id">
+                            <input type="hidden" id="issueProjectId" name="project_id" value="<?php echo $project_id; ?>">
                             <div class="form-group">
-                                <label for="issueFile">File:</label>
-                                <input type="text" id="issueFile" required>
+                                <label for="issueFileSelect">Select File:</label>
+                                <select id="issueFileSelect" name="file_name" required>
+                                    <option value="">-- Select a file --</option>
+                                    <?php foreach ($files as $file): ?>
+                                        <option value="<?= htmlspecialchars($file['file_name']) ?>">
+                                            <?= htmlspecialchars($file['file_name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label for="issueDescription">Issue Description:</label>
-                                <textarea id="issueDescription" required></textarea>
+                                <textarea id="issueDescription" name="description" required></textarea>
                             </div>
                             <button type="submit" class="submit-btn">Submit Issue</button>
                         </form>
@@ -274,11 +265,11 @@ $access_token = getAccessToken($client_id, $client_secret);
                 <p>No files available for this project.</p>
             <?php endif; ?>
 
-            <!-- Upload Modal -->
+            <!-- UPLOAD MODAL -->
             <form method="POST" enctype="multipart/form-data" id="upload-form"> 
                 <div id="uploadModal" class="modal">
                     <div class="modal-content">
-                        <span class="close">&times;</span>
+                        <span class="close close-upload">&times;</span>
                         <h2>Upload Files</h2>
                         <div class="upload-area" id="dropArea">
                             <p>Drag & Drop files here</p>
@@ -289,7 +280,7 @@ $access_token = getAccessToken($client_id, $client_secret);
                         <div id="fileList"></div>
                         <div id="commitMessageContainer" style="display: none;">
                             <label for="commitMessage">Commit Message:</label>
-                            <input type="text" id="commitMessage" name= "commitMessage" placeholder="Enter commit message" required>
+                            <input type="text" id="commitMessage" name="commitMessage" placeholder="Enter commit message" required>
                         </div>
                         <button type="submit" class="browse-btn">Upload</button>
                     </div>
@@ -298,235 +289,249 @@ $access_token = getAccessToken($client_id, $client_secret);
         </div>
     </div>
 
-    <!-- JavaScript Section -->
     <script src="backend/Business_Logic/js/main.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-    <script src="js/issues-dropdown.js"></script>
     <script src="js/file-list-dropdown.js"></script>
 
-    <!-- Event Handlers -->
     <script>
-        document.getElementById('menuBtn').addEventListener('click', function() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active');
+    // MODAL HANDLING
+    document.addEventListener("DOMContentLoaded", function () {
+        const uploadModal = document.getElementById("uploadModal");
+        const issueModal = document.getElementById("issueModal");
+        const rollbackModal = document.getElementById("rollbackModal");
+        
+        const closeUpload = document.querySelector(".close-upload");
+        const closeIssue = document.querySelector(".close-issue");
+        const closeRollback = document.querySelector(".close-rollback");
+        
+        const uploadBtn = document.getElementById("uploadBtn");
+        if (uploadBtn) {
+            uploadBtn.addEventListener("click", function () {
+                uploadModal.style.display = "block";
+                document.getElementById("commitMessageContainer").style.display = "block";
+            });
+        }
+        
+        if (closeUpload) {
+            closeUpload.addEventListener("click", function () {
+                uploadModal.style.display = "none";
+            });
+        }
+        
+        if (closeIssue) {
+            closeIssue.addEventListener("click", function () {
+                issueModal.style.display = "none";
+            });
+        }
+        
+        if (closeRollback) {
+            closeRollback.addEventListener("click", function () {
+                rollbackModal.style.display = "none";
+            });
+        }
+        
+        window.addEventListener("click", function (event) {
+            if (event.target === uploadModal) {
+                uploadModal.style.display = "none";
+            }
+            if (event.target === issueModal) {
+                issueModal.style.display = "none";
+            }
+            if (event.target === rollbackModal) {
+                rollbackModal.style.display = "none";
+            }
         });
         
-        function showFileDetails(event) {
-            event.preventDefault(); 
-            const fileLink = event.currentTarget;  
-            const fileName = fileLink.getAttribute('data-file-name');
-            const fileType = fileLink.getAttribute('data-file-type');
-            const createdBy = fileLink.getAttribute('data-created-by');
-            const projectModelData = document.querySelector('.project-model-data');
-            
-            projectModelData.innerHTML = `
-                <h3>Model Details</h3>
-                <ul>
-                    <li><strong>File Name:</strong> ${decodeURIComponent(fileName)}</li>
-                    <li><strong>File Type:</strong> ${fileType.toUpperCase()}</li>
-                    <li><strong>Created By:</strong> ${createdBy}</li>
-                </ul>
-            `;
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                uploadModal.style.display = 'none';
+                issueModal.style.display = 'none';
+                rollbackModal.style.display = 'none';
+            }
+        });
+    });
+
+    // FILE DETAILS DISPLAY
+    function showFileDetails(event) {
+        event.preventDefault(); 
+        const fileLink = event.currentTarget;  
+        const fileName = fileLink.getAttribute('data-file-name');
+        const fileType = fileLink.getAttribute('data-file-type');
+        const createdBy = fileLink.getAttribute('data-created-by');
+        const projectModelData = document.querySelector('.project-model-data');
+        
+        projectModelData.innerHTML = `
+            <h3>Model Details</h3>
+            <ul>
+                <li><strong>File Name:</strong> ${decodeURIComponent(fileName)}</li>
+                <li><strong>File Type:</strong> ${fileType.toUpperCase()}</li>
+                <li><strong>Created By:</strong> ${createdBy}</li>
+            </ul>
+        `;
+    }
+
+    // PERMISSION CONTROL
+    document.addEventListener('DOMContentLoaded', function() {
+        if (userRole !== 'Project Admin' && userRole !== 'Project Manager') {
+            document.querySelectorAll('.rollback-btn').forEach(btn => {
+                btn.style.display = 'none';
+            });
         }
+        if (projectId) showCommitMessages(projectId);
+    });
 
-        // Hide buttons based on user role
-        document.addEventListener('DOMContentLoaded', function() {
-            // Hide rollback buttons if user doesn't have permission
-            if (userRole !== 'Project Admin' && userRole !== 'Project Manager') {
-                document.querySelectorAll('.rollback-btn').forEach(btn => {
-                    btn.style.display = 'none';
-                });
-            }
-            
-        });
-    </script>
-
-    <!-- Upload Handling -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const dropAreaLarge = document.getElementById('dropAreaLarge');
-            const fileInputLarge = document.getElementById('fileInputLarge');
-            
-            if (dropAreaLarge && fileInputLarge) {
-                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                    dropAreaLarge.addEventListener(eventName, preventDefaults, false);
-                });
-                
-                ['dragenter', 'dragover'].forEach(eventName => {
-                    dropAreaLarge.addEventListener(eventName, highlight, false);
-                });
-                
-                ['dragleave', 'drop'].forEach(eventName => {
-                    dropAreaLarge.addEventListener(eventName, unhighlight, false);
-                });
-                
-                dropAreaLarge.addEventListener('drop', handleDrop, false);
-                
-                fileInputLarge.addEventListener('change', function(e) {
-                    handleFiles(e.target.files);
-                });
-            }
-            
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            function highlight() {
-                dropAreaLarge.classList.add('highlight');
-            }
-            
-            function unhighlight() {
-                dropAreaLarge.classList.remove('highlight');
-            }
-            
-            function handleDrop(e) {
-                const dt = e.dataTransfer;
-                const files = dt.files;
-                handleFiles(files);
-            }
-            
-            function handleFiles(files) {
-                if (files.length > 0) {
-                    document.getElementById('uploadModal').style.display = 'block';
-                    document.getElementById('file-upload').files = files;
-                    document.getElementById('commitMessageContainer').style.display = 'block';
-                    document.querySelector('#upload-form button[type="submit"]').style.display = 'block';
-                    const event = new Event('change');
-                    document.getElementById('file-upload').dispatchEvent(event);
+    // Function to show commit messages with issues
+    function showCommitMessages(project_id) {
+        fetch(`/Auto-desk-project/backend/Business_Logic/Function/Get_All_Commits.php?project_id=${project_id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
                 }
-            }
-        });
-    </script>
 
-    <!-- Modal Handling -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const uploadBtn = document.getElementById("uploadBtn");
-            const uploadModal = document.getElementById("uploadModal");
-            const commitMessageContainer = document.getElementById("commitMessageContainer");
-            const closeModal = document.querySelector(".close");
-
-            if (uploadBtn) {
-                uploadBtn.addEventListener("click", function () {
-                    uploadModal.style.display = "block"; 
-                    commitMessageContainer.style.display = "block";  
-                });
-            }
-
-            if (closeModal) {
-                closeModal.addEventListener("click", function () {
-                    uploadModal.style.display = "none"; 
-                });
-            }
-
-            window.addEventListener("click", function (event) {
-                if (event.target === uploadModal) {
-                    uploadModal.style.display = "none"; 
-                }
-            });
-        });
-    </script>
-
-    <!-- Deleting Project Handling -->
-    <script>
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteProjectBtn = document.getElementById('deleteProject');
-            
-            if (deleteProjectBtn) {
-                deleteProjectBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
+                const commitDetails = document.getElementById('commitDetails');
+                commitDetails.innerHTML = '';
+                
+                if (Array.isArray(data) && data.length > 0) {
+                    const sortedCommits = [...data].sort((a, b) => 
+                        new Date(b.commit_date) - new Date(a.commit_date)
+                    );
                     
-                    const projectId = new URLSearchParams(window.location.search).get('project_id');
-                    if (!projectId || isNaN(projectId)) {
-                        alert('Invalid project ID');
-                        return;
-                    }
-                    
-                    if (confirm('Are you sure you want to permanently delete this project? This cannot be undone.')) {
-                        const originalText = deleteProjectBtn.textContent;
-                        deleteProjectBtn.disabled = true;
-                        deleteProjectBtn.textContent = 'Deleting...';
+                    sortedCommits.forEach((commit, index) => {
+                        const versionId = `version-${commit.commit_id}`;
+                        const hasIssues = commit.issues && commit.issues.length > 0;
+                        const versionNumber = sortedCommits.length - index; 
+                        const isLatestCommit = index === 0;
                         
-                        fetch(`/Auto-desk-project/backend/Business_Logic/Function/deleteProject.php?project_id=${encodeURIComponent(projectId)}`)
-                        .then(response => {
-                            if (!response.ok) {
-                                return response.json().then(err => { throw err; });
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.status === 'success') {
-                                alert('Project deleted successfully!');
-                                window.location.href = 'project-home.php';
-                            } else {
-                                throw new Error(data.message || 'Failed to delete project');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Error: ' + error.message);
-                        })
-                        .finally(() => {
-                            deleteProjectBtn.disabled = false;
-                            deleteProjectBtn.textContent = originalText;
+                        const commitElement = document.createElement('div');
+                        commitElement.classList.add('project-model-timeline-versions');
+                        
+                        commitElement.innerHTML = `
+                            <div class="timeline-version">
+                                ${hasIssues ? 
+                                    `<div class="version-warning-indicator">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ff6b6b" width="18px" height="18px">
+                                            <path d="M12 2L1 21h22L12 2zm0 3.5L18.5 19h-13L12 5.5z"/>
+                                            <path d="M12 16c.8 0 1.5-.7 1.5-1.5S12.8 13 12 13s-1.5.7-1.5 1.5.7 1.5 1.5 1.5zm-1-5h2v-4h-2v4z"/>
+                                        </svg>
+                                    </div>` : 
+                                    `<div class="version-no-issues">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#4CAF50" width="18px" height="18px">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                    </div>`
+                                }
+                                <span class="commit-message">${commit.commit_message}</span>
+                                <span class="commit-info">
+                                    <span class="commit-date">V.${versionNumber}</span>
+                                    <span class="commit-date">${new Date(commit.commit_date).toLocaleDateString()}</span>
+                                </span>
+                                ${(userRole === 'Project Admin' || userRole === 'Project Manager') && !isLatestCommit ? 
+                                    `<button class="rollback-btn" onclick="showRollbackModal(${commit.commit_id}, ${project_id})">Rollback</button>` : ''}
+                                <button class="raise-issue-btn" data-version="${commit.commit_id}">Raise Issue</button>
+                            </div>
+                            
+                            ${hasIssues ? `
+                            <div class="issues-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>File</th>
+                                            <th>Description</th>
+                                            <th>Status</th>
+                                            <th>Raised By</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${commit.issues.map(issue => `
+                                        <tr class="${issue.status}">
+                                            <td>${issue.file}</td>
+                                            <td>${issue.description}</td>
+                                            <td><span class="status-badge ${issue.status}">${issue.status.replace('_', ' ')}</span></td>
+                                            <td>${issue.raised_by}</td>
+                                            <td>${new Date(issue.date).toLocaleDateString()}</td>
+                                            <td class="actions">
+                                                <button class="btn small change-status" data-issue="${issue.id}" data-status="${issue.status === 'open' ? 'in_progress' : issue.status === 'in_progress' ? 'resolved' : 'open'}">
+                                                    ${issue.status === 'open' ? 'Mark In Progress' : issue.status === 'in_progress' ? 'Mark Resolved' : 'Reopen'}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            ` : ''}
+                        `;
+                        
+                        commitDetails.appendChild(commitElement);
+                    });
+                    
+                    initIssueStatusChange();
+                    
+                    document.querySelectorAll('.raise-issue-btn').forEach(btn => {
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const versionId = this.getAttribute('data-version');
+                            document.getElementById('issueVersionId').value = versionId;
+                            document.getElementById('issueModal').style.display = 'block';
                         });
-                    }
-                });
+                    });
+                } else {
+                    commitDetails.innerHTML = '<p>No commits found for this project.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching commits:', error);
+                alert('An error occurred while fetching commits.');
+            });
+    }
+
+    function initIssueStatusChange() {
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('change-status')) {
+                const issueId = e.target.getAttribute('data-issue');
+                const newStatus = e.target.getAttribute('data-status');
+                
+                const row = e.target.closest('tr');
+                row.className = newStatus;
+                
+                const badge = row.querySelector('.status-badge');
+                badge.className = 'status-badge ' + newStatus;
+                badge.textContent = newStatus.replace('_', ' ');
+                
+                if (newStatus === 'open') {
+                    e.target.textContent = 'Mark In Progress';
+                    e.target.setAttribute('data-status', 'in_progress');
+                } else if (newStatus === 'in_progress') {
+                    e.target.textContent = 'Mark Resolved';
+                    e.target.setAttribute('data-status', 'resolved');
+                } else if (newStatus === 'resolved') {
+                    e.target.textContent = 'Reopen';
+                    e.target.setAttribute('data-status', 'open');
+                }
+                
+                updateIssueStatus(issueId, newStatus);
             }
         });
-        </script>
 
-    <!-- Commit and Issue Management -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-
-            const project_id = <?php echo json_encode($project_id); ?>;
-            
-            if (project_id) {
-                showCommitMessages(project_id);
-            } else {
-                console.error('Project ID is missing');
-            }
-
-            // Toggle issues dropdown
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('version-warning-indicator')) {
-                    e.stopPropagation();
-                    const dropdownId = e.target.getAttribute('data-issues');
-                    const dropdown = document.getElementById(dropdownId);
-                    
-                    // Close all other dropdowns
-                    document.querySelectorAll('.issues-dropdown-content').forEach(d => {
-                        if (d.id !== dropdownId) d.style.display = 'none';
-                    });
-                    
-                    // Toggle current dropdown
-                    if (dropdown.style.display === 'block') {
-                        dropdown.style.display = 'none';
-                    } else {
-                        dropdown.style.display = 'block';
-                    }
-                } else {
-                    document.querySelectorAll('.issues-dropdown-content').forEach(d => {
-                        d.style.display = 'none';
-                    });
-                }
-            });
-            
-            // Filter buttons
-            document.querySelectorAll('.report-filters .btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const status = this.getAttribute('data-status');
-                    
-                    document.querySelectorAll('.report-filters .btn').forEach(b => {
-                        b.classList.remove('active');
-                    });
-                    this.classList.add('active');
-                    
-                    document.querySelectorAll('.issues-dropdown-content tr').forEach(row => {
+        document.querySelectorAll('.report-filters .btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const status = this.getAttribute('data-status');
+                
+                document.querySelectorAll('.report-filters .btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                document.querySelectorAll('.issues-container').forEach(container => {
+                    const rows = container.querySelectorAll('tr');
+                    rows.forEach(row => {
+                        if (row.tagName === 'THEAD') return;
+                        
                         if (status === 'all') {
                             row.style.display = '';
                         } else if (row.classList.contains(status)) {
@@ -537,217 +542,216 @@ $access_token = getAccessToken($client_id, $client_secret);
                     });
                 });
             });
-            
-            // Issue status change buttons
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('change-status')) {
-                    const issueId = e.target.getAttribute('data-issue');
-                    const newStatus = e.target.getAttribute('data-status');
-                    
-                    console.log(`Changing issue ${issueId} to status ${newStatus}`);
-                    
-                    const row = e.target.closest('tr');
-                    row.className = newStatus;
-                    
-                    const badge = row.querySelector('.status-badge');
-                    badge.className = 'status-badge';
-                    badge.textContent = newStatus.replace('_', ' ');
-                    
-                    if (newStatus === 'open') {
-                        e.target.textContent = 'Mark In Progress';
-                        e.target.setAttribute('data-status', 'in_progress');
-                    } else if (newStatus === 'in_progress') {
-                        e.target.textContent = 'Mark Resolved';
-                        e.target.setAttribute('data-status', 'resolved');
-                    } else if (newStatus === 'resolved') {
-                        e.target.textContent = 'Reopen';
-                        e.target.setAttribute('data-status', 'open');
-                    }
-                }
-            });
-            
-            // Modal handling
-            const issueModal = document.getElementById("issueModal");
-            const raiseIssueBtns = document.querySelectorAll(".raise-issue-btn");
-            const closeBtns = document.querySelectorAll(".close");
-            const issueForm = document.getElementById("issueForm");
-            const versionIdInput = document.getElementById("versionId");
-            
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('raise-issue-btn')) {
-                    e.stopPropagation();
-                    versionIdInput.value = e.target.getAttribute('data-version');
-                    issueModal.style.display = "block";
-                }
-                
-                if (e.target.classList.contains('close')) {
-                    issueModal.style.display = "none";
-                }
-                
-                if (e.target === issueModal) {
-                    issueModal.style.display = "none";
-                }
-            });
-            
-            issueForm.addEventListener("submit", function(e) {
-                e.preventDefault();
-                const versionId = versionIdInput.value;
-                const file = document.getElementById("issueFile").value;
-                const description = document.getElementById("issueDescription").value;
-                
-                console.log(`New issue for version ${versionId}: ${file} - ${description}`);
-                
-                alert("Issue submitted successfully!");
-                issueModal.style.display = "none";
-                issueForm.reset();
-            });
-            
-            // Rollback functionality
-            window.showRollbackModal = function(commit_id, project_id) {
-                const rollbackModal = document.getElementById("rollbackModal");
-                const rollbackForm = document.getElementById("rollbackForm");
-                
-                rollbackModal.style.display = "block";
-                
-                rollbackForm.onsubmit = function(e) {
-                    e.preventDefault();
-                    const comment = document.getElementById("rollbackComment").value;
-                    
-                    if (!commit_id || !project_id) {
-                        console.error('Invalid commit_id or project_id');
-                        alert('Invalid commit or project ID.');
-                        return;
-                    }
-                    
-                    const url = `/Auto-desk-project/backend/Business_Logic/Function/Rollback.php?commit_id=${commit_id}&project_id=${project_id}`;
-                    console.log("Rollback URL:", url);
+        });
+    }
 
-                    fetch(url)
-                        .then(response => {
-                            console.log('Network response:', response);
-                            if (!response.ok) {
-                                alert('Network response was not ok');
-                                return;
-                            }
-                            return response.json();  
-                        })
-                        .then(data => {  
-                            console.log('Parsed Data:', data);
-
-                            if (data.status === 'success') {
-                                alert('Rollback successful!');
-                                rollbackModal.style.display = "none";
-                                showCommitMessages(project_id); // Refresh the commit list
-                            } else {
-                                alert('Rollback failed: ' + (data.error || 'Unknown error.'));
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('An error occurred while rolling back the commit.');
-                        });
-                };
+    function updateIssueStatus(issueId, newStatus) {
+        fetch('/Auto-desk-project/backend/Business_Logic/Function/update_issue_status.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                issue_id: issueId,
+                new_status: newStatus
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                console.error('Failed to update issue status:', data.message);
             }
+        })
+        .catch(error => {
+            console.error('Error updating issue status:', error);
+        });
+    }
+
+    document.getElementById('issueForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const selectedFile = document.getElementById('issueFileSelect').value;
+        if (!selectedFile) {
+            alert('Please select a file');
+            return;
+        }
+        
+        const formData = new FormData(this);
+        formData.append('raised_by', '<?php echo $_SESSION["user_id"] ?? ""; ?>');
+        
+        fetch('/Auto-desk-project/backend/Business_Logic/Function/save_issue.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Issue submitted successfully!');
+                document.getElementById('issueModal').style.display = 'none';
+                document.getElementById('issueForm').reset();
+                showCommitMessages(projectId);
+            } else {
+                throw new Error(data.message || 'Failed to submit issue');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error submitting issue: ' + error.message);
+        });
+    });
+
+    // FILE UPLOAD HANDLING
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropAreaLarge = document.getElementById('dropAreaLarge');
+        const fileInputLarge = document.getElementById('fileInputLarge');
+        
+        if (dropAreaLarge && fileInputLarge) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropAreaLarge.addEventListener(eventName, preventDefaults, false);
+            });
             
-            // Function to show commit messages with the new UI I made
-            function showCommitMessages(project_id) {
-                fetch(`/Auto-desk-project/backend/Business_Logic/Function/Get_All_Commits.php?project_id=${project_id}`)
-                    .then(response => response.json())
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropAreaLarge.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropAreaLarge.addEventListener(eventName, unhighlight, false);
+            });
+            
+            dropAreaLarge.addEventListener('drop', handleDrop, false);
+            fileInputLarge.addEventListener('change', function(e) {
+                handleFiles(e.target.files);
+            });
+        }
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        function highlight() {
+            dropAreaLarge.classList.add('highlight');
+        }
+        
+        function unhighlight() {
+            dropAreaLarge.classList.remove('highlight');
+        }
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+        
+        function handleFiles(files) {
+            if (files.length > 0) {
+                document.getElementById('uploadModal').style.display = 'block';
+                document.getElementById('file-upload').files = files;
+                document.getElementById('commitMessageContainer').style.display = 'block';
+                document.querySelector('#upload-form button[type="submit"]').style.display = 'block';
+                const event = new Event('change');
+                document.getElementById('file-upload').dispatchEvent(event);
+            }
+        }
+    });
+
+    // DELETE PROJECT
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteProjectBtn = document.getElementById('deleteProject');
+        
+        if (deleteProjectBtn) {
+            deleteProjectBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                if (!projectId || isNaN(projectId)) {
+                    alert('Invalid project ID');
+                    return;
+                }
+                
+                if (confirm('Are you sure you want to permanently delete this project? This cannot be undone.')) {
+                    const originalText = deleteProjectBtn.textContent;
+                    deleteProjectBtn.disabled = true;
+                    deleteProjectBtn.textContent = 'Deleting...';
+                    
+                    fetch(`/Auto-desk-project/backend/Business_Logic/Function/deleteProject.php?project_id=${encodeURIComponent(projectId)}`)
+                    .then(response => {
+                        if (!response.ok) return response.json().then(err => { throw err; });
+                        return response.json();
+                    })
                     .then(data => {
-                        if (data.error) {
-                            alert(data.error);
-                            return;
-                        }
-
-                        const commitDetails = document.getElementById('commitDetails');
-                        commitDetails.innerHTML = '';
-                        
-                        if (Array.isArray(data) && data.length > 0) {
-                            // Sort commits by date (newest first)
-                            const sortedCommits = [...data].sort((a, b) => 
-                                new Date(b.commit_date) - new Date(a.commit_date)
-                            );
-                            
-                            sortedCommits.forEach((commit, index) => {
-                                const versionId = `version-${commit.commit_id}`;
-                                const hasIssues = commit.issues && commit.issues.length > 0;
-                                const versionNumber = sortedCommits.length - index; 
-                                
-                                const commitElement = document.createElement('div');
-                                commitElement.classList.add('project-model-timeline-versions');
-                                
-                                commitElement.innerHTML = `
-                                    <div class="timeline-version">
-                                        ${hasIssues ? 
-                                            `<div class="version-warning-indicator" data-issues="${versionId}">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ff6b6b" width="18px" height="18px">
-                                                    <path d="M12 2L1 21h22L12 2zm0 3.5L18.5 19h-13L12 5.5z"/>
-                                                    <path d="M12 16c.8 0 1.5-.7 1.5-1.5S12.8 13 12 13s-1.5.7-1.5 1.5.7 1.5 1.5 1.5zm-1-5h2v-4h-2v4z"/>
-                                                </svg>
-                                            </div>` : 
-                                            `<div class="version-no-issues">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#4CAF50" width="18px" height="18px">
-                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                                                </svg>
-                                            </div>`
-                                        }
-                                        <span class="commit-message">${commit.commit_message}</span>
-                                        <span class="commit-info">
-                                            <span class="commit-date">V.${versionNumber}</span>
-                                            <span class="commit-date">${new Date(commit.commit_date).toLocaleDateString()}</span>
-                                        </span>
-                                        ${userRole === 'Project Admin' || userRole === 'Project Manager' ? 
-                                            `<button class="rollback-btn" onclick="showRollbackModal(${commit.commit_id}, ${project_id})">Rollback</button>` : ''}
-                                        <button class="raise-issue-btn" data-version="v${commit.commit_id}">Raise Issue</button>
-
-                                    </div>
-                                    
-                                    ${hasIssues ? `
-                                    <div class="issues-dropdown-content" id="${versionId}">
-                                        <table>
-                                            <thead>
-                                                <tr>
-                                                    <th>File</th>
-                                                    <th>Description</th>
-                                                    <th>Status</th>
-                                                    <th>Raised By</th>
-                                                    <th>Date</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                ${commit.issues.map(issue => `
-                                                <tr class="${issue.status}">
-                                                    <td>${issue.file}</td>
-                                                    <td>${issue.description}</td>
-                                                    <td><span class="status-badge ${issue.status}">${issue.status.replace('_', ' ')}</span></td>
-                                                    <td>${issue.raised_by}</td>
-                                                    <td>${new Date(issue.date).toLocaleDateString()}</td>
-                                                    <td class="actions">
-                                                        <button class="btn small change-status" data-issue="i${issue.id}" data-status="${issue.status === 'open' ? 'in_progress' : issue.status === 'in_progress' ? 'resolved' : 'open'}">
-                                                            ${issue.status === 'open' ? 'Mark In Progress' : issue.status === 'in_progress' ? 'Mark Resolved' : 'Reopen'}
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                                `).join('')}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    ` : ''}
-                                `;
-                                
-                                commitDetails.appendChild(commitElement);
-                            });
+                        if (data.status === 'success') {
+                            alert('Project deleted successfully!');
+                            window.location.href = 'project-home.php';
                         } else {
-                            commitDetails.innerHTML = '<p>No commits found for this project.</p>';
+                            throw new Error(data.message || 'Failed to delete project');
                         }
                     })
                     .catch(error => {
-                        console.error('Error fetching commits:', error);
-                        alert('An error occurred while fetching commits.');
+                        console.error('Error:', error);
+                        alert('Error: ' + error.message);
+                    })
+                    .finally(() => {
+                        deleteProjectBtn.disabled = false;
+                        deleteProjectBtn.textContent = originalText;
                     });
+                }
+            });
+        }
+
+        if (projectId) showCommitMessages(projectId);
+    });
+
+    // ROLLBACK FUNCTIONALITY
+    window.showRollbackModal = function(commit_id, project_id) {
+        const rollbackModal = document.getElementById("rollbackModal");
+        const rollbackForm = document.getElementById("rollbackForm");
+        
+        document.getElementById("rollbackComment").value = '';
+        
+        rollbackModal.style.display = "block";
+        
+        rollbackForm.onsubmit = function(e) {
+            e.preventDefault();
+            const comment = document.getElementById("rollbackComment").value;
+            
+            if (!commit_id || !project_id) {
+                console.error('Invalid commit_id or project_id');
+                alert('Invalid commit or project ID.');
+                return;
             }
-        });
+            
+            const url = `/Auto-desk-project/backend/Business_Logic/Function/Rollback.php?commit_id=${commit_id}&project_id=${project_id}`;
+            console.log("Rollback URL:", url);
+
+            fetch(url)
+                .then(response => {
+                    console.log('Network response:', response);
+                    if (!response.ok) {
+                        alert('Network response was not ok');
+                        return;
+                    }
+                    return response.json();  
+                })
+                .then(data => {  
+                    console.log('Parsed Data:', data);
+
+                    if (data.status === 'success') {
+                        alert('Rollback successful!');
+                        rollbackModal.style.display = "none";
+                        showCommitMessages(project_id); 
+                    } else {
+                        alert('Rollback failed: ' + (data.error || 'Unknown error.'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while rolling back the commit.');
+                });
+        };
+    }
     </script>
 
     <?php include('include/footer.php'); ?>

@@ -1,2 +1,7 @@
 # Auto-Desk-Project
-Group Project for an Auto Desk System
+3D Asset Management System for Autodesk.
+
+Admin account:
+
+admin@admin.com
+admin123
